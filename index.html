@@ -4,80 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>21xHR - Drummer Manager Game</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for social media icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #0c0c0c;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
-        }
-        .container {
-            max-width: 810px;
-            width: 100%;
-            text-align: center;
-            background-color: #1a1a1a;
-            border-radius: 1rem;
-            padding: 2.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .neon-text {
-            color: #ffeb00;
-            text-shadow: 0 0 3px #ffeb00, 0 0 7px #ffeb00, 0 0 21px #ffeb00;
-            animation: neon-pulse 2.1s infinite alternate;
-        }
-        @keyframes neon-pulse {
-            from {
-                text-shadow: 0 0 3px #ffeb00, 0 0 7px #ffeb00, 0 0 21px #ffeb00;
-            }
-            to {
-                text-shadow: 0 0 1px #ffeb00, 0 0 2px #ffeb00, 0 0 7px #ffeb00;
-            }
-        }
-        .link-button {
-            display: inline-block;
-            padding: 0.75rem 2rem;
-            margin: 0.5rem;
-            background-color: #ffeb00;
-            color: black;
-            font-weight: bold;
-            text-decoration: none;
-            border-radius: 9999px;
-            transition: all 0.3s ease;
-        }
-        .link-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="p-3 sm:p-8 flex flex-col items-center justify-center min-h-screen">
     <div class="container">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 neon-text">
-            Welcome to the 21xHR Project!
+        <!-- Main Title -->
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 neon-text dm-sans">
+            DRUMMER MANAGER
         </h1>
-        <p class="text-lg text-gray-400 mb-8">
-            This is the main hub for the **Drummer Manager Game**.
+
+        <!-- Subtitle/Description -->
+        <p class="text-lg text-gray-400 mb-8 roboto">
+            Welcome to the main page.
         </p>
 
-        <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-4">
+        <!-- Navigation Links -->
+        <div class="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
             <!-- Link to the donation page -->
-            <a href="donation/index.html" class="link-button">
+            <a href="https://21xhr.github.io/drummer-manager/donation" class="link-button">
                 Support the Project
             </a>
             
-            <!-- Future links will go here -->
-            <a href="how-to-play/index.html" class="link-button">
+            <!-- Link to the FAQ page -->
+            <a href="https://21xhr.github.io/drummer-manager/faq/" class="link-button">
                 How to Play
             </a>
-            <a href="faq/index.html" class="link-button">
-                FAQ
+
+            <!-- Link to the Missions tab -->
+            <a href="https://21xhr.github.io/drummer-manager/faq" class="link-button">
+                Missions
+            </a>
+            
+            <!-- Link to the Lumia Bio page -->
+            <a href="https://lumiastream.com/dashboard/bio" target="_blank" class="link-button">
+                Lumia Bio
+            </a>
+        </div>
+    </div>
+    
+    <!-- Social Links Section (from previous versions) -->
+    <div class="fixed-social-links-container py-4 z-50 text-center bg-[#0c0c0c]/90 backdrop-blur-sm flex-shrink-0">
+        <h2 class="dm-sans text-xs md:text-sm text-white font-bold mb-2">Follow 21 Everywhere</h2>
+        <div class="flex justify-center space-x-6 text-xl md:text-2xl">
+            <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Discord" class="social-link">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://www.facebook.com/21xhr" target="_blank" aria-label="Facebook" class="social-link">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://www.instagram.com/21xhr_" target="_blank" aria-label="Instagram" class="social-link">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://www.twitch.tv/21xhr" target="_blank" aria-label="Twitch" class="social-link">
+                <i class="fab fa-twitch"></i>
+            </a>
+            <a href="https://x.com/21xhr" target="_blank" aria-label="X" class="social-link">
+                <i class="fab fa-x-twitter"></i>
+            </a>
+            <a href="https://www.youtube.com/@21xhr" target="_blank" aria-label="YouTube" class="social-link">
+                <i class="fab fa-youtube"></i>
+            </a>
+            <a href="https://21xhr.github.io/drummer-manager/donation" target="_blank" aria-label="Make a Donation" class="social-link">
+                <i class="fa-solid fa-mug-hot"></i>
             </a>
         </div>
     </div>

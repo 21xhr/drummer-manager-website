@@ -6,95 +6,9 @@
     <title>21xHR - Support the Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Roboto:wght@400;700&display=swap');
-
-        :root {
-            --background-color: #0c0c0c;
-            --primary-neon: #ffeb00;
-            --secondary-neon: #ffeb00;
-            --text-color: #f0f0f0;
-            --subtext-color: white;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
-            animation: fadeIn 1.5s ease-in-out;
-        }
-
-        .container {
-            max-width: 810px;
-            width: 100%;
-        }
-
-        .neon-border {
-            border: 2px solid var(--primary-neon);
-            border-radius: 21px;
-            box-shadow: 0 0 3px var(--primary-neon), 0 0 7px var(--primary-neon),0 0 21px var(--primary-neon), 0 0 42px var(--primary-neon);
-            animation: neon-pulse 2s infinite alternate;
-        }
-
-        .header-title {
-            color: var(--primary-neon);
-        }
-
-        .header-subtitle {
-            color: var(--secondary-neon);
-        }
-
-        .main-text {
-            color: var(--subtext-color);
-        }
-
-        .social-link {
-            color: var(--subtext-color);
-            transition: color 0.3s ease, text-shadow 0.3s ease;
-        }
-
-        .social-link:hover {
-            color: var(--primary-neon);
-            text-shadow: 0 0 5px var(--primary-neon);
-        }
-
-        .iframe-container {
-            width: 100%;
-            max-width: 370px;
-            height: 1029px;
-            border-radius: 21px;
-            overflow: hidden;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes neon-pulse {
-            0%, 100% {
-                box-shadow: 0 0 42px var(--primary-neon), 0 0 21px var(--primary-neon), 0 0 7px var(--primary-neon), 0 0 3px var(--primary-neon), 0 0 2.1px var(--primary-neon);
-                border-color: var(--primary-neon);
-            }
-            50% {
-                box-shadow: 0 0 7px var(--primary-neon), 0 0 3px var(--primary-neon), 0 0 2.1px var(--primary-neon);
-                border-color: var(--primary-neon);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="../styles.css">
 </head>
-<body class="bg-gray-900 text-white">
+<body>
     <div class="container mx-auto p-4 md:p-8 rounded-lg">
         <h1 class="font-bold text-3xl md:text-5xl text-center mb-4 md:mb-6 uppercase tracking-wide header-title">
             Become a producer

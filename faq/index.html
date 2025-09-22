@@ -12,147 +12,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-            --background-color: #0c0c0c;
-            --primary-neon: #ffeb00;
-            --text-color: #f0f0f0;
-        }
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            /* Re-added min-height to ensure the body is at least as tall as the viewport */
-            min-height: 100vh;
-            padding: 2rem;
-            animation: fadeIn 1.5s ease-in-out;
-        }
-        .dm-sans {
-            font-family: 'DM Sans', sans-serif;
-        }
-        .roboto {
-            font-family: 'Roboto', sans-serif;
-        }
-        .container {
-            max-width: 960px;
-            width: 100%;
-        }
-        .neon-text {
-            color: var(--primary-neon);
-            text-shadow: 
-                0 0 5px var(--primary-neon),
-                0 0 10px var(--primary-neon),
-                0 0 20px var(--primary-neon);
-            transition: color 0.3s ease, text-shadow 0.3s ease;
-        }
-        .tab-button {
-            position: relative;
-            color: #ccc;
-            transition: color 0.3s ease;
-        }
-        .tab-button.active {
-            color: var(--primary-neon);
-            text-shadow: 0 0 5px var(--primary-neon);
-        }
-        .tab-button.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: var(--primary-neon);
-            box-shadow: 0 0 5px var(--primary-neon), 0 0 10px var(--primary-neon);
-        }
-        .interactive-question-container {
-            max-width: 630px;
-            background-color: #1a1a1a;
-            border: 1px solid var(--primary-neon);
-            box-shadow: 0 0 7px var(--primary-neon);
-            animation: neon-pulse-border 3s ease-in-out infinite alternate;
-        }
-        .interactive-question {
-            color: var(--primary-neon);
-        }
-        .interactive-button {
-            border: 1px solid var(--primary-neon);
-            background-color: #333333;
-            color: var(--primary-neon);
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 0 5px rgba(255, 235, 0, 0.1);
-        }
-        .interactive-button:hover {
-            background-color: var(--primary-neon);
-            color: var(--background-color);
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255, 235, 0, 0.6);
-        }
-        .social-link {
-            color: var(--text-color);
-            transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease;
-        }
-        .social-link:hover {
-            color: var(--primary-neon);
-            text-shadow: 0 0 5px var(--primary-neon);
-            transform: scale(1.1);
-        }
-        .under-construction-box {
-            background-color: #1a1a1a;
-            border: 1px solid var(--primary-neon);
-            box-shadow: 0 0 7px var(--primary-neon);
-            animation: neon-pulse-border 3s ease-in-out infinite alternate;
-        }
-        .arrow-button {
-            border: 1px solid var(--primary-neon);
-            background-color: #333333;
-            color: var(--primary-neon);
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 0 5px rgba(255, 235, 0, 0.1);
-        }
-        .arrow-button:hover {
-            background-color: var(--primary-neon);
-            color: var(--background-color);
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255, 235, 0, 0.6);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes neon-pulse-border {
-            0%, 100% {
-                box-shadow: 0 0 7px var(--primary-neon), 0 0 3px var(--primary-neon);
-                border-color: var(--primary-neon);
-            }
-            50% {
-                box-shadow: 0 0 12px var(--primary-neon), 0 0 5px var(--primary-neon);
-                border-color: var(--primary-neon);
-            }
-        }
-        .custom-list {
-            list-style: none;
-            padding-left: 1rem;
-        }
-        .custom-list li {
-            position: relative;
-            padding-left: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        .custom-list li::before {
-            content: "\25a0";
-            position: absolute;
-            left: 0;
-            top: 0;
-            color: var(--primary-neon);
-            text-shadow: 0 0 3px var(--primary-neon), 0 0 5px var(--primary-neon);
-        }
-    </style>
+    <link rel="stylesheet" href="../styles.css">
 </head>
 <body class="p-3 sm:p-8">
     <!-- Main Title -->
-    <h1 class="dm-sans text-4xl sm:text-5xl font-bold text-center mb-10 tracking-wide neon-text mx-auto w-full max-w-lg">
+    <h1 class="dm-sans text-4xl sm:text-5xl font-bold text-center mb-7 mt-7 tracking-wide neon-text mx-auto w-full max-w-lg">
         HOW TO PLAY
     </h1>
 
@@ -168,10 +32,7 @@
         <div id="faq" class="tab-content">
             <div class="space-y-6">
                 <!-- Interactive FAQ Container -->
-                <div id="interactive-faq" class="interactive-question-container rounded-lg p-6 transition-all duration-300 mx-auto">
-                    <!-- Page Indicator -->
-                    <div id="page-indicator" class="text-xs text-gray-400 text-center mb-4 hidden"></div>
-
+                <div id="interactive-faq" class="interactive-question-container rounded-lg p-6 transition-all duration-300 mx-auto w-full max-w-lg">
                     <div id="question-container" class="mb-4">
                         <!-- Questions will be dynamically added here -->
                     </div>
@@ -181,45 +42,55 @@
                     <div id="buttons-container" class="flex flex-wrap gap-4 hidden">
                         <!-- Buttons will be dynamically added here -->
                     </div>
-                    <div class="flex justify-between mt-4">
-                        <button id="prev-btn" class="arrow-button rounded-full px-4 py-2 text-sm sm:text-base font-semibold" style="display: none;">
-                            <i class="fa-solid fa-arrow-left"></i>
-                        </button>
-                    </div>
+                    
                     <!-- Final Call to Action -->
                     <div id="cta-container" class="hidden text-center mt-8">
                         <h3 class="dm-sans text-base sm:text-lg font-bold text-white mb-4">Ready to Get Involved?</h3>
                         <p class="roboto text-gray-400 mb-6 text-sm sm:text-base">Join our community or support the stream to help shape the future of Drummer Manager!</p>
                         <div class="flex justify-center space-x-6 text-2xl sm:text-3xl">
-                             <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Join Discord" class="social-link">
+                            <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Join Discord" class="social-link">
                                 <i class="fab fa-discord"></i>
-                             </a>
+                            </a>
                             <a href="https://21xhr.github.io/drummer-manager/donation" target="_blank" aria-label="Make a Donation" class="social-link">
                                 <i class="fa-solid fa-mug-hot"></i>
                             </a>
                         </div>
                     </div>
+
+                    <!-- New navigation container for home, back, and page indicator -->
+                    <div id="navigation-container" class="flex justify-between items-center mt-4">
+                         <div class="flex space-x-2">
+                             <a href="https://21xhr.github.io/drummer-manager/" id="home-btn" class="arrow-button rounded-full w-10 h-10 flex items-center justify-center">
+                                 <i class="fa-solid fa-house"></i>
+                             </a>
+                             <button id="prev-btn" class="arrow-button rounded-full w-10 h-10 flex items-center justify-center">
+                                 <i class="fa-solid fa-arrow-left"></i>
+                             </button>
+                         </div>
+                         <div id="page-indicator" class="text-xs text-gray-400 text-center"></div>
+                    </div>
+                    
                 </div>
             </div>
         </div>
 
         <div id="missions" class="tab-content hidden">
-            <div class="under-construction-box rounded-lg p-8 text-center">
+            <div class="under-construction-box rounded-lg p-8 text-center w-full max-w-lg mx-auto">
                 <h3 class="dm-sans text-lg sm:text-xl font-bold text-primary-neon mb-4 tracking-wider">
                     THE FUTURE IS UNDER CONSTRUCTION
                 </h3>
                 <p class="roboto text-neutral-300 mb-6 text-xs sm:text-sm">
-                    We're building the new suggestion system and community missions!
+                    We're building the suggestion system and community missions!
                 </p>
                 <a href="https://discord.gg/av9bpn6Zhp" target="_blank" class="interactive-button rounded-full px-6 py-3 text-sm sm:text-base font-semibold inline-block">
-                    Join Discord Project on GitHub
+                    Join the community
                 </a>
             </div>
         </div>
     </div>
     
     <!-- Social Links Section (Always Visible at the Bottom) -->
-    <div class="fixed bottom-0 left-0 right-0 py-4 z-50 text-center bg-[#0c0c0c]/90 backdrop-blur-sm flex-shrink-0">
+    <div class="fixed-social-links-container py-4 z-50 text-center bg-[#0c0c0c]/90 backdrop-blur-sm flex-shrink-0">
         <h2 class="dm-sans text-xs md:text-sm text-white font-bold mb-2">Follow 21 Everywhere</h2>
         <div class="flex justify-center space-x-6 text-xl md:text-2xl">
             <!-- Discord Icon -->
@@ -260,8 +131,10 @@
             const answerContainer = document.getElementById('answer-container');
             const buttonsContainer = document.getElementById('buttons-container');
             const ctaContainer = document.getElementById('cta-container');
+            const homeBtn = document.getElementById('home-btn');
             const prevBtn = document.getElementById('prev-btn');
             const pageIndicator = document.getElementById('page-indicator');
+            const navigationContainer = document.getElementById('navigation-container');
 
             let currentFaqIndex = 0;
 
@@ -307,7 +180,6 @@
                     buttonsContainer.classList.add('hidden');
                     ctaContainer.classList.remove('hidden');
                     pageIndicator.classList.add('hidden');
-                    prevBtn.style.display = 'block'; // Keep the back button visible
                     return;
                 } else {
                     currentFaqIndex = index;
@@ -318,7 +190,14 @@
                 // Update page indicator
                 pageIndicator.textContent = `${currentFaqIndex + 1} of ${totalFaqs}`;
                 pageIndicator.classList.remove('hidden');
-
+                
+                // Show navigation if not the first page
+                if (currentFaqIndex > 0) {
+                    prevBtn.style.display = 'flex';
+                } else {
+                    prevBtn.style.display = 'none';
+                }
+                
                 questionContainer.innerHTML = `<h3 class="dm-sans text-base sm:text-lg font-bold interactive-question mb-2">${faqItem.question}</h3>`;
                 
                 // Clear the answer container
@@ -350,6 +229,7 @@
                 
                 answerContainer.classList.remove('hidden');
                 buttonsContainer.classList.remove('hidden');
+                navigationContainer.classList.remove('hidden');
                 ctaContainer.classList.add('hidden');
                 questionContainer.classList.remove('hidden');
 
@@ -360,11 +240,9 @@
                 button.onclick = () => displayFAQ(currentFaqIndex + 1);
                 buttonsContainer.appendChild(button);
                 
-                if (currentFaqIndex > 0) {
-                    prevBtn.style.display = 'block';
-                } else {
-                    prevBtn.style.display = 'none';
-                }
+                // Show navigation buttons
+                homeBtn.style.display = 'flex';
+                
             };
             
             tabs.forEach(tab => {
@@ -378,14 +256,13 @@
             });
 
             prevBtn.addEventListener('click', () => {
-                // If we're on the CTA page, we need to go back to the last FAQ item
-                if (ctaContainer.classList.contains('hidden')) {
-                    displayFAQ(currentFaqIndex - 1);
-                } else {
-                    displayFAQ(faqs.length - 1);
-                }
+                displayFAQ(currentFaqIndex - 1);
             });
-
+            
+            homeBtn.addEventListener('click', () => {
+                window.location.href = homeBtn.getAttribute('href');
+            });
+            
             displayFAQ(0);
         });
     </script>
