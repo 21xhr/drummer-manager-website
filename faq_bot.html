@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drummer Manager FAQ Bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+        }
+        .chat-bubble-user {
+            background-color: #2e2e4a;
+            border-radius: 1rem 1rem 0.25rem 1rem;
+            padding: 0.75rem 1rem;
+            max-width: 85%;
+        }
+        .chat-bubble-bot {
+            background-color: #2e2e4a;
+            border-radius: 1rem 1rem 1rem 0.25rem;
+            padding: 0.75rem 1rem;
+            max-width: 85%;
+        }
+        .container-main {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .chat-log {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="bg-[#1a1a2e] text-[#e0e0e0]">
+    <div class="container-main">
+        <div class="p-4 bg-[#2a2a44] shadow-lg flex justify-between items-center">
+            <h1 class="text-xl font-bold">Drummer Manager FAQ Bot</h1>
+            <div class="flex items-center space-x-2">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-sm">Online</span>
+            </div>
+        </div>
+
+        <div id="chat-log" class="chat-log">
+            <!-- Initial bot message -->
+            <div class="flex justify-start mb-4">
+                <div class="chat-bubble-bot">
+                    Hi there! I'm the official Drummer Manager FAQ bot. I can answer your questions about the project. Ask me anything!
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 bg-[#2a2a44] flex items-center shadow-inner-lg">
+            <input type="text" id="user-input" placeholder="Ask a question..."
+                class="flex-grow p-3 rounded-l-full bg-[#1a1a2e] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all">
+            <button id="send-button"
+                class="bg-purple-600 text-white px-6 py-3 rounded-r-full hover:bg-purple-700 transition-colors shadow-md">
+                Send
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        // FIX: Corrected the ID to match the HTML element's ID.
+        const chatLog = document.getElementById('chat-log');
+        
+        // This documentation will be used by the bot to answer questions.
+        const documentation = `
+            Project Overview 
+            Drummer Manager Game - Project Overview
+            🎯 Introduction
+            This document outlines the "Drummer Manager Game," a living, co-authored universe designed as an ever-evolving, community-driven live streaming experience. It combines creativity, support, and long-term engagement, functioning as a playful, strategic space where financial contribution, time, and collaboration are key. The game is structured around "NUMBERS," a loyalty point system empowering all participants to shape the world. Cross-platform cohesion and accessibility are ensured through integration with Lumia Stream, Twitch, Kick, YouTube.
+            Why?  The project aims to involve the community in the entire creative process, contrasting with the often-unseen struggles behind high-level media showcases.
+            🧱 Core Concepts
+            The "Drummer Manager Game" is an innovative, living, and co-authored universe designed as an ever-evolving, community-driven Twitch experience. It uniquely blends creativity, support, and long-term engagement, functioning as a playful, strategic space where financial contribution, time, and collaboration are fundamental.
+            At its heart, the game is structured around "NUMBERS," a dedicated loyalty point system specifically designed to empower all participants in shaping the evolving world. To ensure broad accessibility and cross-platform cohesion, the game seamlessly integrates with various platforms including Discord, Lumia Stream, Kick, Twitch, YouTube.
+            The primary objective of this project is to create an authentic and inclusive space where the community actively shapes the live stream's content and direction.
+            📈 Mechanics and Gamification
+            NUMBERS: This is the core currency of the game.
+                How to Earn:
+                    - Watching the stream (base rate).
+                    - Active participation in chat (increased rate).
+                    - Subscribing, donating, or other financial support (significant boost).
+                    - Specific community milestones and events.
+                How to Use:
+                    - **Voting:** On poll questions to influence the drummer's actions.
+                    - **Upgrades:** Purchasing in-game upgrades for the drummer, such as better gear or new drum patterns.
+                    - **Events:** Triggering special in-stream events.
+            Influence Points: "NUMBERS" are referred to as Influence Points. They represent a participant's impact on the game's evolving universe.
+            Community Goals:
+                - Monetary goals (e.g., reaching a subscription milestone to unlock new drum solos).
+                - Non-monetary goals (e.g., total chat messages, social media engagement).
+            📊 In-stream Visuals & User Interface
+            - **Dynamic Visuals:** The UI will feature neon animated borders with lighting effects.
+            - **HUD:** A heads-up display will show real-time stats for the drummer (e.g., health, thirst, BPM) and community metrics.
+            - **Goal Rotators:** Displaying the current community goals and progress bars.
+            - **Event Rotators:** Highlighting upcoming or in-progress special events.
+            - **QR Codes:** On-screen QR codes will link to resources like the community suggestions list, game statistics, and detailed FAQs.
+            - **Stream Overlays:** Designed with a Las Vegas "dynamic" feel, using a minimalist aesthetic with good font readability (Futura, Helvetica, Roboto).
+            - **Chat Overlays:** Used to show live chat. Social Stream Ninja will be used.
+            - **Stinger Transition:** A visual effect to transition between scenes.
+            💻 Technical Setup
+            - **Streaming Software:** OBS Studio with Aitum Multistream.
+            - **Platforms:** Twitch, YouTube, Kick (with plans for TikTok, Trovo).
+            - **Cameras:** GoPro HERO 8 (main), GoPro HERO 7 (secondary).
+            - **Audio:** Audient iD4 mkii interface with Yamaha HS7s monitors.
+            - **Drums:** Roland VAD 506 electronic drum kit.
+            - **Sound Treatment:** The kit is on an isolated platform to minimize noise.
+            - **Internet:** High-speed connection (376.8 Mbps download, 279.6 Mbps upload).
+            - **PC:** MacBook Pro (2019, 16-inch).
+            - **Stream-specific services:** Lumia Stream (for hands-free color changes), Social Stream Ninja (for chat overlays).
+            
+            🔗 Links
+            - Twitch: https://www.twitch.tv/21xhr
+            - X: https://x.com/21xHR
+            - YouTube: https://www.youtube.com/@21xhr
+            - Instagram: https://www.instagram.com/21xhr_
+            - Kick: https://kick.com/21xhr
+        `;
+
+        // Function to create and append chat bubbles
+        const appendMessage = (sender, message) => {
+            const bubble = document.createElement('div');
+            bubble.className = `flex mb-4 ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            
+            let messageContent = message;
+            if (sender === 'bot') {
+                bubble.innerHTML = `
+                    <div class="chat-bubble-bot w-auto text-sm">
+                        ${messageContent}
+                        <div class="text-xs text-gray-400 mt-2 italic">
+                            Answer based on provided game documentation.
+                        </div>
+                    </div>
+                `;
+            } else {
+                bubble.innerHTML = `
+                    <div class="chat-bubble-user w-auto text-sm">
+                        ${messageContent}
+                    </div>
+                `;
+            }
+            chatLog.appendChild(bubble);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        };
+
+        const displayTypingIndicator = (show) => {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (show) {
+                if (!typingIndicator) {
+                    const indicatorDiv = document.createElement('div');
+                    indicatorDiv.id = 'typing-indicator';
+                    indicatorDiv.className = 'flex justify-start mb-4';
+                    indicatorDiv.innerHTML = `
+                        <div class="chat-bubble-bot text-sm animate-pulse">
+                            ...
+                        </div>
+                    `;
+                    chatLog.appendChild(indicatorDiv);
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                }
+            } else {
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+        };
+
+        const handleSend = async () => {
+            const query = userInput.value.trim();
+            if (!query) return;
+
+            appendMessage('user', query);
+            userInput.value = '';
+            
+            // Disable input and button while fetching to prevent multiple requests
+            userInput.disabled = true;
+            sendButton.disabled = true;
+            displayTypingIndicator(true);
+
+            // Construct the system prompt to guide the bot's behavior.
+            const systemPrompt = `You are a helpful and knowledgeable FAQ bot for the "Drummer Manager Game" project. Your task is to answer user questions concisely and accurately, using only the provided game documentation. If a question cannot be answered from the documentation, respond with "I'm sorry, that information is not in the game's documentation." Do not invent information or provide any personal opinions.`;
+            
+            // The user query includes the documentation for the bot to reference.
+            const userQuery = `Using the following documentation, answer my question: "${query}"\n\nDocumentation:\n${documentation}`;
+
+            // API configuration
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                // The 'tools' property for Google Search has been removed to ensure the bot
+                // only uses the provided documentation, as per the system prompt.
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status} ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const botResponse = candidate.content.parts[0].text;
+                    appendMessage('bot', botResponse);
+                } else {
+                    appendMessage('bot', "I'm sorry, I couldn't generate a response. Please try again.");
+                }
+            } catch (error) {
+                console.error("API call failed:", error);
+                appendMessage('bot', "There was an error processing your request. Please check the console for more details.");
+            } finally {
+                // Re-enable input and button after the response
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                displayTypingIndicator(false);
+                userInput.focus(); // Return focus to the input field
+            }
+        };
+
+        sendButton.addEventListener('click', handleSend);
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                handleSend();
+            }
+        });
+    </script>
+</body>
+</html>

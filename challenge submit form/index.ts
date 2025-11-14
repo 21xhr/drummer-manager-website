@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Challenge Submission Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input[type="text"], input[type="number"], textarea, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer; margin-top: 15px; }
+        #output { border: 1px solid #ccc; padding: 15px; margin-top: 20px; white-space: pre-wrap; background-color: #f9f9f9; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>New Challenge Submission</h1>
+    <p>This form simulates the secure, two-step challenge submission process.</p>
+
+    <form id="challengeForm">
+        <h2>1. User Authentication (Step 1: Get Token)</h2>
+        
+        <label for="platformId">Platform ID (e.g., Twitch ID):</label>
+        <input type="text" id="platformId" value="test-user-123" required>
+
+        <label for="platformName">Platform Name (e.g., twitch):</label>
+        <input type="text" id="platformName" value="twitch" required>
+
+        <label for="duration">Token Duration (e.g., 21m, 1h):</label>
+        <input type="text" id="duration" value="21m">
+
+        <button type="button" id="getTokenButton">Get Submission Token</button>
+
+        <div id="formFields" class="hidden">
+            <h2>2. Challenge Details (Step 2: Submit)</h2>
+            <p>Token Status: <strong id="tokenStatus" style="color: red;">Awaiting Token</strong></p>
+
+            <label for="challengeText">Challenge Text:</label>
+            <textarea id="challengeText" required></textarea>
+
+            <label for="durationType">Duration Type:</label>
+            <select id="durationType" required>
+                <option value="ONE_OFF">ONE_OFF</option>
+                <option value="RECURRING">RECURRING</option>
+            </select>
+
+            <label for="totalSessions">Total Sessions (Min 1):</label>
+            <input type="number" id="totalSessions" min="1" value="7" required>
+            
+            <div id="cadenceGroup" class="hidden">
+                <label for="cadence">Cadence (Required for RECURRING):</label>
+                <input type="text" id="cadence" placeholder="e.g., Weekly, Daily">
+            </div>
+
+            <button type="submit">Submit Challenge</button>
+        </div>
+    </form>
+
+    <h2>Output</h2>
+    <div id="output"></div>
+
+    <script>
+        // CRITICAL: REPLACE WITH YOUR VERCEL API URL
+        const API_BASE_URL = 'http://localhost:3000/api/v1'; // Use localhost for testing API locally
+
+        const form = document.getElementById('challengeForm');
+        const getTokenButton = document.getElementById('getTokenButton');
+        const outputDiv = document.getElementById('output');
+        const formFieldsDiv = document.getElementById('formFields');
+        const tokenStatusStrong = document.getElementById('tokenStatus');
+        const durationTypeSelect = document.getElementById('durationType');
+        const cadenceGroup = document.getElementById('cadenceGroup');
+        const cadenceInput = document.getElementById('cadence');
+
+        let submissionToken = '';
+
+        // --- UI Logic for Cadence Field ---
+        durationTypeSelect.addEventListener('change', (e) => {
+            const isRecurring = e.target.value === 'RECURRING';
+            cadenceGroup.classList.toggle('hidden', !isRecurring);
+            cadenceInput.required = isRecurring;
+        });
+
+        // --- Step 1: Get Token ---
+        getTokenButton.addEventListener('click', async () => {
+            const platformId = document.getElementById('platformId').value;
+            const platformName = document.getElementById('platformName').value;
+            const duration = document.getElementById('duration').value;
+
+            if (!platformId || !platformName) {
+                outputDiv.textContent = 'Error: Platform ID and Name are required.';
+                return;
+            }
+
+            outputDiv.textContent = 'Requesting token...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/token/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ platformId, platformName, duration })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    submissionToken = data.token;
+                    outputDiv.textContent = `Token successfully received! Expires: ${data.expiresIn}\nToken: ${submissionToken.substring(0, 30)}...`;
+                    
+                    // Show Challenge fields
+                    formFieldsDiv.classList.remove('hidden');
+                    tokenStatusStrong.textContent = 'Token Ready';
+                    tokenStatusStrong.style.color = 'green';
+                    getTokenButton.disabled = true; // Prevent multiple token requests
+                } else {
+                    outputDiv.textContent = `Token Error: ${data.message || data.error}`;
+                }
+            } catch (error) {
+                outputDiv.textContent = `Network Error during token request: ${error.message}`;
+            }
+        });
+
+        // --- Step 2: Submit Challenge ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!submissionToken) {
+                outputDiv.textContent = 'Error: Please get a submission token first.';
+                return;
+            }
+            
+            // Gather form data
+            const challengeText = document.getElementById('challengeText').value;
+            const durationType = durationTypeSelect.value;
+            const totalSessions = parseInt(document.getElementById('totalSessions').value);
+            const cadence = (durationType === 'RECURRING' ? cadenceInput.value : undefined);
+
+            const submissionData = {
+                token: submissionToken,
+                challengeText,
+                totalSessions,
+                durationType,
+                cadence
+            };
+            
+            outputDiv.textContent = 'Submitting challenge...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/submit/web`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(submissionData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    outputDiv.textContent = `CHALLENGE SUBMITTED SUCCESSFULLY!\n\n${JSON.stringify(data, null, 2)}`;
+                    form.reset();
+                    // Reset UI for next submission
+                    submissionToken = '';
+                    formFieldsDiv.classList.add('hidden');
+                    tokenStatusStrong.textContent = 'Awaiting Token';
+                    tokenStatusStrong.style.color = 'red';
+                    getTokenButton.disabled = false;
+                } else {
+                    outputDiv.textContent = `SUBMISSION FAILURE (${response.status}):\n${data.message || data.error}\n\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                outputDiv.textContent = `Network Error during submission: ${error.message}`;
+            }
+        });
+
+        // Initialize cadence field visibility
+        durationTypeSelect.dispatchEvent(new Event('change'));
+
+    </script>
+</body>
+</html>
