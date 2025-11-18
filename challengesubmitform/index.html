@@ -96,8 +96,25 @@
     </div>
 
     <script>
-        // CRITICAL: REPLACE WITH YOUR VERCEL API URL
-        const API_BASE_URL = ' http://localhost:3000/api/v1'; // Use localhost for testing API locally
+        // --- Dynamic API URL Configuration (Professional Local/Prod Switch) ---
+        const getApiBaseUrl = () => {
+            // 1. Check if the current hostname is a known local development address.
+            const isLocal = window.location.hostname === 'localhost' || 
+                            window.location.hostname === '127.0.0.1' ||
+                            // Including the local IP addresses for robustness.
+                            window.location.hostname.startsWith('192.168.1.'); 
+            
+            // 2. If running locally, return the reliable loopback address.
+            if (isLocal) {
+                return 'http://localhost:3000/api/v1'; 
+            }
+
+            // 3. Otherwise, assume production/live environment and use the Vercel API domain.
+            // NOTE: This assumes your API is deployed on a Vercel domain like 'drummer-manager-api.vercel.app'
+            // and you are calling it from the 'drummer-manager-website.vercel.app' frontend.
+            return 'https://drummer-manager-api.vercel.app/api/v1'; // <-- REPLACE with your actual live API URL when deployed
+        };
+        const API_BASE_URL = getApiBaseUrl();
 
         const form = document.getElementById('challengeForm');
         const getTokenButton = document.getElementById('getTokenButton');
