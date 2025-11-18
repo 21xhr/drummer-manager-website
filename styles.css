@@ -270,3 +270,109 @@ box-shadow: 0 0 12px var(--primary-neon), 0 0 5px var(--primary-neon);
 border-color: var(--primary-neon);
 }
 }
+
+
+/* ------------------------------------------------------------------
+   FORM SUBMISSION STYLES (For challenge submission page)
+   ------------------------------------------------------------------ */
+/* Enable horizontal scrolling for extremely narrow screens to prevent border clipping */
+@media (max-width: 500px) {
+    body {
+        /* This allows the viewport to be slightly wider than the screen, enabling scrolling */
+        overflow-x: auto; 
+    }
+}
+
+.form-container {
+    background-color: var(--secondary-bg);
+    border: 1px solid var(--subtext-color);
+    border-radius: 1rem;
+    /* ⭐ MOBILE FIX: Adjusted padding for smaller screens (e.g., 20px) ⭐ */
+    padding: 20px; 
+    
+    box-shadow: 0 0 7px var(--primary-neon);
+    animation: neon-pulse-border 3s ease-in-out infinite alternate;
+    max-width: 600px;
+    width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 5rem;
+}
+
+/* Ensure large screens still look good by restoring the padding via a media query */
+@media (min-width: 640px) {
+    .form-container {
+        padding: 2.5rem; /* Restore desktop padding */
+    }
+}
+
+.form-group label {
+    display: block;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.05em;
+}
+
+/* Use the specific .form-input class for reliable styling */
+.form-input {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 5px;
+    box-sizing: border-box;
+    background-color: var(--background-color);
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: var(--text-color);
+    font-family: 'Roboto', sans-serif;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: var(--primary-neon);
+    outline: none;
+    box-shadow: 0 0 5px var(--primary-neon);
+}
+
+textarea.form-input {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-heading {
+    color: var(--primary-neon);
+    font-family: 'DM Sans', sans-serif;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--secondary-bg);
+    padding-bottom: 0.5rem;
+    text-shadow: 0 0 5px rgba(242, 189, 21, 0.5);
+}
+
+#output {
+    border: 1px solid var(--primary-neon);
+    padding: 15px;
+    margin-top: 20px;
+    white-space: pre-wrap;
+    background-color: var(--secondary-bg);
+    color: var(--subtext-color);
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(242, 189, 21, 0.3);
+    overflow-x: auto;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Button override */
+.form-button {
+    /* Uses the existing interactive-button styles for consistency */
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 2rem;
+    padding: 12px 15px;
+    font-size: 1.1rem;
+}

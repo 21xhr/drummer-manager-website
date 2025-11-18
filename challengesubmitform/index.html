@@ -4,64 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Challenge Submission Form</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../styles.css"> 
+    
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
-        label { display: block; margin-top: 10px; font-weight: bold; }
-        input[type="text"], input[type="number"], textarea, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer; margin-top: 15px; }
-        #output { border: 1px solid #ccc; padding: 15px; margin-top: 20px; white-space: pre-wrap; background-color: #f9f9f9; }
-        .hidden { display: none; }
+        /* Only keep necessary utility styles */
+        .hidden { display: none !important; }
+        
+        /* ⭐ MOBILE FIX: Add small padding to body to prevent form edge clipping on smaller screens ⭐ */
+        body { 
+            padding: 1rem; /* Adjust from 2rem to 1rem for tight fit */
+        }
     </style>
 </head>
-<body>
-    <h1>New Challenge Submission</h1>
-    <p>This form simulates the secure, two-step challenge submission process.</p>
-
-    <form id="challengeForm">
-        <h2>1. User Authentication (Step 1: Get Token)</h2>
-        
-        <label for="platformId">Platform ID (e.g., Twitch ID):</label>
-        <input type="text" id="platformId" value="test-user-123" required>
-
-        <label for="platformName">Platform Name (e.g., twitch):</label>
-        <input type="text" id="platformName" value="twitch" required>
-
-        <label for="duration">Token Duration (e.g., 21m, 1h):</label>
-        <input type="text" id="duration" value="21m">
-
-        <button type="button" id="getTokenButton">Get Submission Token</button>
-
-        <div id="formFields" class="hidden">
-            <h2>2. Challenge Details (Step 2: Submit)</h2>
-            <p>Token Status: <strong id="tokenStatus" style="color: red;">Awaiting Token</strong></p>
-
-            <label for="challengeText">Challenge Text:</label>
-            <textarea id="challengeText" required></textarea>
-
-            <label for="durationType">Duration Type:</label>
-            <select id="durationType" required>
-                <option value="ONE_OFF">ONE_OFF</option>
-                <option value="RECURRING">RECURRING</option>
-            </select>
-
-            <label for="totalSessions">Total Sessions (Min 1):</label>
-            <input type="number" id="totalSessions" min="1" value="7" required>
+<body class="dm-sans"> 
+    <div class="form-container">
+        <h1 class="dm-sans text-3xl font-bold text-center neon-text">
+            New Challenge Submission
+        </h1>
+        <p class="roboto text-center text-sm text-gray-400">
+            This form simulates the secure, two-step challenge submission process.
+        </p>
+    
+        <form id="challengeForm">
+            <h2 class="form-heading">1. User Authentication (Step 1: Get Token)</h2>
             
-            <div id="cadenceGroup" class="hidden">
-                <label for="cadence">Cadence (Required for RECURRING):</label>
-                <input type="text" id="cadence" placeholder="e.g., Weekly, Daily">
+            <div class="form-group">
+                <label for="platformId">Platform ID (Your Username):</label>
+                <input type="text" id="platformId" class="form-input" placeholder="e.g., DrummerBoy21" required>
             </div>
 
-            <button type="submit">Submit Challenge</button>
-        </div>
-    </form>
+            <div class="form-group">
+                <label for="platformName">Platform Name:</label>
+                <select id="platformName" class="form-input" required>
+                    <option value="" disabled selected>The Streaming Platform You Came From</option>
+                    <option value="KICK">Kick</option>
+                    <option value="TWITCH">Twitch</option>
+                    <option value="YOUTUBE">Youtube</option>
+                    </select>
+            </div>
 
-    <h2>Output</h2>
-    <div id="output"></div>
+            <div class="form-group">
+                <label for="duration">Token Duration (Optional):</label>
+                <input type="text" id="duration" class="form-input" placeholder="This is totally optional">
+            </div>
+
+            <button type="button" id="getTokenButton" class="interactive-button form-button">
+                Get Submission Token
+            </button>
+    
+            <div id="formFields" class="hidden">
+                <h2 class="form-heading">2. Challenge Details (Step 2: Submit)</h2>
+                <p class="roboto text-sm">
+                    Token Status: <strong id="tokenStatus" style="color: var(--primary-neon);">Awaiting Token</strong>
+                </p>
+    
+                <div class="form-group">
+                    <label for="challengeText">Challenge Text:</label>
+                    <textarea id="challengeText" class="form-input" placeholder="Briefly describe the challenge (e.g., Play a fill using only triplets, Do a solo with one hand tied)." required></textarea>
+                </div>
+    
+                <div class="form-group">
+                    <label for="durationType">Duration Type:</label>
+                    <select id="durationType" class="form-input" required>
+                        <option value="ONE_OFF">ONE_OFF (Single Session)</option>
+                        <option value="RECURRING">RECURRING (Multiple Sessions)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="totalSessions">Total Sessions (Min 1):</label>
+                    <input type="number" id="totalSessions" class="form-input" min="1" value="7" required>
+                </div>
+                
+                <div id="cadenceGroup" class="hidden form-group">
+                    <label for="cadence">Cadence (Required for RECURRING):</label>
+                    <input type="text" id="cadence" class="form-input" placeholder="e.g., Weekly, Daily, Every 3 days">
+                </div>
+    
+                <button type="submit" class="interactive-button form-button">
+                    Submit Challenge
+                </button>
+            </div>
+        </form>
+    
+        <h2 class="form-heading">Output</h2>
+        <div id="output" class="roboto"></div>
+    </div>
 
     <script>
         // CRITICAL: REPLACE WITH YOUR VERCEL API URL
-        const API_BASE_URL = 'http://localhost:3000/api/v1'; // Use localhost for testing API locally
+        const API_BASE_URL = ' http://localhost:3000/api/v1'; // Use localhost for testing API locally
 
         const form = document.getElementById('challengeForm');
         const getTokenButton = document.getElementById('getTokenButton');
@@ -85,7 +121,8 @@
         getTokenButton.addEventListener('click', async () => {
             const platformId = document.getElementById('platformId').value;
             const platformName = document.getElementById('platformName').value;
-            const duration = document.getElementById('duration').value;
+            // The duration field is now optional
+            const duration = document.getElementById('duration').value || undefined; 
 
             if (!platformId || !platformName) {
                 outputDiv.textContent = 'Error: Platform ID and Name are required.';
@@ -95,11 +132,12 @@
             outputDiv.textContent = 'Requesting token...';
 
             try {
-            const response = await fetch(`${API_BASE_URL}/token/submit-challenge`, { 
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ platformId, platformName, duration })
-            });
+                const response = await fetch(`${API_BASE_URL}/token/submit-challenge`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // Only send duration if it's not undefined (i.e., user entered a value)
+                    body: JSON.stringify({ platformId, platformName, duration })
+                });
 
                 const data = await response.json();
 
@@ -112,7 +150,7 @@
                     // Show Challenge fields
                     formFieldsDiv.classList.remove('hidden');
                     tokenStatusStrong.textContent = 'Token Ready';
-                    tokenStatusStrong.style.color = 'green';
+                    tokenStatusStrong.style.color = 'var(--primary-neon)';
                     getTokenButton.disabled = true; // Prevent multiple token requests
                 } else {
                     outputDiv.textContent = `Token Error: ${data.message || data.error}`;
@@ -164,7 +202,7 @@
                     submissionToken = '';
                     formFieldsDiv.classList.add('hidden');
                     tokenStatusStrong.textContent = 'Awaiting Token';
-                    tokenStatusStrong.style.color = 'red';
+                    tokenStatusStrong.style.color = 'var(--primary-neon)';
                     getTokenButton.disabled = false;
                 } else {
                     outputDiv.textContent = `SUBMISSION FAILURE (${response.status}):\n${data.message || data.error}\n\n${JSON.stringify(data, null, 2)}`;
