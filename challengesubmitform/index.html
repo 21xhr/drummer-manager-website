@@ -9,16 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="../styles.css"> 
-    
-    <style>
-        /* Only keep necessary utility styles */
-        .hidden { display: none !important; }
-        
-        /* ⭐ MOBILE FIX: Add small padding to body to prevent form edge clipping on smaller screens ⭐ */
-        body { 
-            padding: 1rem; /* Adjust from 2rem to 1rem for tight fit */
-        }
-    </style>
 </head>
 <body class="dm-sans"> 
     <div class="form-container">
@@ -80,9 +70,41 @@
                     <input type="number" id="totalSessions" class="form-input" min="1" value="7" required>
                 </div>
                 
-                <div id="cadenceGroup" class="hidden form-group">
-                    <label for="cadence">Cadence (Required for RECURRING):</label>
-                    <input type="text" id="cadence" class="form-input" placeholder="e.g., Weekly, Daily, Every 3 days">
+                <div id="cadenceGroup" class="hidden">
+                    <div class="form-group">
+                        <label for="cadenceUnit">Cadence Frequency:</label>
+                        <select id="cadenceUnit" class="form-input">
+                            <option value="" disabled selected>Select Frequency</option>
+                            <option value="DAILY">Daily</option>
+                            <option value="WEEKLY">Weekly</option>
+                            <option value="MONTHLY">Monthly</option>
+                            <option value="CUSTOM_DAYS">Custom (Every X Days)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label id="cadenceLabel" for="cadenceCount">Pace:</label>
+                        
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="number" id="cadenceCount" class="form-input" value="1" min="1" style="width: 80px; margin-top: 0;">
+                            <span id="cadenceSuffix" class="roboto" style="color: var(--text-color);">sessions per day</span>
+                        </div>
+                    </div>
+
+                    <div id="customDaysGroup" class="hidden form-group" style="margin-top: 10px;">
+                        <label for="customDaysCount">Every how many days?</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="roboto">Every</span>
+                            <input type="number" id="customDaysCount" class="form-input" value="3" min="2" style="width: 80px; margin-top: 0;">
+                            <span class="roboto">days</span>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="sessionCadenceText">
+                    
+                    <p class="roboto text-sm" style="margin-top: 10px; color: gray;">
+                        Summary: <strong id="cadencePreview" style="color: var(--primary-neon);">...</strong>
+                    </p>
                 </div>
     
                 <button type="submit" class="interactive-button form-button">
@@ -96,20 +118,15 @@
     </div>
 
     <script>
-        // --- Dynamic API URL Configuration (Professional Local/Prod Switch) ---
+        // --- Dynamic API URL Configuration ---
         const getApiBaseUrl = () => {
-            // 1. Check if the current hostname is a known local development address.
             const isLocal = window.location.hostname === 'localhost' || 
                             window.location.hostname === '127.0.0.1' ||
-                            // Including the local IP addresses for robustness.
                             window.location.hostname.startsWith('192.168.1.'); 
             
-            // 2. If running locally, return the reliable loopback address.
             if (isLocal) {
                 return 'http://localhost:3000/api/v1'; 
             }
-
-           // 3. Otherwise, assume production/live environment and use the Vercel API domain.
             return 'https://drummer-manager-api.vercel.app/api/v1';
         };
         const API_BASE_URL = getApiBaseUrl();
@@ -120,37 +137,80 @@
         const formFieldsDiv = document.getElementById('formFields');
         const tokenStatusStrong = document.getElementById('tokenStatus');
         const durationTypeSelect = document.getElementById('durationType');
+        
+        // ⭐ CADENCE ELEMENTS
         const cadenceGroup = document.getElementById('cadenceGroup');
-        const cadenceInput = document.getElementById('cadence');
+        const cadenceUnitSelect = document.getElementById('cadenceUnit');
+        const cadenceCountInput = document.getElementById('cadenceCount'); 
+        const cadenceSuffix = document.getElementById('cadenceSuffix'); 
+        const customDaysGroup = document.getElementById('customDaysGroup');
+        const customDaysInput = document.getElementById('customDaysCount'); 
+        const cadencePreview = document.getElementById('cadencePreview');
+        const sessionCadenceHidden = document.getElementById('sessionCadenceText');
 
         let submissionToken = '';
 
-        // --- UI Logic for Cadence Field ---
+        // --- Helper: Update the Cadence Sentence ---
+        const updateCadenceUi = () => {
+            const unit = cadenceUnitSelect.value;
+            const count = cadenceCountInput.value;
+            const customDays = customDaysInput.value;
+            let text = "";
+
+            if (unit === 'DAILY') {
+                cadenceSuffix.textContent = "sessions per Day";
+                customDaysGroup.classList.add('hidden');
+                text = `${count} sessions per Day`;
+            } else if (unit === 'WEEKLY') {
+                cadenceSuffix.textContent = "sessions per Week";
+                customDaysGroup.classList.add('hidden');
+                text = `${count} sessions per Week`;
+            } else if (unit === 'MONTHLY') {
+                cadenceSuffix.textContent = "sessions per Month";
+                customDaysGroup.classList.add('hidden');
+                text = `${count} sessions per Month`;
+            } else if (unit === 'CUSTOM_DAYS') {
+                cadenceSuffix.textContent = "sessions...";
+                customDaysGroup.classList.remove('hidden');
+                text = `${count} sessions every ${customDays} days`;
+            } else {
+                cadenceSuffix.textContent = "...";
+                text = "Please select a frequency";
+            }
+
+            cadencePreview.textContent = text;
+            sessionCadenceHidden.value = text;
+        };
+
+        // --- Event Listeners ---
+        cadenceUnitSelect.addEventListener('change', updateCadenceUi);
+        cadenceCountInput.addEventListener('input', updateCadenceUi);
+        customDaysInput.addEventListener('input', updateCadenceUi);
+
+        // --- UI Logic for Duration Type ---
         durationTypeSelect.addEventListener('change', (e) => {
             const isRecurring = e.target.value === 'RECURRING';
             cadenceGroup.classList.toggle('hidden', !isRecurring);
-            cadenceInput.required = isRecurring;
+            cadenceUnitSelect.required = isRecurring;
+            if(isRecurring) updateCadenceUi(); 
         });
 
         // --- Step 1: Get Token ---
         getTokenButton.addEventListener('click', async () => {
             const platformId = document.getElementById('platformId').value;
             const platformName = document.getElementById('platformName').value;
-            // The duration field is now optional
             const duration = document.getElementById('duration').value || undefined; 
 
             if (!platformId || !platformName) {
                 outputDiv.textContent = 'Error: Platform ID and Name are required.';
                 return;
             }
-
             outputDiv.textContent = 'Requesting token...';
 
             try {
                 const response = await fetch(`${API_BASE_URL}/token/submit-challenge`, { 
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // Only send duration if it's not undefined (i.e., user entered a value)
                     body: JSON.stringify({ platformId, platformName, duration })
                 });
 
@@ -159,49 +219,44 @@
                 if (response.ok) {
                     submissionToken = data.details.token;
                     const expiresIn = data.details.duration;
-
                     outputDiv.textContent = `Token successfully received! Expires: ${expiresIn}\nToken: ${submissionToken.substring(0, 30)}...`;
-                    
-                    // Show Challenge fields
                     formFieldsDiv.classList.remove('hidden');
                     tokenStatusStrong.textContent = 'Token Ready';
                     tokenStatusStrong.style.color = 'var(--primary-neon)';
-                    getTokenButton.disabled = true; // Prevent multiple token requests
+                    getTokenButton.disabled = true; 
                 } else {
                     outputDiv.textContent = `Token Error: ${data.message || data.error}`;
                 }
             } catch (error) {
-                outputDiv.textContent = `Network Error during token request: ${error.message}`;
+                outputDiv.textContent = `Network Error: ${error.message}`;
             }
         });
 
         // --- Step 2: Submit Challenge ---
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            if (!submissionToken) {
-                outputDiv.textContent = 'Error: Please get a submission token first.';
-                return;
-            }
+            if (!submissionToken) { return; }
             
-            // Gather form data.
             const challengeText = document.getElementById('challengeText').value;
             const durationType = durationTypeSelect.value;
             const totalSessions = parseInt(document.getElementById('totalSessions').value);
-            const cadence = (durationType === 'RECURRING' ? cadenceInput.value : undefined);
+
+            // ⭐ EXTRACT CADENCE DATA
+            const cadenceUnit = (durationType === 'RECURRING' ? cadenceUnitSelect.value : undefined);
+            const sessionCadenceText = (durationType === 'RECURRING' ? sessionCadenceHidden.value : undefined);
 
             const submissionData = {
                 token: submissionToken,
                 challengeText,
                 totalSessions,
                 durationType,
-                cadence
+                cadenceUnit,
+                sessionCadenceText
             };
             
             outputDiv.textContent = 'Submitting challenge...';
 
             try {
-                // FIX: Use the secure /submit/web endpoint
                 const response = await fetch(`${API_BASE_URL}/user/submit/web`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -213,23 +268,21 @@
                 if (response.ok) {
                     outputDiv.textContent = `CHALLENGE SUBMITTED SUCCESSFULLY!\n\n${JSON.stringify(data, null, 2)}`;
                     form.reset();
-                    // Reset UI for next submission
                     submissionToken = '';
                     formFieldsDiv.classList.add('hidden');
                     tokenStatusStrong.textContent = 'Awaiting Token';
                     tokenStatusStrong.style.color = 'var(--primary-neon)';
                     getTokenButton.disabled = false;
+                    if (durationTypeSelect.value !== 'RECURRING') cadenceGroup.classList.add('hidden');
                 } else {
                     outputDiv.textContent = `SUBMISSION FAILURE (${response.status}):\n${data.message || data.error}\n\n${JSON.stringify(data, null, 2)}`;
                 }
             } catch (error) {
-                outputDiv.textContent = `Network Error during submission: ${error.message}`;
+                outputDiv.textContent = `Network Error: ${error.message}`;
             }
         });
 
-        // Initialize cadence field visibility
         durationTypeSelect.dispatchEvent(new Event('change'));
-
     </script>
 </body>
 </html>
