@@ -118,15 +118,23 @@
     </div>
 
     <script>
-        // --- Dynamic API URL Configuration ---
         const getApiBaseUrl = () => {
-            const isLocal = window.location.hostname === 'localhost' || 
-                            window.location.hostname === '127.0.0.1' ||
-                            window.location.hostname.startsWith('192.168.1.'); 
+            const isNetworkIP = window.location.hostname.startsWith('192.168.1.'); 
+            const isLocalhost = window.location.hostname === 'localhost' || 
+                                window.location.hostname === '127.0.0.1';
+
+            if (isNetworkIP) {
+                // ⭐ FIX: If accessed via network IP (like 192.168.1.37), use that IP
+                // to call the API on port 3000.
+                return `http://${window.location.hostname}:3000/api/v1`;
+            }
             
-            if (isLocal) {
+            if (isLocalhost) {
+                // If accessed via localhost, use localhost (for safety and simplicity)
                 return 'http://localhost:3000/api/v1'; 
             }
+            
+            // Production/Vercel URL
             return 'https://drummer-manager-api.vercel.app/api/v1';
         };
         const API_BASE_URL = getApiBaseUrl();
