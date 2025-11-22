@@ -376,3 +376,70 @@ textarea.form-input {
     padding: 12px 15px;
     font-size: 1.1rem;
 }
+
+/* Tooltip styling for the info icon */
+.info-tooltip-container {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+.info-tooltip-text {
+    visibility: hidden;
+    width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 10;
+    bottom: 125%; /* Position above the label */
+    left: 50%;
+    margin-left: -125px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+.info-tooltip-container:hover .info-tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* ------------------------------------------------------------------
+   CADENCE UI REFINEMENTS (For visual cleanup)
+   ------------------------------------------------------------------ */
+#cadenceUnit {
+    width: 150px !important; 
+    padding: 5px 8px !important;
+}
+
+.interactive-button {
+    transition: 
+        background-color 0.2s ease, 
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.1s ease; /* Added for subtle press effect */
+}
+
+.interactive-button:hover:not(:disabled) {
+    /* Subtle change to the primary neon color on hover */
+    background-color: var(--primary-neon); 
+    color: var(--secondary-bg); /* Ensure text contrast */
+    box-shadow: 0 0 10px var(--primary-neon);
+    cursor: pointer;
+}
+
+.interactive-button:active:not(:disabled) {
+    transform: scale(0.98); /* Subtle press-down effect */
+    box-shadow: 0 0 5px var(--primary-neon);
+}
+
+.interactive-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #555; 
+    border-color: #555;
+    box-shadow: none;
+}
