@@ -383,6 +383,7 @@ textarea.form-input {
     position: relative;
     cursor: pointer;
 }
+/* FIX: Adjusted max-width and font-size for better readability */
 .info-tooltip-text {
     visibility: hidden;
     width: 250px;
@@ -393,14 +394,15 @@ textarea.form-input {
     padding: 10px;
     position: absolute;
     z-index: 10;
-    bottom: 125%; /* Position above the label */
+    bottom: 125%; 
     left: 50%;
     margin-left: -125px;
     opacity: 0;
     transition: opacity 0.3s;
-    font-size: 0.8rem;
+    font-size: 0.9rem; /* Slightly larger font */
     line-height: 1.4;
     white-space: pre-wrap;
+    font-family: 'Roboto', sans-serif; /* Keep a readable font */
 }
 .info-tooltip-container:hover .info-tooltip-text {
     visibility: visible;

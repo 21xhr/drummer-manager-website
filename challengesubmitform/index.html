@@ -58,9 +58,9 @@
                         Duration Type: 
                         <span class="info-tooltip-container">
                             ⓘ
-                            <span class="info-tooltip-text roboto">
-                                **One-Off:** Single 21-minute session.<br>
-                                **Recurring:** Multiple 21-minute sessions over time.
+                            <span class="info-tooltip-text"> 
+                                <strong>One-Off:</strong> Single 21-minute session.<br>
+                                <strong>Recurring:</strong> Multiple 21-minute sessions over time.
                             </span>
                         </span>
                     </label>
@@ -131,7 +131,8 @@
                 </button>
                 <h2 class="form-heading">Output</h2>
                 <div id="output" class="roboto"></div>
-            </div> </form>
+            </div>
+        </form>
     
     </div>
 
@@ -161,6 +162,7 @@
     const formFieldsDiv = document.getElementById('formFields');
     const tokenStatusStrong = document.getElementById('tokenStatus');
     const durationTypeSelect = document.getElementById('durationType');
+    const submitButton = document.querySelector('button[type="submit"]'); 
     
     // MAIN DURATION FIELD
     const mainDurationGroup = document.getElementById('mainDurationGroup');
@@ -187,33 +189,23 @@
         const currentFrameCount = parseInt(timeframeCountSentenceInput.value);
         const currentCadenceCount = parseInt(cadenceCountInput.value);
         
-        // 1. Logic for timeframeCountSentence (Total Duration)
         if (unit === 'DAILY' || unit === 'CUSTOM_DAYS') {
-            // Daily/Custom suggests a multi-day run. Default duration to 2 if currently 1.
             if (currentFrameCount <= 1) {
                 timeframeCountSentenceInput.value = 2; 
             }
         } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
-            // Weekly/Monthly typically runs for 1 unit minimum. Default duration to 1.
             if (currentFrameCount > 1) {
                 timeframeCountSentenceInput.value = 1;
             }
         }
         
-        // 2. Logic for cadenceCountInput (Sessions per Period)
-        // ⭐ ENFORCEMENT LOGIC: Force a minimum of 2 sessions for Weekly/Monthly
         if (unit === 'WEEKLY' || unit === 'MONTHLY') {
-            // Force at least 2 sessions per period
             if (currentCadenceCount <= 1) {
                 cadenceCountInput.value = 2;
             }
-            // Also, set the minimum input constraint for the UI
             cadenceCountInput.min = 2; 
         } else if (unit === 'DAILY' || unit === 'CUSTOM_DAYS' || unit === "") {
-            // For Daily, Custom, or No selection, reset min to 1
             cadenceCountInput.min = 1;
-            
-            // If the value was forced to 2, reset it back to 1
             if (currentCadenceCount === 2) {
                 cadenceCountInput.value = 1;
             }
@@ -226,8 +218,6 @@
         const pace = Math.min(parseInt(cadenceCountInput.value) || 1, 999);
         const customDays = parseInt(customDaysInput.value) || 1;
         const timeframeCount = Math.min(parseInt(timeframeCountSentenceInput.value) || 1, 999); 
-        
-        // --- Input Clamping and Validation ---
         
         const minPace = parseInt(cadenceCountInput.min) || 1;
         const clampedPace = Math.max(pace, minPace);
@@ -243,7 +233,6 @@
         // --- 1. UI CONTROL: RESET ALL OPTIONS ---
         const options = cadenceUnitSelect.options;
         for (let i = 0; i < options.length; i++) {
-            // Reset all options to their default text
             if (options[i].value === 'DAILY') options[i].textContent = "per Day";
             if (options[i].value === 'WEEKLY') options[i].textContent = "per Week";
             if (options[i].value === 'MONTHLY') options[i].textContent = "per Month";
@@ -251,8 +240,6 @@
         }
         
         const selectFrequencyOption = cadenceUnitSelect.querySelector('option[value=""]');
-        
-        // FIX: Ensure 'select frequency' is always visible in the list unless a valid option is chosen
         if (selectFrequencyOption) {
              selectFrequencyOption.classList.toggle('hidden', !!unit);
         }
@@ -260,7 +247,7 @@
         const isFrequencySelected = !!unit;
         
         durationGroup.classList.toggle('hidden', !isFrequencySelected);
-        customDaysGroup.classList.add('hidden'); // FIX: Ensure this is hidden by default after any change
+        customDaysGroup.classList.add('hidden'); 
         
         // --- 2. COST CALCULATION & TEXT GENERATION ---
         
@@ -268,13 +255,11 @@
         let durationLeadIn = "for a total of"; 
 
         if (!isRecurring) {
-            // ... ONE_OFF LOGIC ...
             calculatedTotal = Math.min(parseInt(totalTimeframeCountInput.value) || 1, 999);
             totalTimeframeCountInput.value = calculatedTotal;
             text = `ONE_OFF: ${calculatedTotal} session(s).`;
             
         } else {
-            // --- RECURRING LOGIC (Sentence UI) ---
             
             if (unit === 'DAILY') {
                 cadenceUnitText = "per Day";
@@ -292,32 +277,26 @@
                 calculatedTotal = clampedPace * timeframeCount;
                 text = `${clampedPace} sessions per Month for ${timeframeCount} Months = ${calculatedTotal} Total Sessions`;
             } else if (unit === 'CUSTOM_DAYS') {
-                // Hides the "every X days" text from the main dropdown display
                 cadenceUnitText = ""; 
                 durationLeadIn = "then repeat this"; 
                 
-                // Show the specific custom days input group
                 customDaysGroup.classList.remove('hidden'); 
                 timeframeUnitSentenceSpan.textContent = "times"; 
                 calculatedTotal = clampedPace * timeframeCount;
                 
                 text = `${clampedPace} sessions every ${customDays} days for ${timeframeCount} times = ${calculatedTotal} Total Sessions`;
             } else {
-                // Default/No Frequency Selected
                 cadenceUnitText = "select frequency";
                 timeframeUnitSentenceSpan.textContent = "..."; 
                 text = "Select a frequency and duration to calculate total sessions.";
                 calculatedTotal = 0;
             }
 
-            // Apply dynamic cadence unit text to the currently selected option's visible text
             const selectedOption = cadenceUnitSelect.querySelector(`option[value="${unit}"]`);
             if (selectedOption) {
-                // This updates the text visible in the collapsed dropdown field.
                 selectedOption.textContent = cadenceUnitText;
             }
             
-            // Apply duration lead-in text
             durationLeadInText.textContent = durationLeadIn;
         }
         
@@ -328,9 +307,85 @@
         sessionCadenceHidden.value = text;
     };
 
+
+    // --- UX IMPROVEMENT: Generate Human-Readable Challenge Summary (MODIFIED) ---
+    // Now accepts the new userStats object
+    const generateChallengeSummary = (challenge, cost, userStats) => {
+        if (!challenge) return `<p class="roboto" style="color: red;">Error: Challenge data is missing from the API response.</p>`;
+
+        const isRecurring = challenge.durationType === 'RECURRING';
+        let cadenceInfo = '';
+        
+        if (isRecurring) {
+            const cadenceDescription = challenge.sessionCadenceText || "Cadence defined by the proposer."; 
+            cadenceInfo = `
+                <p class="roboto" style="margin-top: 5px;">
+                    <strong>Cadence:</strong> ${cadenceDescription}
+                </p>
+            `;
+        }
+
+        // --- NEW: User Stats Summary Block ---
+        let statsInfo = '';
+        if (userStats) {
+            statsInfo = `
+                <div style="margin-top: 20px; padding: 10px; border: 1px dashed var(--primary-neon); background-color: rgba(138, 43, 226, 0.1);">
+                    <h4 class="roboto" style="margin-top: 0; font-weight: bold; color: var(--primary-neon);">Your Updated Stats:</h4>
+                    <p class="roboto" style="margin: 5px 0;">
+                        <strong>New Balance:</strong> ${userStats.lastKnownBalance} NUMBERS
+                    </p>
+                    <p class="roboto" style="margin: 5px 0;">
+                        <strong>Daily Submissions:</strong> ${userStats.dailySubmissionCount} (Resets daily)
+                    </p>
+                    <p class="roboto" style="margin: 5px 0;">
+                        <strong>Total Challenges Proposed:</strong> ${userStats.totalChallengesSubmitted}
+                    </p>
+                    <p class="roboto" style="margin: 5px 0;">
+                        <strong>Total Spent Game-Wide:</strong> ${userStats.totalNumbersSpent} NUMBERS
+                    </p>
+                </div>
+            `;
+        }
+
+
+        return `
+            <h3 class="form-heading" style="margin-top: 0; border-bottom: none; color: var(--success-green); text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);">
+                ✅ Challenge Submitted Successfully!
+            </h3>
+            <hr style="border-top: 1px solid var(--primary-neon); margin: 15px 0;">
+
+            <h4 class="roboto" style="margin-top: 0; font-weight: bold; color: var(--primary-neon);">Challenge Details:</h4>
+            <p class="roboto">
+                <strong>Cost:</strong> ${cost} NUMBERS
+            </p>
+            <p class="roboto">
+                <strong>Challenge ID:</strong> #${challenge.challengeId}
+            </p>
+            <p class="roboto">
+                <strong>Duration Type:</strong> ${challenge.durationType}
+            </p>
+            <p class="roboto">
+                <strong>Total Sessions:</strong> ${challenge.totalSessions} sessions (${challenge.totalSessions * SESSION_DURATION_MINUTES} Mins total)
+            </p>
+            ${cadenceInfo}
+
+            <div style="margin-top: 15px; padding: 10px; border: 1px dashed var(--primary-neon);">
+                <strong>Challenge Text:</strong><br>
+                <span style="font-style: italic;">"${challenge.challengeText}"</span>
+            </div>
+
+            ${statsInfo} 
+            
+            <p class="roboto" style="margin-top: 20px; font-size: 0.9rem;">
+                You can now close this window or refresh the page to submit a new challenge.
+            </p>
+        `;
+    };
+
+
     // --- Event Listeners ---
     cadenceUnitSelect.addEventListener('change', (e) => {
-        setCadenceTimeframeDefaults(e.target.value); // Set smart default
+        setCadenceTimeframeDefaults(e.target.value); 
         calculateTotalSessions();
     });
     cadenceCountInput.addEventListener('input', calculateTotalSessions);
@@ -346,10 +401,7 @@
         
         cadenceUnitSelect.required = isRecurring;
         
-        if (!isRecurring) {
-            totalTimeframeCountInput.value = 1; 
-        } else {
-            // Set initial defaults when RECURRING is selected/re-selected
+        if (isRecurring) {
             if (cadenceUnitSelect.value) {
                 setCadenceTimeframeDefaults(cadenceUnitSelect.value);
             }
@@ -357,12 +409,13 @@
         calculateTotalSessions(); 
     });
     
-    // Add disabled class style (Kept here as it's a small functional style)
+    // Add dynamic CSS rules
     const styleSheet = document.styleSheets[0];
     try {
+        styleSheet.insertRule(':root { --success-green: #39FF14; }', styleSheet.cssRules.length);
         styleSheet.insertRule('.form-input--disabled { background-color: #2c2c2c !important; border-color: #444 !important; color: #888 !important; cursor: not-allowed; }', styleSheet.cssRules.length);
     } catch (e) {
-        console.warn("Could not insert CSS rule for disabled input style.");
+        console.warn("Could not insert CSS rules.");
     }
 
     // --- Step 1: Get Token ---
@@ -389,7 +442,7 @@
             if (response.ok) {
                 submissionToken = data.details.token;
                 const expiresIn = data.details.duration;
-                outputDiv.textContent = `Token successfully received! Expires: ${expiresIn}\nToken: ${submissionToken.substring(0, 30)}...`;
+                outputDiv.textContent = `Token successfully received! Expires: ${expiresIn}`;
                 formFieldsDiv.classList.remove('hidden');
                 tokenStatusStrong.textContent = 'Ready'; 
                 tokenStatusStrong.style.color = 'var(--primary-neon)';
@@ -398,7 +451,7 @@
                 outputDiv.textContent = `Token Error: ${data.message || data.error}`;
             }
         } catch (error) {
-            outputDiv.textContent = `Network Error: ${error.message}`;
+            outputDiv.textContent = `NETWORK OR FRONT-END ERROR: ${error.message}`;
         }
     });
 
@@ -406,7 +459,12 @@
     // --- Step 2: Submit Challenge ---
     form.addEventListener('submit', async (e) => { 
         e.preventDefault();
-        if (!submissionToken) { return; }
+        if (!submissionToken) { 
+            outputDiv.textContent = 'Error: Please get an access token first.';
+            return; 
+        }
+        
+        submitButton.disabled = true;
         
         const challengeText = document.getElementById('challengeText').value;
         const durationType = durationTypeSelect.value;
@@ -439,19 +497,42 @@
             const data = await response.json();
 
             if (response.ok) {
-                outputDiv.textContent = `CHALLENGE SUBMITTED SUCCESSFULLY!\n\n${JSON.stringify(data, null, 2)}`;
-                form.reset();
-                submissionToken = '';
-                formFieldsDiv.classList.add('hidden');
-                tokenStatusStrong.textContent = 'Awaiting Token';
-                tokenStatusStrong.style.color = 'var(--primary-neon)';
-                getTokenButton.disabled = false;
-                if (durationTypeSelect.value !== 'RECURRING') cadenceGroup.classList.add('hidden');
+                // ⭐ CRITICAL FIX: Robustly extract payload data by checking common API wrappers.
+                const payload = data.details || data.data || data; 
+
+                const challengeData = payload.newChallenge;
+                const cost = payload.cost;
+                // ⭐ NEW: Extract the userStats object
+                const userStats = payload.userStats; 
+                
+                if (!challengeData || typeof cost !== 'number' || !userStats) {
+                    // Fail gracefully if response is ok but data structure is bad
+                    outputDiv.textContent = `SUBMISSION ERROR: API returned success but payload was malformed (Missing Challenge or User Stats). Check the browser console for raw response details.`;
+                    console.error("Malformed API submission response:", data);
+                    submitButton.disabled = false;
+                    return; 
+                }
+
+                // ⭐ UX FIX: Pass the new userStats to the summary function
+                outputDiv.innerHTML = generateChallengeSummary(challengeData, cost, userStats);
+                
+                // Keep the form fields visible but disable the form controls to signal completion
+                Array.from(form.elements).forEach(element => {
+                    if (element.id !== 'output' && element.id !== 'getTokenButton') {
+                        element.disabled = true;
+                        element.classList.add('form-input--disabled');
+                    }
+                });
+                submitButton.style.display = 'none'; // Hide the submit button
+                
             } else {
-                outputDiv.textContent = `SUBMISSION FAILURE (${response.status}):\n${data.message || data.error}\n\n${JSON.stringify(data, null, 2)}`;
+                // Handle submission failure
+                outputDiv.textContent = `SUBMISSION FAILURE (${response.status}):\n${data.message || data.error}`;
+                submitButton.disabled = false; // Re-enable submit button on error
             }
         } catch (error) {
-            outputDiv.textContent = `Network Error: ${error.message}`;
+            outputDiv.textContent = `NETWORK OR FRONT-END ERROR: ${error.message}`;
+            submitButton.disabled = false; // Re-enable submit button on network error
         }
     });
 
