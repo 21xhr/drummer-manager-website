@@ -243,20 +243,27 @@
     const ONE_OFF_PLACEHOLDER = 'Describe the task. (Reminder: Use the TIME & PACE section below to define the total 21-min sessions, NOT here.)';
 
 
-   // --- API URL LOGIC ---
+   // --- API URL LOGIC (The most robust dual-path) ---
     const getApiBaseUrl = () => {
         const hostname = window.location.hostname;
         
-        // Use localhost/loopback IP if running in a known local environment
-        if (hostname.startsWith('192.168.') || hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
-            // CRITICAL FIX: Always return 127.0.0.1 (Loopback) for the API call on the same machine.
-            // This is the most reliable way for a client to talk to a server running locally.
-            return `http://127.0.0.1:3000/api/v1`; 
+        // 1. If accessed via the Mac's true loopback aliases (localhost, 127.0.0.1, 0.0.0.0), use loopback for API call.
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+            return 'http://127.0.0.1:3000/api/v1'; 
         }
-        // Production fallback
+        
+        // 2. If accessed via the local network IP (i.e., your phone using 192.168.1.37), use that IP.
+        if (hostname.startsWith('192.168.')) {
+            // Use the IP the form was accessed on, which the phone can reach.
+            return `http://${hostname}:3000/api/v1`; 
+        }
+
+        // 3. Production fallback
         return 'https://drummer-manager-api.vercel.app/api/v1';
     };
-    const API_BASE_URL = getApiBaseUrl();
+
+    let API_BASE_URL = getApiBaseUrl(); // Use 'let' for the override below
+    
 
     // --- DOM REFERENCES ---
     const form = document.getElementById('challengeForm');
