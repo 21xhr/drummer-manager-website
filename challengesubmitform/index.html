@@ -3,153 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Challenge Submission Form</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    
+    <title>Drummer Manager: Propose a Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Specific Styles for Challenge Submission Form */
+        
+        /* --- Structural/Behavioral --- */
+        .form-container {
+            padding: 15px !important; 
+            margin-top: 1rem !important;
+            margin-bottom: 70px !important; 
+        }
+
+        .step-container {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .step-container.hidden {
+            display: none;
+        }
+        
+        /* --- Success/Confetti Animation Keyframes (MUST stay here if not moving to styles.css) --- */
+        .starburst-glow {
+            animation: glow-pulse 2s infinite alternate;
+        }
+        
+        @keyframes glow-pulse {
+            from { transform: translate(-50%, -50%) scale(0.8); opacity: 0.6; }
+            to { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+        }
+    </style>
 </head>
 <body class="dm-sans"> 
-    <div class="form-container">
-        <h1 class="dm-sans text-3xl font-bold text-center neon-text">
-            New Challenge Submission
-        </h1>
+    <div class="form-container mx-auto" id="form-wrapper">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="dm-sans text-2xl font-bold neon-text">
+                21 <span class="roboto font-normal text-lg text-white tracking-widest">Drummer Manager Game</span>
+            </h1>
+            <div class="flex items-center space-x-1">
+                <span id="streamStatusText" class="roboto text-xs text-gray-400">OFFLINE</span>
+                <div id="streamStatusIndicator" class="stream-status-indicator offline"></div>
+            </div>
+        </div>
+        
+        <h2 id="formTitle" class="dm-sans text-2xl font-bold text-center neon-text mb-4">
+            Propose a Challenge
+        </h2>
+
+        <p id="identityReminder" class="roboto text-xs text-center text-gray-400 mt-2 mb-4 hidden border-b border-[#333] pb-2">
+            Submitting as: <strong id="reminderUsername"></strong> on <strong id="reminderPlatform"></strong>
+        </p>
+
         <form id="challengeForm">
-            <h2 class="form-heading">Authentication</h2>
-            
-            <div class="form-group">
-                <label for="platformId">Your Platform Username:</label>
-                <input type="text" id="platformId" class="form-input" placeholder="e.g., DrummerBoy21" required>
-            </div>
-
-            <div class="form-group">
-                <label for="platformName">Streaming Platform:</label>
-                <select id="platformName" class="form-input" required>
-                    <option value="" disabled selected>Select Platform for Username</option>
-                    <option value="KICK">💚 Kick</option>
-                    <option value="TWITCH">💜 Twitch</option>
-                    <option value="YOUTUBE">❤️ YouTube</option>
-                    </select>
-            </div>
-
-            <div class="form-group">
-                <label for="duration">Token Duration (Optional):</label>
-                <input type="text" id="duration" class="form-input" placeholder="This is totally optional">
-            </div>
-
-            <button type="button" id="getTokenButton" class="interactive-button form-button">
-                Get Access Token
-            </button>
-    
-            <div id="formFields" class="hidden">
-                <h2 class="form-heading">Challenge Details</h2>
-                <p class="roboto text-sm">
-                    Access Status: <strong id="tokenStatus" style="color: var(--primary-neon);">Awaiting Token</strong>
-                </p>
-    
+            <div id="step1" class="step-container text-center">
                 <div class="form-group">
-                    <label for="challengeText">Challenge Text:</label>
-                    <textarea id="challengeText" class="form-input" placeholder="Describe the challenge." required></textarea>
+                    <i id="statusIcon" class="fa-solid fa-spinner fa-spin text-primary-neon text-3xl mb-4"></i>
+                    <p id="statusMessage1" class="roboto text-sm text-center text-gray-400">
+                        Verifying secure link...
+                    </p>
                 </div>
-    
-                <div class="form-group">
-                    <label for="durationType">
-                        Duration Type: 
-                        <span class="info-tooltip-container">
-                            ⓘ
-                            <span class="info-tooltip-text"> 
-                                <strong>One-Off:</strong> Single 21-minute session.<br>
-                                <strong>Recurring:</strong> Multiple 21-minute sessions over time.
-                            </span>
-                        </span>
-                    </label>
-                    <select id="durationType" class="form-input" required>
-                        <option value="ONE_OFF">One-Off</option>
-                        <option value="RECURRING">Recurring</option>
-                    </select>
-                </div>
+            </div>
 
-                <div class="form-group" id="mainDurationGroup">
-                    <label id="mainDurationLabel" for="totalTimeframeCount">Total Sessions:</label>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="number" id="totalTimeframeCount" class="form-input" min="1" value="1" max="999" style="width: 80px; margin-top: 0;" required>
-                        <span id="totalTimeframeUnit" class="roboto" style="color: var(--text-color);">Sessions</span>
+            <div id="step2" class="step-container hidden">
+                
+                <div id="durationTypeGroup" class="form-group">
+                    <label class="roboto text-sm text-white mb-2 block">1. Do you want a one-time challenge or a recurring task?</label>
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                        <div class="duration-card w-full" data-duration="ONE_OFF">
+                            <h4 class="dm-sans font-bold text-sm mb-0">One-Off Challenge</h4>
+                            <p class="roboto text-xs text-gray-400">Continuous effort, must be completed within one stream day (21-min units).</p>
+                        </div>
+                        <div class="duration-card w-full" data-duration="RECURRING">
+                            <h4 class="dm-sans font-bold text-sm mb-0">Recurring Challenge</h4>
+                            <p class="roboto text-xs text-gray-400">Multi-session task scheduled across multiple days/weeks. Requires cadence.</p>
+                        </div>
                     </div>
                 </div>
 
-                <div id="cadenceGroup" class="hidden">
-                    <h3 class="roboto text-sm" style="margin-top: 1.5rem; color: var(--text-color); font-weight: bold;">
-                        Define Challenge Cadence (Sessions are 21 minutes):
-                    </h3>
+                <div id="challengeTextGroup" class="form-group mt-4 form-section-disabled">
+                    <label for="challengeText">2. The Challenge Text (Min 10 chars):</label>
+                    <textarea id="challengeText" class="form-input" rows="3" placeholder="Describe the task. (Tip: Use an AI tool like Gemini to help you formulate a clear and fun suggestion!)" disabled required></textarea>
+                </div>
+                
+                <div id="timePaceGroup" class="form-group mt-4 form-section-disabled">
+                    <h4 class="form-heading text-base roboto border-b border-[#333] pb-2 mb-3">3. Set the Time & Pace (Cost: <span id="currentCostDisplay">--</span> NUMBERS)</h4>
                     
-                    <div id="sentenceWrapper" style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 0.5rem;">
+                    <div id="oneOffGroup" class="form-group hidden">
+                        <label for="totalTimeframeCount">Total 21-min Sessions:</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="totalTimeframeCount" class="form-input cadence-input" min="1" value="1" max="999" disabled required>
+                            <span class="roboto text-sm">Session(s)</span>
+                        </div>
+                    </div>
+
+                    <div id="cadenceGroup" class="form-group hidden">
+                        <label class="roboto text-sm block">Session Cadence:</label>
                         
-                        <div id="primaryCadenceBlock" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+                        <div id="cadenceFieldsWrapper" class="space-y-2 mt-2">
                             
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span class="roboto">Suggest the Drummer do</span> 
-                                <input type="number" id="cadenceCount" class="form-input" value="1" min="1" max="999" style="text-align: right; margin-top: 0; width: 60px !important;">
-                                <span class="roboto">sessions</span>
+                            <div class="flex flex-wrap items-center gap-2 text-sm">
+                                <span class="roboto">Do</span> 
+                                <input type="number" id="cadenceCount" class="form-input cadence-input" value="1" min="1" max="999" disabled>
+                                <span class="roboto">session(s)</span>
+                                
+                                <select id="cadenceUnit" class="form-input" style="width: 120px !important; padding: 5px 8px !important;" disabled>
+                                    <option value="" disabled selected class="hidden">select frequency</option>
+                                    <option value="DAILY">per Day</option>
+                                    <option value="WEEKLY">per Week</option>
+                                    <option value="MONTHLY">per Month</option>
+                                    <option value="CUSTOM_DAYS">every X days</option> 
+                                </select>
+                            </div>
+
+                            <div id="customDaysGroup" class="hidden flex flex-wrap items-center gap-2 text-sm">
+                                <span class="roboto">Every</span>
+                                <input type="number" id="customDaysCount" class="form-input cadence-input" value="3" min="2" max="365" disabled>
+                                <span class="roboto">days</span>
                             </div>
                             
-                            <select id="cadenceUnit" class="form-input" style="margin-top: 0;">
-                                <option value="" class="hidden">select frequency</option>
-                                <option value="DAILY">per Day</option>
-                                <option value="WEEKLY">per Week</option>
-                                <option value="MONTHLY">per Month</option>
-                                <option value="CUSTOM_DAYS">every X days</option> 
-                            </select>
-
-                            <span id="customDaysGroup" class="hidden" style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                                <span class="roboto">Every</span>
-                                <input type="number" id="customDaysCount" class="form-input" value="3" min="2" max="365" style="width: 60px !important; text-align: right; margin-top: 0;">
-                                <span class="roboto">days</span>
-                            </span>
+                            <div id="durationGroup" class="hidden flex flex-wrap items-center gap-2 text-sm">
+                                <span id="durationLeadInText" class="roboto">for a total of</span>
+                                <input type="number" id="timeframeCountSentence" class="form-input cadence-input" min="1" max="999" value="1" disabled>
+                                <span id="timeframeUnitSentence" class="roboto">Weeks</span>
+                            </div>
                         </div>
 
-
-                        <span id="durationGroup" class="hidden" style="display: flex; align-items: center; gap: 8px;">
-                            <span id="durationLeadInText" class="roboto">for a total of</span>
-                            <input type="number" id="timeframeCountSentence" class="form-input" min="1" max="999" value="1" style="text-align: right; margin-top: 0; width: 60px !important;">
-                            <span id="timeframeUnitSentence" class="roboto">Weeks</span>
-                        </span>
-                        
+                        <div id="totalSummaryWrapper" class="mt-2 text-xs text-gray-400 pt-2 border-t border-[#333]">
+                            <span class="roboto">Total Sessions Estimate:</span>
+                            <strong id="cadencePreview" class="neon-text ml-1">...</strong>
+                        </div>
                     </div>
-
-                    <div id="totalSummaryWrapper" style="margin-top: 0.5rem; margin-left: 0.5rem;">
-                        <span class="roboto">Total:</span>
-                        <strong id="cadencePreview" style="color: var(--primary-neon); margin-left: 5px;">1 Session (21 Mins)</strong>
-                    </div>
-
+                    
                     <input type="hidden" id="sessionCadenceText">
-                    <input type="hidden" id="calculatedTotalSessions" value="1">
+                    <input type="hidden" id="calculatedTotalSessions" value="0">
+                    <input type="hidden" id="challengeDurationType">
+                    <input type="hidden" id="calculatedCost" value="0">
                 </div>
-    
-                <button type="submit" class="interactive-button form-button">
-                    Submit Challenge
+
+                <button type="submit" id="submitButton" class="interactive-button form-button mt-4" disabled>
+                    SUBMIT
+                    <span class="info-tooltip-container">
+                        ⓘ
+                        <span class="info-tooltip-text" style="width: 180px; margin-left: -90px;"> 
+                            This is final! Clicking 'SUBMIT' will deduct the calculated NUMBERS cost from your balance.
+                        </span>
+                    </span>
                 </button>
-                <h2 class="form-heading">Output</h2>
-                <div id="output" class="roboto"></div>
+                <p id="statusMessage2" class="roboto text-sm text-center mt-3"></p>
             </div>
+
+            <div id="step3" class="step-container hidden text-center">
+                
+                <div class="starburst-container">
+                    <div class="starburst-glow"></div> 
+                    
+                    <h3 class="dm-sans text-xl font-bold text-white mb-2" style="text-shadow: 0 0 10px rgba(242, 189, 21, 0.5); position: relative; z-index: 1;">
+                        CHALLENGE ACCEPTED!
+                    </h3>
+                </div>
+                
+                <p class="roboto text-base text-white mb-4">
+                    Thank you for engaging, your support is highly appreciated.
+                </p>
+
+                <div id="summaryContent" class="text-left p-3 rounded-lg border border-[#333] bg-[#1a1a1a] text-sm">
+                    </div>
+                
+                <h4 class="form-heading text-base mt-4">What's Next?</h4>
+                <p class="roboto text-xs text-gray-400 mb-4">
+                    Track this challenge, engage with other Adventurers, and suggest more.
+                </p>
+                
+                <div id="postSubmissionActions" class="flex justify-center flex-wrap gap-3">
+                    <a href="https://www.twitch.tv/21xhr" target="_blank" aria-label="Go Back to the Stream (Twitch)" class="social-link flex flex-col items-center text-xs text-center">
+                        <i class="fab fa-twitch text-purple-600 text-2xl"></i>
+                        <span class="mt-1 text-gray-400">Go to Stream</span>
+                    </a>
+                    <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Join the Discussion (Discord)" class="social-link flex flex-col items-center text-xs text-center">
+                        <i class="fab fa-discord text-indigo-400 text-2xl"></i>
+                        <span class="mt-1 text-gray-400">Join Discussion</span>
+                    </a>
+                    <a id="shareChallengeButton" href="#" target="_blank" class="social-link flex flex-col items-center text-xs text-center" aria-label="Share Challenge">
+                        <i class="fa-solid fa-share-nodes text-primary-neon text-2xl"></i>
+                        <span class="mt-1 text-gray-400">Share This!</span>
+                    </a>
+                </div>
+
+                <button type="button" id="startNewChallengeButton" class="interactive-button form-button mt-4 py-2 px-4">
+                    Start a New Proposal
+                </button>
+            </div>
+            
         </form>
-    
+    </div>
+
+    <div class="fixed-social-links-container py-4 z-50 text-center bg-[#0c0c0c]/90 backdrop-blur-sm flex-shrink-0">
+        <h2 class="dm-sans text-xs md:text-sm text-white font-bold mb-2">Follow 21 Everywhere</h2>
+        <div class="flex justify-center space-x-6 text-xl md:text-2xl">
+            <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Discord" class="social-link">
+                <i class="fab fa-discord"></i>
+            </a>
+            <a href="https://www.facebook.com/21xhr" target="_blank" aria-label="Facebook" class="social-link">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://www.instagram.com/21xhr_" target="_blank" aria-label="Instagram" class="social-link">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://www.twitch.tv/21xhr" target="_blank" aria-label="Twitch" class="social-link">
+                <i class="fab fa-twitch"></i>
+            </a>
+            <a href="https://x.com/21xhr" target="_blank" aria-label="X" class="social-link">
+                <i class="fab fa-x-twitter"></i>
+            </a>
+            <a href="https://www.youtube.com/@21xhr" target="_blank" aria-label="YouTube" class="social-link">
+                <i class="fab fa-youtube"></i>
+            </a>
+            <a href="https://21xhr.github.io/drummer-manager/donation" target="_blank" aria-label="Make a Donation" class="social-link">
+                <i class="fa-solid fa-mug-hot"></i>
+            </a>
+        </div>
     </div>
 
     <script>
     // --- CONFIG ---
     const SESSION_DURATION_MINUTES = 21;
-    // --- API URL LOGIC (using local path for dev) ---
-    const getApiBaseUrl = () => {
-        const isNetworkIP = window.location.hostname.startsWith('192.168.1.'); 
-        const isLocalhost = window.location.hostname === 'localhost' || 
-                            window.location.hostname === '127.0.0.1';
+    const BASE_COST_PER_SESSION = 210;
+    const LIVE_DISCOUNT_FACTOR = 0.79;
+    let submissionToken = '';
+    let selectedPlatform = '';
+    let selectedPlatformId = '';
+    let isStreamLive = false;
+    let baseChallengeCost = BASE_COST_PER_SESSION;
+    let challengeTextCache = ''; // Cache challenge text for UX
 
-        if (isNetworkIP) {
-            return `http://${window.location.hostname}:3000/api/v1`;
-        }
-        if (isLocalhost) {
-            return 'http://localhost:3000/api/v1'; 
+    const DEFAULT_PLACEHOLDER = 'Describe the task. (Tip: Use an AI tool like Gemini to help you formulate a clear and fun suggestion!)';
+    const RECURRING_PLACEHOLDER = 'Describe the task. (Reminder: Use the TIME & PACE section below to define the cadence, NOT here.)';
+    const ONE_OFF_PLACEHOLDER = 'Describe the task. (Reminder: Use the TIME & PACE section below to define the total 21-min sessions, NOT here.)';
+
+
+    // --- API URL LOGIC ---
+    const getApiBaseUrl = () => {
+        const hostname = window.location.hostname;
+        // Adjusted the local host IP logic slightly for common environment compatibility
+        if (hostname.startsWith('192.168.') || hostname === 'localhost' || hostname === '127.0.0.1') {
+            const localIp = hostname === '0.0.0.0' ? '192.168.1.37' : hostname; // Example IP, use host name if not 0.0.0.0
+            return `http://${localIp}:3000/api/v1`; 
         }
         return 'https://drummer-manager-api.vercel.app/api/v1';
     };
@@ -157,18 +257,29 @@
 
     // --- DOM REFERENCES ---
     const form = document.getElementById('challengeForm');
-    const getTokenButton = document.getElementById('getTokenButton');
-    const outputDiv = document.getElementById('output');
-    const formFieldsDiv = document.getElementById('formFields');
-    const tokenStatusStrong = document.getElementById('tokenStatus');
-    const durationTypeSelect = document.getElementById('durationType');
-    const submitButton = document.querySelector('button[type="submit"]'); 
+    const formWrapper = document.getElementById('form-wrapper');
+    const formTitle = document.getElementById('formTitle');
+    const step1 = document.getElementById('step1');
+    const statusIcon = document.getElementById('statusIcon');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    const streamStatusText = document.getElementById('streamStatusText');
+    const streamStatusIndicator = document.getElementById('streamStatusIndicator');
     
-    // MAIN DURATION FIELD
-    const mainDurationGroup = document.getElementById('mainDurationGroup');
+    const statusMessage1 = document.getElementById('statusMessage1');
+    const identityReminder = document.getElementById('identityReminder');
+    const reminderUsername = document.getElementById('reminderUsername');
+    const reminderPlatform = document.getElementById('reminderPlatform');
+    const startNewChallengeButton = document.getElementById('startNewChallengeButton'); // Renamed for clarity
+    
+    const durationTypeGroup = document.getElementById('durationTypeGroup');
+    const durationCards = formWrapper.querySelectorAll('.duration-card');
+    const challengeTextGroup = document.getElementById('challengeTextGroup');
+    const challengeText = document.getElementById('challengeText');
+    const timePaceGroup = document.getElementById('timePaceGroup');
+    const currentCostDisplay = document.getElementById('currentCostDisplay');
+    const oneOffGroup = document.getElementById('oneOffGroup');
     const totalTimeframeCountInput = document.getElementById('totalTimeframeCount'); 
-    
-    // CADENCE SENTENCE ELEMENTS
     const cadenceGroup = document.getElementById('cadenceGroup');
     const cadenceUnitSelect = document.getElementById('cadenceUnit');
     const cadenceCountInput = document.getElementById('cadenceCount');
@@ -179,313 +290,481 @@
     const cadencePreview = document.getElementById('cadencePreview');
     const sessionCadenceHidden = document.getElementById('sessionCadenceText');
     const calculatedTotalSessionsInput = document.getElementById('calculatedTotalSessions');
+    const challengeDurationTypeHidden = document.getElementById('challengeDurationType');
     const durationGroup = document.getElementById('durationGroup');
     const durationLeadInText = document.getElementById('durationLeadInText');
+    const submitButton = document.getElementById('submitButton');
+    const statusMessage2 = document.getElementById('statusMessage2');
+    const calculatedCostInput = document.getElementById('calculatedCost');
+    const summaryContent = document.getElementById('summaryContent');
+    const shareChallengeButton = document.getElementById('shareChallengeButton');
 
-    let submissionToken = '';
 
-    // --- Helper: Set Default Timeframe based on Cadence Unit (NEW) ---
-    const setCadenceTimeframeDefaults = (unit) => {
-        const currentFrameCount = parseInt(timeframeCountSentenceInput.value);
-        const currentCadenceCount = parseInt(cadenceCountInput.value);
+    // --- STEP MANAGEMENT ---
+    let currentStep = 1;
+
+    const renderStep = (step) => {
+        currentStep = step;
+        step1.classList.add('hidden');
+        step2.classList.add('hidden');
+        step3.classList.add('hidden');
         
-        if (unit === 'DAILY' || unit === 'CUSTOM_DAYS') {
-            if (currentFrameCount <= 1) {
-                timeframeCountSentenceInput.value = 2; 
-            }
-        } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
-            if (currentFrameCount > 1) {
-                timeframeCountSentenceInput.value = 1;
-            }
+        if (step === 1) {
+            step1.classList.remove('hidden');
+            identityReminder.classList.add('hidden');
+            formTitle.textContent = "Secure Link Check";
+        } else if (step === 2) {
+            step2.classList.remove('hidden');
+            identityReminder.classList.remove('hidden');
+            formTitle.textContent = "Propose a Challenge"; 
+        } else if (step === 3) {
+            step3.classList.remove('hidden');
+            identityReminder.classList.remove('hidden');
+            formTitle.textContent = "Submission Complete!"; 
         }
-        
-        if (unit === 'WEEKLY' || unit === 'MONTHLY') {
-            if (currentCadenceCount <= 1) {
-                cadenceCountInput.value = 2;
-            }
-            cadenceCountInput.min = 2; 
-        } else if (unit === 'DAILY' || unit === 'CUSTOM_DAYS' || unit === "") {
-            cadenceCountInput.min = 1;
-            if (currentCadenceCount === 2) {
-                cadenceCountInput.value = 1;
-            }
-        }
+        window.scrollTo(0, 0); 
     };
-
-    // --- Helper: Update the Cadence Sentence and Calculate Total Sessions (REVISED) ---
-    const calculateTotalSessions = () => {
-        const unit = cadenceUnitSelect.value;
-        const pace = Math.min(parseInt(cadenceCountInput.value) || 1, 999);
-        const customDays = parseInt(customDaysInput.value) || 1;
-        const timeframeCount = Math.min(parseInt(timeframeCountSentenceInput.value) || 1, 999); 
-        
-        const minPace = parseInt(cadenceCountInput.min) || 1;
-        const clampedPace = Math.max(pace, minPace);
-        
-        cadenceCountInput.value = clampedPace;
-        timeframeCountSentenceInput.value = timeframeCount;
-
-        let text = "";
-        let calculatedTotal = 0;
-        
-        const isRecurring = durationTypeSelect.value === 'RECURRING';
-
-        // --- 1. UI CONTROL: RESET ALL OPTIONS ---
-        const options = cadenceUnitSelect.options;
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].value === 'DAILY') options[i].textContent = "per Day";
-            if (options[i].value === 'WEEKLY') options[i].textContent = "per Week";
-            if (options[i].value === 'MONTHLY') options[i].textContent = "per Month";
-            if (options[i].value === 'CUSTOM_DAYS') options[i].textContent = "every X days";
-        }
-        
-        const selectFrequencyOption = cadenceUnitSelect.querySelector('option[value=""]');
-        if (selectFrequencyOption) {
-             selectFrequencyOption.classList.toggle('hidden', !!unit);
-        }
-
-        const isFrequencySelected = !!unit;
-        
-        durationGroup.classList.toggle('hidden', !isFrequencySelected);
-        customDaysGroup.classList.add('hidden'); 
-        
-        // --- 2. COST CALCULATION & TEXT GENERATION ---
-        
-        let cadenceUnitText = "";
-        let durationLeadIn = "for a total of"; 
-
-        if (!isRecurring) {
-            calculatedTotal = Math.min(parseInt(totalTimeframeCountInput.value) || 1, 999);
-            totalTimeframeCountInput.value = calculatedTotal;
-            text = `ONE_OFF: ${calculatedTotal} session(s).`;
-            
-        } else {
-            
-            if (unit === 'DAILY') {
-                cadenceUnitText = "per Day";
-                timeframeUnitSentenceSpan.textContent = "Days";
-                calculatedTotal = clampedPace * timeframeCount;
-                text = `${clampedPace} sessions per Day for ${timeframeCount} Days = ${calculatedTotal} Total Sessions`;
-            } else if (unit === 'WEEKLY') {
-                cadenceUnitText = "per Week";
-                timeframeUnitSentenceSpan.textContent = "Weeks";
-                calculatedTotal = clampedPace * timeframeCount;
-                text = `${clampedPace} sessions per Week for ${timeframeCount} Weeks = ${calculatedTotal} Total Sessions`;
-            } else if (unit === 'MONTHLY') {
-                cadenceUnitText = "per Month";
-                timeframeUnitSentenceSpan.textContent = "Months";
-                calculatedTotal = clampedPace * timeframeCount;
-                text = `${clampedPace} sessions per Month for ${timeframeCount} Months = ${calculatedTotal} Total Sessions`;
-            } else if (unit === 'CUSTOM_DAYS') {
-                cadenceUnitText = ""; 
-                durationLeadIn = "then repeat this"; 
-                
-                customDaysGroup.classList.remove('hidden'); 
-                timeframeUnitSentenceSpan.textContent = "times"; 
-                calculatedTotal = clampedPace * timeframeCount;
-                
-                text = `${clampedPace} sessions every ${customDays} days for ${timeframeCount} times = ${calculatedTotal} Total Sessions`;
-            } else {
-                cadenceUnitText = "select frequency";
-                timeframeUnitSentenceSpan.textContent = "..."; 
-                text = "Select a frequency and duration to calculate total sessions.";
-                calculatedTotal = 0;
-            }
-
-            const selectedOption = cadenceUnitSelect.querySelector(`option[value="${unit}"]`);
-            if (selectedOption) {
-                selectedOption.textContent = cadenceUnitText;
-            }
-            
-            durationLeadInText.textContent = durationLeadIn;
-        }
-        
-        const totalMinutes = calculatedTotal * SESSION_DURATION_MINUTES;
-
-        calculatedTotalSessionsInput.value = calculatedTotal;
-        cadencePreview.textContent = `${calculatedTotal} Sessions (${totalMinutes} Mins)`;
-        sessionCadenceHidden.value = text;
-    };
-
-
-    // --- UX IMPROVEMENT: Generate Human-Readable Challenge Summary (MODIFIED) ---
-    // Now accepts the new userStats object
-    const generateChallengeSummary = (challenge, cost, userStats) => {
-        if (!challenge) return `<p class="roboto" style="color: red;">Error: Challenge data is missing from the API response.</p>`;
-
-        const isRecurring = challenge.durationType === 'RECURRING';
-        let cadenceInfo = '';
-        
-        if (isRecurring) {
-            const cadenceDescription = challenge.sessionCadenceText || "Cadence defined by the proposer."; 
-            cadenceInfo = `
-                <p class="roboto" style="margin-top: 5px;">
-                    <strong>Cadence:</strong> ${cadenceDescription}
-                </p>
-            `;
-        }
-
-        // --- NEW: User Stats Summary Block ---
-        let statsInfo = '';
-        if (userStats) {
-            statsInfo = `
-                <div style="margin-top: 20px; padding: 10px; border: 1px dashed var(--primary-neon); background-color: rgba(138, 43, 226, 0.1);">
-                    <h4 class="roboto" style="margin-top: 0; font-weight: bold; color: var(--primary-neon);">Your Updated Stats:</h4>
-                    <p class="roboto" style="margin: 5px 0;">
-                        <strong>New Balance:</strong> ${userStats.lastKnownBalance} NUMBERS
-                    </p>
-                    <p class="roboto" style="margin: 5px 0;">
-                        <strong>Daily Submissions:</strong> ${userStats.dailySubmissionCount} (Resets daily)
-                    </p>
-                    <p class="roboto" style="margin: 5px 0;">
-                        <strong>Total Challenges Proposed:</strong> ${userStats.totalChallengesSubmitted}
-                    </p>
-                    <p class="roboto" style="margin: 5px 0;">
-                        <strong>Total Spent Game-Wide:</strong> ${userStats.totalNumbersSpent} NUMBERS
-                    </p>
-                </div>
-            `;
-        }
-
-
-        return `
-            <h3 class="form-heading" style="margin-top: 0; border-bottom: none; color: var(--success-green); text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);">
-                ✅ Challenge Submitted Successfully!
-            </h3>
-            <hr style="border-top: 1px solid var(--primary-neon); margin: 15px 0;">
-
-            <h4 class="roboto" style="margin-top: 0; font-weight: bold; color: var(--primary-neon);">Challenge Details:</h4>
-            <p class="roboto">
-                <strong>Cost:</strong> ${cost} NUMBERS
-            </p>
-            <p class="roboto">
-                <strong>Challenge ID:</strong> #${challenge.challengeId}
-            </p>
-            <p class="roboto">
-                <strong>Duration Type:</strong> ${challenge.durationType}
-            </p>
-            <p class="roboto">
-                <strong>Total Sessions:</strong> ${challenge.totalSessions} sessions (${challenge.totalSessions * SESSION_DURATION_MINUTES} Mins total)
-            </p>
-            ${cadenceInfo}
-
-            <div style="margin-top: 15px; padding: 10px; border: 1px dashed var(--primary-neon);">
-                <strong>Challenge Text:</strong><br>
-                <span style="font-style: italic;">"${challenge.challengeText}"</span>
-            </div>
-
-            ${statsInfo} 
-            
-            <p class="roboto" style="margin-top: 20px; font-size: 0.9rem;">
-                You can now close this window or refresh the page to submit a new challenge.
-            </p>
-        `;
-    };
-
-
-    // --- Event Listeners ---
-    cadenceUnitSelect.addEventListener('change', (e) => {
-        setCadenceTimeframeDefaults(e.target.value); 
-        calculateTotalSessions();
-    });
-    cadenceCountInput.addEventListener('input', calculateTotalSessions);
-    customDaysInput.addEventListener('input', calculateTotalSessions);
-    timeframeCountSentenceInput.addEventListener('input', calculateTotalSessions); 
-    totalTimeframeCountInput.addEventListener('input', calculateTotalSessions);
-
-    // --- UI Logic for Duration Type ---
-    durationTypeSelect.addEventListener('change', (e) => {
-        const isRecurring = e.target.value === 'RECURRING';
-        cadenceGroup.classList.toggle('hidden', !isRecurring);
-        mainDurationGroup.classList.toggle('hidden', isRecurring);
-        
-        cadenceUnitSelect.required = isRecurring;
-        
-        if (isRecurring) {
-            if (cadenceUnitSelect.value) {
-                setCadenceTimeframeDefaults(cadenceUnitSelect.value);
-            }
-        }
-        calculateTotalSessions(); 
-    });
     
-    // Add dynamic CSS rules
-    const styleSheet = document.styleSheets[0];
-    try {
-        styleSheet.insertRule(':root { --success-green: #39FF14; }', styleSheet.cssRules.length);
-        styleSheet.insertRule('.form-input--disabled { background-color: #2c2c2c !important; border-color: #444 !important; color: #888 !important; cursor: not-allowed; }', styleSheet.cssRules.length);
-    } catch (e) {
-        console.warn("Could not insert CSS rules.");
-    }
-
-    // --- Step 1: Get Token ---
-    getTokenButton.addEventListener('click', async () => { 
-        const platformId = document.getElementById('platformId').value;
-        const platformName = document.getElementById('platformName').value;
-        const duration = document.getElementById('duration').value || undefined; 
-
-        if (!platformId || !platformName) {
-            outputDiv.textContent = 'Error: Platform Username and Platform are required.';
+    // --- TOKEN VERIFICATION LOGIC ---
+    const verifyTokenAndStartForm = async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        
+        if (!token) {
+            statusIcon.classList.remove('fa-spinner', 'fa-spin', 'text-primary-neon');
+            statusIcon.classList.add('fa-lock', 'text-red-500');
+            statusMessage1.style.color = 'red';
+            statusMessage1.innerHTML = `
+                **Access Denied.** This page must be accessed via a secure link generated from the stream chat. 
+                <br>Please use the command **!challengesubmit** in chat to get a valid link.
+            `;
             return;
         }
-        outputDiv.textContent = 'Requesting token...';
+
+        submissionToken = token;
+        statusIcon.classList.add('fa-spinner', 'fa-spin');
+        statusIcon.classList.remove('fa-lock', 'fa-triangle-exclamation');
+        statusMessage1.style.color = 'var(--text-color)';
+        statusMessage1.textContent = 'Verifying secure link...';
 
         try {
-            const response = await fetch(`${API_BASE_URL}/token/submit-challenge`, { 
+            const response = await fetch(`${API_BASE_URL}/token/verify`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ platformId, platformName, duration })
+                body: JSON.stringify({ token: submissionToken })
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                submissionToken = data.details.token;
-                const expiresIn = data.details.duration;
-                outputDiv.textContent = `Token successfully received! Expires: ${expiresIn}`;
-                formFieldsDiv.classList.remove('hidden');
-                tokenStatusStrong.textContent = 'Ready'; 
-                tokenStatusStrong.style.color = 'var(--primary-neon)';
-                getTokenButton.disabled = true; 
+                selectedPlatformId = data.platformId;
+                selectedPlatform = data.platformName; 
+
+                reminderUsername.textContent = selectedPlatformId;
+                reminderPlatform.textContent = selectedPlatform;
+
+                statusIcon.classList.remove('fa-spinner', 'fa-spin');
+                statusIcon.classList.add('fa-circle-check', 'text-success-green');
+                statusMessage1.style.color = 'var(--success-green)';
+                statusMessage1.textContent = `Identity Verified! Submitting as ${selectedPlatformId} on ${selectedPlatform}. Key expires soon.`;
+
+                setTimeout(() => {
+                    renderStep(2);
+                    statusMessage1.textContent = ''; 
+                }, 1000); 
+
             } else {
-                outputDiv.textContent = `Token Error: ${data.message || data.error}`;
+                statusIcon.classList.remove('fa-spinner', 'fa-spin');
+                statusIcon.classList.add('fa-triangle-exclamation', 'text-red-500');
+                statusMessage1.style.color = 'red';
+                statusMessage1.innerHTML = `
+                    **Verification Failed!** ${data.message || 'The token is invalid or has expired.'}
+                    <br>Please return to the stream chat and use the **!challengesubmit** command again to get a new secure link.
+                `;
+            }
+
+        } catch (error) {
+            statusIcon.classList.remove('fa-spinner', 'fa-spin');
+            statusIcon.classList.add('fa-server', 'text-red-500');
+            statusMessage1.style.color = 'red';
+            statusMessage1.textContent = `NETWORK ERROR: Could not connect to the game server for verification.`;
+            console.error('Verification Network Error:', error);
+        }
+    };
+
+    // --- STREAM STATUS & COST LOGIC ---
+    const fetchStreamStatus = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/stream/stats`);
+            const data = await response.json();
+            
+            isStreamLive = data.isStreamLive;
+            
+            if (isStreamLive) {
+                streamStatusIndicator.classList.remove('offline');
+                streamStatusIndicator.classList.add('live');
+                streamStatusText.textContent = 'LIVE (21% Discount)';
+                baseChallengeCost = Math.ceil(BASE_COST_PER_SESSION * LIVE_DISCOUNT_FACTOR);
+            } else {
+                streamStatusIndicator.classList.remove('live');
+                streamStatusIndicator.classList.add('offline');
+                streamStatusText.textContent = 'OFFLINE';
+                baseChallengeCost = BASE_COST_PER_SESSION;
             }
         } catch (error) {
-            outputDiv.textContent = `NETWORK OR FRONT-END ERROR: ${error.message}`;
+            streamStatusText.textContent = 'ERROR';
+            console.error('Error fetching stream stats:', error);
+            baseChallengeCost = BASE_COST_PER_SESSION; 
         }
+        calculateTotalSessions();
+    };
+
+    // --- HELPER FUNCTIONS ---
+    
+    const updateDynamicFields = () => {
+        const textLength = challengeText.value.trim().length;
+        const durationType = challengeDurationTypeHidden.value;
+        const isRecurring = durationType === 'RECURRING';
+        const isOneOff = durationType === 'ONE_OFF';
+
+        // Update Placeholder based on selection
+        if (isRecurring) {
+            challengeText.placeholder = RECURRING_PLACEHOLDER;
+        } else if (isOneOff) {
+            challengeText.placeholder = ONE_OFF_PLACEHOLDER;
+        } else {
+            challengeText.placeholder = DEFAULT_PLACEHOLDER;
+        }
+
+        // Trigger 1 (Duration Type Selection)
+        if (durationType) {
+            challengeTextGroup.classList.remove('form-section-disabled');
+            challengeText.disabled = false;
+        } else {
+            challengeTextGroup.classList.add('form-section-disabled');
+            challengeText.disabled = true;
+            challengeText.placeholder = 'Please select a Duration Type above first.';
+        }
+
+        // Trigger 2: Enable Time/Pace after sufficient challenge text is entered
+        const canSetPace = durationType && textLength >= 10;
+        
+        if (canSetPace) {
+            timePaceGroup.classList.remove('form-section-disabled');
+            totalTimeframeCountInput.disabled = false;
+            cadenceCountInput.disabled = false;
+            cadenceUnitSelect.disabled = false;
+            customDaysInput.disabled = false;
+            timeframeCountSentenceInput.disabled = false;
+            
+            oneOffGroup.classList.toggle('hidden', !isOneOff);
+            cadenceGroup.classList.toggle('hidden', !isRecurring);
+            
+            // Set default for recurring if not set
+            if (isRecurring && !cadenceUnitSelect.value) {
+                cadenceUnitSelect.value = 'DAILY';
+            }
+            
+            calculateTotalSessions(); 
+        } else {
+            timePaceGroup.classList.add('form-section-disabled');
+            totalTimeframeCountInput.disabled = true;
+            cadenceCountInput.disabled = true;
+            cadenceUnitSelect.disabled = true;
+            customDaysInput.disabled = true;
+            timeframeCountSentenceInput.disabled = true;
+            currentCostDisplay.textContent = '--';
+            cadencePreview.textContent = '...';
+        }
+
+        // Update submit button state
+        const hasChallengeText = textLength >= 10;
+        const hasDurationSelection = !!durationType;
+        let hasSessions = false;
+        
+        // Ensure total sessions is calculated and >= 1. For recurring, ensure >= 2.
+        const totalSessions = parseInt(calculatedTotalSessionsInput.value);
+        if (totalSessions >= 1) { 
+             // For Recurring, enforce a total of at least 2 sessions to be valid
+             if (isRecurring && totalSessions < 2) {
+                 hasSessions = false; 
+             } else {
+                hasSessions = true;
+             }
+        }
+        
+        submitButton.disabled = !(hasChallengeText && hasDurationSelection && hasSessions);
+    };
+
+    const setCadenceTimeframeDefaults = (unit) => {
+        // Only set this up when recurring is active
+        if (challengeDurationTypeHidden.value !== 'RECURRING') return;
+        
+        // This is only for display purposes in the sentence
+        if (unit === 'DAILY') {
+            timeframeUnitSentenceSpan.textContent = "Days";
+        } else if (unit === 'WEEKLY') {
+            timeframeUnitSentenceSpan.textContent = "Weeks";
+        } else if (unit === 'MONTHLY') {
+            timeframeUnitSentenceSpan.textContent = "Months";
+        } else if (unit === 'CUSTOM_DAYS') {
+            timeframeUnitSentenceSpan.textContent = "times";
+        }
+
+        customDaysGroup.classList.toggle('hidden', unit !== 'CUSTOM_DAYS');
+        
+        // We always call calculateTotalSessions to ensure all fields are updated
+        calculateTotalSessions();
+    };
+    
+    const calculateTotalSessions = () => {
+        const durationType = challengeDurationTypeHidden.value;
+        const isRecurring = durationType === 'RECURRING';
+
+        let text = "";
+        let calculatedTotal = 0;
+        
+        if (durationType === 'ONE_OFF') {
+            calculatedTotal = Math.min(parseInt(totalTimeframeCountInput.value) || 1, 999);
+            // Ensure minimum of 1 session for one-off
+            if (calculatedTotal < 1) calculatedTotal = 1;
+            totalTimeframeCountInput.value = calculatedTotal;
+            text = `ONE_OFF: ${calculatedTotal} session(s).`;
+            
+        } else if (isRecurring) {
+            const unit = cadenceUnitSelect.value;
+            let pace = Math.min(parseInt(cadenceCountInput.value) || 1, 999);
+            let timeframeCount = Math.min(parseInt(timeframeCountSentenceInput.value) || 1, 999); 
+            const customDays = parseInt(customDaysInput.value) || 1;
+            
+            // --- UI FIX (Point 1): Show durationGroup if a unit is selected and parent section is enabled ---
+            // This ensures it appears immediately after typing the 10th character.
+            if (unit && !timePaceGroup.classList.contains('form-section-disabled')) {
+                durationGroup.classList.remove('hidden');
+            }
+
+            // --- CRITICAL FIX: Enforce minimums based on unit type (Points 2 & last turn's fixes) ---
+            if (unit === 'DAILY' || unit === 'CUSTOM_DAYS') {
+                
+                if (pace < 1) pace = 1; // Minimum pace is 1
+                if (timeframeCount < 1) timeframeCount = 1; // Minimum duration is 1 (for initial input)
+
+                // FIX (Point 2): Enforce minimum of 2 total sessions only by adjusting timeframeCount IF pace is 1.
+                if (pace === 1 && timeframeCount === 1) {
+                    timeframeCount = 2; // Forces 1 session for 2 days = 2 total
+                }
+                
+            } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
+                // Required: Must have at least 2 sessions per Week/Month. (2 sessions/week for 1 week)
+                if (pace < 2) {
+                    pace = 2;
+                }
+                if (timeframeCount < 1) timeframeCount = 1; // Minimum timeframeCount is 1
+            }
+            
+            // 2. Update DOM fields with enforced minimums
+            cadenceCountInput.value = pace;
+            timeframeCountSentenceInput.value = timeframeCount;
+            // --- End Enforcement ---
+
+            // Correct logic: Total sessions = Pace * TimeframeCount
+            calculatedTotal = pace * timeframeCount;
+            
+            if (!unit) {
+                // If cadenceUnit is not selected yet
+                text = "Select a frequency and duration to calculate total sessions.";
+                calculatedTotal = 0;
+                durationGroup.classList.add('hidden'); // Ensure it hides if unit is reset
+            } else {
+                if (unit === 'DAILY' || unit === 'WEEKLY' || unit === 'MONTHLY') {
+                    text = `${pace} sessions per ${unit.toLowerCase()} for ${timeframeCount} ${timeframeUnitSentenceSpan.textContent}`;
+                } else if (unit === 'CUSTOM_DAYS') {
+                    text = `${pace} sessions every ${customDays} days for ${timeframeCount} times`;
+                }
+            }
+
+            text += calculatedTotal > 0 ? ` = ${calculatedTotal} Total Sessions` : "";
+            durationLeadInText.textContent = unit === 'CUSTOM_DAYS' ? "then repeat this" : "for a total of";
+        } else {
+            text = "Select a Duration Type to continue.";
+            calculatedTotal = 0;
+        }
+        
+        const totalMinutes = calculatedTotal * SESSION_DURATION_MINUTES;
+        const finalCost = calculatedTotal * baseChallengeCost;
+
+        calculatedTotalSessionsInput.value = calculatedTotal;
+        sessionCadenceHidden.value = text;
+        calculatedCostInput.value = finalCost;
+        
+        cadencePreview.textContent = `${calculatedTotal.toLocaleString()} Sessions (${totalMinutes.toLocaleString()} Mins)`;
+        currentCostDisplay.textContent = finalCost.toLocaleString();
+        
+        updateDynamicFields();
+    };
+
+
+    const generateChallengeSummary = (challenge, cost, userStats) => {
+        if (!challenge || !userStats) return `<p class="roboto" style="color: red;">Error: Challenge data or user stats are missing.</p>`;
+
+        const isRecurring = challenge.durationType === 'RECURRING';
+        
+        const cadenceInfo = isRecurring ? `
+            <p class="roboto" style="margin-top: 8px;">
+                <strong>Cadence:</strong> ${challenge.sessionCadenceText}
+            </p>
+        ` : '';
+
+        const statsInfo = `
+            <div style="margin-top: 15px; padding: 8px; border: 1px dashed var(--primary-neon); background-color: rgba(242, 189, 21, 0.05); border-radius: 4px;">
+                <h4 class="roboto" style="margin-top: 0; font-weight: bold; color: var(--primary-neon); font-size: 0.9rem;">Your Updated Stats:</h4>
+                <p class="roboto" style="margin: 3px 0; font-size: 0.8rem;">
+                    <strong>New Balance:</strong> ${userStats.lastKnownBalance.toLocaleString()} NUMBERS
+                </p>
+                <p class="roboto" style="margin: 3px 0; font-size: 0.8rem;">
+                    <strong>Total Challenges Proposed:</strong> ${userStats.totalChallengesSubmitted}
+                </p>
+            </div>
+        `;
+
+        const challengeUrl = `https://21xhr.github.io/drummer-manager/`; 
+        const shareText = encodeURIComponent(`I just proposed Challenge #${challenge.challengeId} (Cost: ${cost.toLocaleString()} NUMBERS) to @21xhr on the Drummer Manager Game! #DrummerManager #ChallengeAccepted`);
+        const twitterShare = `https://x.com/intent/tweet?text=${shareText}&url=${challengeUrl}`;
+        
+        shareChallengeButton.href = twitterShare;
+
+        return `
+            <h4 class="roboto font-bold text-white mb-2 border-b border-[#333] pb-1">Proposal Details:</h4>
+            <p class="roboto text-sm">
+                <strong>Cost:</strong> ${cost.toLocaleString()} NUMBERS
+            </p>
+            <p class="roboto text-sm">
+                <strong>Challenge ID:</strong> #${challenge.challengeId}
+            </p>
+            <p class="roboto text-sm">
+                <strong>Duration Type:</strong> ${challenge.durationType.replace('_', '-')}
+            </p>
+            <p class="roboto text-sm">
+                <strong>Total Sessions:</strong> ${challenge.totalSessions} sessions (${challenge.totalSessions * SESSION_DURATION_MINUTES} Mins total)
+            </p>
+            ${cadenceInfo}
+
+            <div style="margin-top: 10px; padding: 8px; border: 1px dashed #555; border-radius: 4px; background-color: #0d0d0d;">
+                <strong>Challenge Text:</strong><br>
+                <span style="font-style: italic; color: #aaa; font-size: 0.9rem;">"${challenge.challengeText}"</span>
+            </div>
+
+            ${statsInfo} 
+        `;
+    };
+
+    const resetForm = () => {
+        submissionToken = '';
+        selectedPlatform = '';
+        selectedPlatformId = '';
+        challengeTextCache = ''; 
+        
+        form.reset();
+        
+        challengeDurationTypeHidden.value = '';
+        durationCards.forEach(card => card.classList.remove('selected'));
+        challengeText.value = '';
+        challengeTextGroup.classList.add('form-section-disabled');
+        challengeText.placeholder = DEFAULT_PLACEHOLDER;
+        timePaceGroup.classList.add('form-section-disabled');
+        oneOffGroup.classList.add('hidden');
+        cadenceGroup.classList.add('hidden');
+        submitButton.disabled = true;
+        
+        // Reload the page to force token check
+        window.location.href = window.location.origin + window.location.pathname;
+    };
+
+    // --- EVENT LISTENERS ---
+
+    fetchStreamStatus();
+    verifyTokenAndStartForm();
+
+    
+    // Step 2: Duration Card Selection (Trigger 1)
+    durationCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const type = card.getAttribute('data-duration');
+            
+            challengeTextCache = challengeText.value;
+
+            durationCards.forEach(btn => btn.classList.remove('selected'));
+            card.classList.add('selected');
+            
+            challengeDurationTypeHidden.value = type;
+
+            challengeText.value = challengeTextCache;
+            
+            challengeTextGroup.classList.remove('form-section-disabled');
+            challengeText.disabled = false;
+
+            timePaceGroup.classList.add('form-section-disabled');
+
+            if (type === 'RECURRING') {
+                if (!cadenceUnitSelect.value) {
+                    cadenceUnitSelect.value = 'DAILY';
+                }
+                setCadenceTimeframeDefaults(cadenceUnitSelect.value);
+            } else if (type === 'ONE_OFF') {
+                if (totalTimeframeCountInput.value === '0') {
+                    totalTimeframeCountInput.value = '1';
+                }
+                calculateTotalSessions();
+            }
+            
+            // Enable the Challenge Text section (important to call after calculation/defaults)
+            updateDynamicFields(); 
+        });
     });
 
+    // Step 2: Challenge Text Input (Trigger 2)
+    challengeText.addEventListener('input', () => {
+        challengeTextCache = challengeText.value;
+        updateDynamicFields();
+    });
 
-    // --- Step 2: Submit Challenge ---
+    // Step 2: Cadence/Session logic
+    cadenceUnitSelect.addEventListener('change', (e) => {
+        setCadenceTimeframeDefaults(e.target.value); 
+    });
+    cadenceCountInput.addEventListener('input', calculateTotalSessions);
+    customDaysInput.addEventListener('input', calculateTotalSessions);
+    timeframeCountSentenceInput.addEventListener('input', calculateTotalSessions); 
+    totalTimeframeCountInput.addEventListener('input', calculateTotalSessions);
+    
+    // Step 2: Form Submission
     form.addEventListener('submit', async (e) => { 
         e.preventDefault();
+        
         if (!submissionToken) { 
-            outputDiv.textContent = 'Error: Please get an access token first.';
+            statusMessage2.style.color = 'red';
+            statusMessage2.textContent = 'Error: Session key expired or missing. Please refresh the page.';
             return; 
         }
         
         submitButton.disabled = true;
-        
-        const challengeText = document.getElementById('challengeText').value;
-        const durationType = durationTypeSelect.value;
-        
-        const totalSessions = durationType === 'RECURRING' 
-            ? parseInt(calculatedTotalSessionsInput.value) 
-            : parseInt(totalTimeframeCountInput.value); 
+        statusMessage2.style.color = 'var(--text-color)';
+        statusMessage2.textContent = 'Submitting challenge...';
 
-        const cadenceUnit = (durationType === 'RECURRING' ? cadenceUnitSelect.value : undefined);
-        const sessionCadenceText = (durationType === 'RECURRING' ? sessionCadenceHidden.value : undefined);
+        const durationType = challengeDurationTypeHidden.value;
+        
+        const totalSessions = parseInt(calculatedTotalSessionsInput.value); 
+        const cost = parseInt(calculatedCostInput.value);
 
         const submissionData = {
             token: submissionToken,
-            challengeText,
+            challengeText: challengeText.value,
             totalSessions,
             durationType,
-            cadenceUnit,
-            sessionCadenceText
+            cost,
+            cadenceUnit: (durationType === 'RECURRING' ? cadenceUnitSelect.value : undefined),
+            sessionCadenceText: (durationType === 'RECURRING' ? sessionCadenceHidden.value : undefined)
         };
-        
-        outputDiv.textContent = 'Submitting challenge...';
 
         try {
             const response = await fetch(`${API_BASE_URL}/user/submit/web`, {
@@ -497,47 +776,30 @@
             const data = await response.json();
 
             if (response.ok) {
-                // ⭐ CRITICAL FIX: Robustly extract payload data by checking common API wrappers.
-                const payload = data.details || data.data || data; 
-
+                const payload = data.details; 
                 const challengeData = payload.newChallenge;
                 const cost = payload.cost;
-                // ⭐ NEW: Extract the userStats object
                 const userStats = payload.userStats; 
                 
-                if (!challengeData || typeof cost !== 'number' || !userStats) {
-                    // Fail gracefully if response is ok but data structure is bad
-                    outputDiv.textContent = `SUBMISSION ERROR: API returned success but payload was malformed (Missing Challenge or User Stats). Check the browser console for raw response details.`;
-                    console.error("Malformed API submission response:", data);
-                    submitButton.disabled = false;
-                    return; 
-                }
+                summaryContent.innerHTML = generateChallengeSummary(challengeData, cost, userStats);
+                
+                statusMessage2.textContent = '';
+                
+                renderStep(3);
 
-                // ⭐ UX FIX: Pass the new userStats to the summary function
-                outputDiv.innerHTML = generateChallengeSummary(challengeData, cost, userStats);
-                
-                // Keep the form fields visible but disable the form controls to signal completion
-                Array.from(form.elements).forEach(element => {
-                    if (element.id !== 'output' && element.id !== 'getTokenButton') {
-                        element.disabled = true;
-                        element.classList.add('form-input--disabled');
-                    }
-                });
-                submitButton.style.display = 'none'; // Hide the submit button
-                
             } else {
-                // Handle submission failure
-                outputDiv.textContent = `SUBMISSION FAILURE (${response.status}):\n${data.message || data.error}`;
-                submitButton.disabled = false; // Re-enable submit button on error
+                statusMessage2.style.color = 'red';
+                statusMessage2.textContent = `SUBMISSION FAILED: ${data.message || data.error}`;
+                submitButton.disabled = false;
             }
         } catch (error) {
-            outputDiv.textContent = `NETWORK OR FRONT-END ERROR: ${error.message}`;
-            submitButton.disabled = false; // Re-enable submit button on network error
+            statusMessage2.style.color = 'red';
+            statusMessage2.textContent = `NETWORK ERROR: Could not complete submission.`;
+            submitButton.disabled = false;
         }
     });
 
-    // Initialize display and calculation
-    durationTypeSelect.dispatchEvent(new Event('change'));
+    startNewChallengeButton.addEventListener('click', resetForm);
 </script>
 </body>
 </html>
