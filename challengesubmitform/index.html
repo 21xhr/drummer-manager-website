@@ -243,14 +243,17 @@
     const ONE_OFF_PLACEHOLDER = 'Describe the task. (Reminder: Use the TIME & PACE section below to define the total 21-min sessions, NOT here.)';
 
 
-    // --- API URL LOGIC ---
+   // --- API URL LOGIC ---
     const getApiBaseUrl = () => {
         const hostname = window.location.hostname;
-        // Adjusted the local host IP logic slightly for common environment compatibility
-        if (hostname.startsWith('192.168.') || hostname === 'localhost' || hostname === '127.0.0.1') {
-            const localIp = hostname === '0.0.0.0' ? '192.168.1.37' : hostname; // Example IP, use host name if not 0.0.0.0
-            return `http://${localIp}:3000/api/v1`; 
+        
+        // Use localhost/loopback IP if running in a known local environment
+        if (hostname.startsWith('192.168.') || hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+            // CRITICAL FIX: Always return 127.0.0.1 (Loopback) for the API call on the same machine.
+            // This is the most reliable way for a client to talk to a server running locally.
+            return `http://127.0.0.1:3000/api/v1`; 
         }
+        // Production fallback
         return 'https://drummer-manager-api.vercel.app/api/v1';
     };
     const API_BASE_URL = getApiBaseUrl();
@@ -375,14 +378,18 @@
                 }, 1000); 
 
             } else if (response.status === 401 || response.status === 400) {
-                // NEW EXPLICIT LOGIC FOR EXPIRED/INVALID TOKEN (401 Unauthorized or 400 Bad Request)
+                // REFINED FORMATTING FOR EXPIRED/INVALID TOKEN UX
                 statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-                statusIcon.classList.add('fa-hourglass-half', 'text-yellow-500'); // Use an hourglass icon for expiry
+                statusIcon.classList.add('fa-hourglass-half', 'text-yellow-500'); 
                 statusMessage1.style.color = 'var(--primary-neon)';
                 statusMessage1.innerHTML = `
-                    **TOKEN EXPIRED or INVALID!** <br> The secure link you used is no longer valid.
-                    <br>Error: *${data.message || 'Token verification failed.'}*
-                    <br>Please return to the stream chat and use the **!challengesubmit** command again to get a new secure link.
+                    <span class="dm-sans font-bold text-lg">TOKEN EXPIRED OR INVALID</span>
+                    <p class="roboto mt-2 mb-3">
+                        The secure link you used is no longer valid.
+                    </p>
+                    <p class="roboto">
+                        Please return to the stream chat and use the **!challengesubmit** command again to get a new secure link.
+                    </p>
                 `;
             } else {
                 // Generic Verification Failure (e.g., 500 server error)
@@ -390,13 +397,13 @@
                 statusIcon.classList.add('fa-triangle-exclamation', 'text-red-500');
                 statusMessage1.style.color = 'var(--error-red, red)';
                 statusMessage1.innerHTML = `
-                    **Verification Failed!** ${data.message || 'An unknown server error occurred during verification.'}
+                    **Verification Failed!** An unknown server error occurred during verification.
                     <br>Please try again or check the server status.
                 `;
             }
 
         } catch (error) {
-            // TRUE NETWORK ERROR (e.g., CORS failure, server offline, DNS resolution failure)
+            // TRUE NETWORK ERROR (Client cannot physically reach the server)
             statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
             statusIcon.classList.add('fa-server', 'text-red-500');
             statusMessage1.style.color = 'var(--error-red, red)';
