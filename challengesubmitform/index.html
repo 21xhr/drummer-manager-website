@@ -333,10 +333,10 @@
         if (!token) {
             statusIcon.classList.remove('fa-spinner', 'fa-spin', 'text-primary-neon');
             statusIcon.classList.add('fa-lock', 'text-red-500');
-            statusMessage1.style.color = 'red';
+            statusMessage1.style.color = 'var(--error-red)';
             statusMessage1.innerHTML = `
-                **Access Denied.** This page must be accessed via a secure link generated from the stream chat. 
-                <br>Please use the command **!challengesubmit** in chat to get a valid link.
+                ACCESS DENIED <br> This page must be accessed via a secure link generated from the stream chat. 
+                <br>Please use the command ** !challengesubmit ** in chat to get a valid link.
             `;
             return;
         }
@@ -376,7 +376,7 @@
             } else {
                 statusIcon.classList.remove('fa-spinner', 'fa-spin');
                 statusIcon.classList.add('fa-triangle-exclamation', 'text-red-500');
-                statusMessage1.style.color = 'red';
+                statusMessage1.style.color = 'var(--error-red)';
                 statusMessage1.innerHTML = `
                     **Verification Failed!** ${data.message || 'The token is invalid or has expired.'}
                     <br>Please return to the stream chat and use the **!challengesubmit** command again to get a new secure link.
@@ -386,7 +386,7 @@
         } catch (error) {
             statusIcon.classList.remove('fa-spinner', 'fa-spin');
             statusIcon.classList.add('fa-server', 'text-red-500');
-            statusMessage1.style.color = 'red';
+            statusMessage1.style.color = 'var(--error-red)';
             statusMessage1.textContent = `NETWORK ERROR: Could not connect to the game server for verification.`;
             console.error('Verification Network Error:', error);
         }
@@ -742,7 +742,7 @@
         e.preventDefault();
         
         if (!submissionToken) { 
-            statusMessage2.style.color = 'red';
+            statusMessage2.style.color = 'var(--error-red)';
             statusMessage2.textContent = 'Error: Session key expired or missing. Please refresh the page.';
             return; 
         }
@@ -788,12 +788,12 @@
                 renderStep(3);
 
             } else {
-                statusMessage2.style.color = 'red';
+                statusMessage2.style.color = 'var(--error-red)';
                 statusMessage2.textContent = `SUBMISSION FAILED: ${data.message || data.error}`;
                 submitButton.disabled = false;
             }
         } catch (error) {
-            statusMessage2.style.color = 'red';
+            statusMessage2.style.color = 'var(--error-red)';
             statusMessage2.textContent = `NETWORK ERROR: Could not complete submission.`;
             submitButton.disabled = false;
         }

@@ -11,8 +11,8 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
     --secondary-bg: rgb(21, 21, 21);
     --subtext-color: rgb(242, 242, 242); 
 
-    /* ADDED: Color variables moved from local form styles */
     --disabled-color: #666; 
+    --error-red: #d24242;
     --success-green: #39FF14;
     --platform-kick: #00FF00;
     --platform-twitch: #9146FF;
