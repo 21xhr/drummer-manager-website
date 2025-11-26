@@ -331,9 +331,9 @@
         const token = urlParams.get('token');
         
         if (!token) {
-            statusIcon.classList.remove('fa-spinner', 'fa-spin', 'text-primary-neon');
+            statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
             statusIcon.classList.add('fa-lock', 'text-red-500');
-            statusMessage1.style.color = 'var(--error-red)';
+            statusMessage1.style.color = 'var(--error-red, red)'; // Use a fallback color
             statusMessage1.innerHTML = `
                 ACCESS DENIED <br> This page must be accessed via a secure link generated from the stream chat. 
                 <br>Please use the command ** !challengesubmit ** in chat to get a valid link.
@@ -342,7 +342,7 @@
         }
 
         submissionToken = token;
-        statusIcon.classList.add('fa-spinner', 'fa-spin');
+        statusIcon.classList.add('fa-spinner', 'fa-spin', 'neon-text');
         statusIcon.classList.remove('fa-lock', 'fa-triangle-exclamation');
         statusMessage1.style.color = 'var(--text-color)';
         statusMessage1.textContent = 'Verifying secure link...';
@@ -357,13 +357,14 @@
             const data = await response.json();
 
             if (response.ok) {
+                // Success Logic (No Change)
                 selectedPlatformId = data.platformId;
                 selectedPlatform = data.platformName; 
 
                 reminderUsername.textContent = selectedPlatformId;
                 reminderPlatform.textContent = selectedPlatform;
 
-                statusIcon.classList.remove('fa-spinner', 'fa-spin');
+                statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
                 statusIcon.classList.add('fa-circle-check', 'text-success-green');
                 statusMessage1.style.color = 'var(--success-green)';
                 statusMessage1.textContent = `Identity Verified! Submitting as ${selectedPlatformId} on ${selectedPlatform}. Key expires soon.`;
@@ -373,21 +374,33 @@
                     statusMessage1.textContent = ''; 
                 }, 1000); 
 
-            } else {
-                statusIcon.classList.remove('fa-spinner', 'fa-spin');
-                statusIcon.classList.add('fa-triangle-exclamation', 'text-red-500');
-                statusMessage1.style.color = 'var(--error-red)';
+            } else if (response.status === 401 || response.status === 400) {
+                // NEW EXPLICIT LOGIC FOR EXPIRED/INVALID TOKEN (401 Unauthorized or 400 Bad Request)
+                statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
+                statusIcon.classList.add('fa-hourglass-half', 'text-yellow-500'); // Use an hourglass icon for expiry
+                statusMessage1.style.color = 'var(--primary-neon)';
                 statusMessage1.innerHTML = `
-                    **Verification Failed!** ${data.message || 'The token is invalid or has expired.'}
+                    **TOKEN EXPIRED or INVALID!** <br> The secure link you used is no longer valid.
+                    <br>Error: *${data.message || 'Token verification failed.'}*
                     <br>Please return to the stream chat and use the **!challengesubmit** command again to get a new secure link.
+                `;
+            } else {
+                // Generic Verification Failure (e.g., 500 server error)
+                statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
+                statusIcon.classList.add('fa-triangle-exclamation', 'text-red-500');
+                statusMessage1.style.color = 'var(--error-red, red)';
+                statusMessage1.innerHTML = `
+                    **Verification Failed!** ${data.message || 'An unknown server error occurred during verification.'}
+                    <br>Please try again or check the server status.
                 `;
             }
 
         } catch (error) {
-            statusIcon.classList.remove('fa-spinner', 'fa-spin');
+            // TRUE NETWORK ERROR (e.g., CORS failure, server offline, DNS resolution failure)
+            statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
             statusIcon.classList.add('fa-server', 'text-red-500');
-            statusMessage1.style.color = 'var(--error-red)';
-            statusMessage1.textContent = `NETWORK ERROR: Could not connect to the game server for verification.`;
+            statusMessage1.style.color = 'var(--error-red, red)';
+            statusMessage1.textContent = `CRITICAL ERROR: Could not connect to the API server (${API_BASE_URL}). Check server status.`;
             console.error('Verification Network Error:', error);
         }
     };
