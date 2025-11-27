@@ -38,20 +38,22 @@
 </head>
 <body class="dm-sans"> 
     <div class="form-container mx-auto" id="form-wrapper">
-        <div class="flex justify-between items-center mb-4">
-            <h1 class="dm-sans text-2xl font-bold neon-text">
-                21 <span class="roboto font-normal text-lg text-white tracking-widest">Drummer Manager Game</span>
-            </h1>
+        <div class="flex justify-between items-start mb-4">
+            <div class="text-left mt-1">
+                <div class="dm-sans text-3xl font-extrabold neon-text leading-tight">
+                    DRUMMER
+                </div>
+                <div class="roboto font-normal text-lg text-white tracking-widest leading-none">
+                    MANAGER
+                </div>
+            </div>
+            
             <div class="flex items-center space-x-1">
                 <span id="streamStatusText" class="roboto text-xs text-gray-400">OFFLINE</span>
                 <div id="streamStatusIndicator" class="stream-status-indicator offline"></div>
             </div>
         </div>
         
-        <h2 id="formTitle" class="dm-sans text-2xl font-bold text-center neon-text mb-4">
-            Propose a Challenge
-        </h2>
-
         <p id="identityReminder" class="roboto text-xs text-center text-gray-400 mt-2 mb-4 hidden border-b border-[#333] pb-2">
             Submitting as: <strong id="reminderUsername"></strong> on <strong id="reminderPlatform"></strong>
         </p>
