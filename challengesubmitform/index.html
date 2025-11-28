@@ -620,7 +620,7 @@
         }
         
         const totalMinutes = calculatedTotal * SESSION_DURATION_MINUTES;
-        const finalCost = calculatedTotal * baseChallengeCost;
+        const finalCost = baseChallengeCost;
 
         calculatedTotalSessionsInput.value = calculatedTotal;
         sessionCadenceHidden.value = text;
@@ -738,6 +738,10 @@
                 if (!cadenceUnitSelect.value) {
                     cadenceUnitSelect.value = 'DAILY';
                 }
+                // ⭐ UX IMPROVEMENT: Set sensible minimums for instant feedback (2 sessions per week/month min)
+                cadenceCountInput.value = '2'; 
+                timeframeCountSentenceInput.value = '1';
+                
                 setCadenceTimeframeDefaults(cadenceUnitSelect.value);
             } else if (type === 'ONE_OFF') {
                 if (totalTimeframeCountInput.value === '0') {
