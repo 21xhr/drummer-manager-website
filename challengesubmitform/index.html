@@ -147,7 +147,7 @@
                             
                             <div id="durationGroup" class="hidden flex flex-wrap items-center gap-2 text-sm">
                                 <span id="durationLeadInText" class="roboto">for a total of</span>
-                                <input type="number" id="timeframeCountSentence" class="form-input cadence-input" min="1" max="999" value="1" disabled>
+                                <input type="number" id="recurrenceDurationCount" class="form-input cadence-input" min="1" max="999" value="1" disabled>
                                 <span id="timeframeUnitSentence" class="roboto">Weeks</span>
                             </div>
                         </div>
@@ -325,7 +325,7 @@
     const cadenceCountInput = document.getElementById('cadenceCount');
     const customDaysGroup = document.getElementById('customDaysGroup');
     const customDaysInput = document.getElementById('customDaysCount'); 
-    const timeframeCountSentenceInput = document.getElementById('timeframeCountSentence');
+    const recurrenceDurationCountInput = document.getElementById('recurrenceDurationCount');
     const timeframeUnitSentenceSpan = document.getElementById('timeframeUnitSentence');
     const cadencePreview = document.getElementById('cadencePreview');
     const sessionCadenceHidden = document.getElementById('sessionCadenceText');
@@ -544,7 +544,7 @@
             cadenceCountInput.disabled = false;
             cadenceUnitSelect.disabled = false;
             customDaysInput.disabled = false;
-            timeframeCountSentenceInput.disabled = false;
+            recurrenceDurationCountInput.disabled = false;
             
             oneOffGroup.classList.toggle('hidden', !isOneOff);
             cadenceGroup.classList.toggle('hidden', !isRecurring);
@@ -562,7 +562,7 @@
             cadenceCountInput.disabled = true;
             cadenceUnitSelect.disabled = true;
             customDaysInput.disabled = true;
-            timeframeCountSentenceInput.disabled = true;
+            recurrenceDurationCountInput.disabled = true;
             
             // Reset cost displays if sections are disabled
             const oneOffDisplay = document.getElementById('oneOffCostDisplay');
@@ -616,7 +616,7 @@
 
         // IMPORTANT: Reset to preferred minimums when changing unit
         cadenceCountInput.value = '1'; 
-        timeframeCountSentenceInput.value = '2';
+        recurrenceDurationCountInput.value = '2';
         
         // This is only for display purposes in the sentence
         if (unit === 'DAILY') {
@@ -653,7 +653,7 @@
             const unit = cadenceUnitSelect.value;
             // Get user inputs, default to 1
             let pace = Math.min(parseInt(cadenceCountInput.value) || 1, 999);
-            let timeframeCount = Math.min(parseInt(timeframeCountSentenceInput.value) || 1, 999); 
+            let timeframeCount = Math.min(parseInt(recurrenceDurationCountInput.value) || 1, 999); 
             const customDays = parseInt(customDaysInput.value) || 1;
             
             // --- Show durationGroup if a unit is selected and parent section is enabled ---
@@ -685,7 +685,7 @@
             
             // 2. Update DOM fields with enforced minimums
             cadenceCountInput.value = pace;
-            timeframeCountSentenceInput.value = timeframeCount;
+            recurrenceDurationCountInput.value = timeframeCount;
             // --- End Enforcement ---
 
             // Correct logic: Total sessions = Pace * TimeframeCount
@@ -865,7 +865,7 @@
                 }
                 // DEFAULTS: 1 session per unit, for 2 units total (ensures minimum recurrence)
                 cadenceCountInput.value = '1'; 
-                timeframeCountSentenceInput.value = '2'; 
+                recurrenceDurationCountInput.value = '2'; 
                 
                 setCadenceTimeframeDefaults(cadenceUnitSelect.value); // This runs calculation
             } else if (type === 'ONE_OFF') {
@@ -891,7 +891,7 @@
     // Input changes now call calculateTotalSessions indirectly via updateDynamicFields
     cadenceCountInput.addEventListener('input', updateDynamicFields);
     customDaysInput.addEventListener('input', updateDynamicFields);
-    timeframeCountSentenceInput.addEventListener('input', updateDynamicFields); 
+    recurrenceDurationCountInput.addEventListener('input', updateDynamicFields); 
     totalTimeframeCountInput.addEventListener('input', updateDynamicFields);
     
     // Step 2: Form Submission
