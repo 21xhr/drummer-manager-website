@@ -10,7 +10,7 @@
     <style>
         /* Specific Styles for Challenge Submission Form */
 
-        /* NEW: Smaller Description Text */
+        /* Smaller Description Text */
         .desc-text-custom {
             font-size: 11px; /* Smaller than text-xs (12px) */
             line-height: 1.35;
@@ -170,6 +170,18 @@
                     <input type="hidden" id="calculatedTotalSessions" value="0">
                     <input type="hidden" id="challengeDurationType">
                     <input type="hidden" id="calculatedCost" value="0">
+                </div>
+
+                <div id="highDemandWarningBanner" class="high-demand-warning hidden mt-5 p-4 rounded-lg">
+                    <p class="roboto text-lg font-bold" style="color: var(--primary-neon);">
+                        ⚠️ HIGH-DEMAND CHALLENGE WARNING ⚠️
+                    </p>
+                    <p id="highDemandWarningText" class="roboto mt-2 text-sm" style="color: rgba(242, 189, 21, 0.7);">
+                        This submission requires [X] sessions per [Period], which far exceeds the normal demand threshold. If activated, it will rapidly monopolize the execution slot for an extended duration.
+                    </p>
+                    <p class="roboto mt-3 text-xs italic" style="color: var(--error-red);">
+                        <strong>REMINDER:</strong> The Game Master (Drummer, 21) has the ultimate authority to remove any challenge deemed inadmissible or too disruptive. Be warned: <strong>Once submitted, you never know what might happen...</strong>
+                    </p>
                 </div>
 
                 <button type="submit" id="submitButton" class="interactive-button form-button mt-4" disabled>
@@ -338,7 +350,9 @@
     const calculatedCostInput = document.getElementById('calculatedCost');
     const summaryContent = document.getElementById('summaryContent');
     const shareChallengeButton = document.getElementById('shareChallengeButton');
-    
+    const highDemandWarningBanner = document.getElementById('highDemandWarningBanner');
+    const highDemandWarningText = document.getElementById('highDemandWarningText');
+
     // Reference to the 'every X days' option element for UI toggle
     const customDaysOption = document.querySelector('#cadenceUnit option[value="CUSTOM_DAYS"]');
 
@@ -593,6 +607,9 @@
         }
         
         submitButton.disabled = !(hasChallengeText && hasDurationSelection && hasSessions);
+
+        // --- Call Warning Checker ---
+        checkHighDemandWarning();
     };
 
     const setCadenceTimeframeDefaults = (unit) => {
@@ -744,7 +761,66 @@
         if (oneOffDisplay) oneOffDisplay.textContent = formattedCost;
         if (recurringDisplay) recurringDisplay.textContent = formattedCost;
         
-        // Removed: updateDynamicFields() is the parent caller now
+    };
+
+    // --- WARNING LOGIC IMPLEMENTATION ---
+    const checkHighDemandWarning = () => {
+        const durationType = challengeDurationTypeHidden.value;
+        const isRecurring = durationType === 'RECURRING';
+
+        let shouldShowWarning = false;
+        let sessionsPerPeriod = 0;
+        let periodText = '';
+
+        // If the duration card hasn't been selected or it's not recurring, we skip the check
+        if (!isRecurring) {
+            highDemandWarningBanner.classList.add('hidden');
+            return;
+        }
+
+        const unit = cadenceUnitSelect.value;
+        const pace = parseInt(cadenceCountInput.value) || 0;
+        
+        const THRESHOLDS = {
+            'DAILY': 7,
+            'WEEKLY': 42,
+            'MONTHLY': 147,
+        };
+
+        if (unit === 'DAILY') {
+            sessionsPerPeriod = pace;
+            periodText = 'Day';
+            if (pace > THRESHOLDS.DAILY) shouldShowWarning = true;
+            
+        } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
+            sessionsPerPeriod = pace;
+            // Use the display text from the global variable (Days, Weeks, Months)
+            periodText = timeframeUnitSentenceSpan.textContent.slice(0, -1); 
+            
+            if (unit === 'WEEKLY' && pace > THRESHOLDS.WEEKLY) shouldShowWarning = true;
+            if (unit === 'MONTHLY' && pace > THRESHOLDS.MONTHLY) shouldShowWarning = true;
+
+        } else if (unit === 'CUSTOM_DAYS') {
+            const customDays = parseInt(customDaysInput.value) || 1;
+            // Normalized check: Average daily pace must be > 7 sessions/day
+            const averageDailyPace = pace / customDays; 
+            
+            sessionsPerPeriod = pace; 
+            periodText = ` ${customDays} Day cycle`;
+            
+            // Check against the DAILY threshold for the average pace
+            if (averageDailyPace > THRESHOLDS.DAILY) {
+                shouldShowWarning = true;
+            }
+        }
+        
+        // --- Update UI ---
+        if (shouldShowWarning) {
+            highDemandWarningText.innerHTML = `This submission requires <strong>${sessionsPerPeriod} session(s) per${periodText}</strong>, which far exceeds the normal demand threshold. If activated, it will rapidly monopolize the execution slot for an extended duration.`;
+            highDemandWarningBanner.classList.remove('hidden');
+        } else {
+            highDemandWarningBanner.classList.add('hidden');
+        }
     };
 
     const generateChallengeSummary = (challenge, cost, userStats) => {

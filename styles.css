@@ -460,6 +460,15 @@ textarea.form-input {
     opacity: 1;
 }
 
+.high-demand-warning {
+    /* Use the same style as the verified-identity-box for a strong, neon-framed look */
+    background-color: var(--secondary-bg);
+    border: 2px solid var(--primary-neon);
+    box-shadow: 0 0 10px rgba(242, 189, 21, 0.5);
+    /* Adding a subtle warning pulse */
+    animation: neon-pulse-border 3s ease-in-out infinite alternate;
+}
+
 /* Specific Input Fixes (for calculation inputs - FIXED width) */
 .form-input.cadence-input {
     width: 65px !important; 
@@ -548,7 +557,7 @@ textarea.form-input {
 .platform-logo-btn:hover { border-color: var(--primary-neon); }
 .platform-logo-btn.selected { border-color: var(--primary-neon); box-shadow: 0 0 5px var(--primary-neon); }
 
-/* ADDED: Styles for Verified Identity Display and Logos */
+/* Styles for Verified Identity Display and Logos */
 .verified-identity-box {
     /* Container for the identity line */
     background-color: var(--secondary-bg); 
@@ -579,3 +588,4 @@ textarea.form-input {
 .platform-Twitch { color: var(--platform-twitch); }
 .platform-YouTube { color: var(--platform-youtube); }
 .platform-Kick { color: var(--platform-kick); }
+
