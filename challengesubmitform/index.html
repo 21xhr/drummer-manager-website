@@ -838,8 +838,8 @@
             <div style="margin-top: 15px; padding: 8px; border: 1px dashed var(--primary-neon); background-color: rgba(242, 189, 21, 0.05); border-radius: 4px;">
                 <h4 class="roboto" style="margin-top: 0; font-weight: bold; color: var(--primary-neon); font-size: 0.9rem;">Your Updated Stats:</h4>
                 <p class="roboto" style="margin: 3px 0; font-size: 0.8rem;">
-                    <strong>New Balance:</strong> ${userStats.lastKnownBalance.toLocaleString()} NUMBERS
-                </p>
+                    <strong>New Balance:</strong> ${userStats.currentBalance.toLocaleString()} NUMBERS 
+                    </p>
                 <p class="roboto" style="margin: 3px 0; font-size: 0.8rem;">
                     <strong>Total Challenges Proposed:</strong> ${userStats.totalChallengesSubmitted}
                 </p>
@@ -1006,9 +1006,11 @@
                 body: JSON.stringify(submissionData)
             });
 
+            // CRITICAL FIX: Ensure response.json() is called *before* the success/error check
             const data = await response.json();
 
-            if (response.ok) {
+            // ⭐ CRITICAL CHANGE: Check for response.ok (200-299 range) OR response.status === 201
+            if (response.ok || response.status === 201) { 
                 const payload = data.details; 
                 const challengeData = payload.newChallenge;
                 const cost = payload.cost;
@@ -1016,16 +1018,20 @@
                 
                 summaryContent.innerHTML = generateChallengeSummary(challengeData, cost, userStats);
                 
-                statusMessage2.textContent = '';
+                statusMessage2.textContent = '✅ Challenge Submitted!'; // Add success confirmation
+                statusMessage2.style.color = 'var(--success-green)';
                 
                 renderStep(3);
 
             } else {
+                // Handle SERVER-SIDE errors (400, 401, 500) where the server returned JSON
                 statusMessage2.style.color = 'var(--error-red)';
-                statusMessage2.textContent = `SUBMISSION FAILED: ${data.message || data.error}`;
+                statusMessage2.textContent = `SUBMISSION FAILED: ${data.message || data.error || 'Unknown server response'}`;
                 submitButton.disabled = false;
             }
         } catch (error) {
+            // This catch block is for true network failures or JSON parsing errors.
+            console.error('Submission Network Error:', error);
             statusMessage2.style.color = 'var(--error-red)';
             statusMessage2.textContent = `NETWORK ERROR: Could not complete submission.`;
             submitButton.disabled = false;
