@@ -1006,11 +1006,10 @@
                 body: JSON.stringify(submissionData)
             });
 
-            // CRITICAL FIX: Ensure response.json() is called *before* the success/error check
+            // CRITICAL: Ensure response.json() is called *before* the success/error check
             const data = await response.json();
 
-            // ⭐ CRITICAL CHANGE: Check for response.ok (200-299 range) OR response.status === 201
-            if (response.ok || response.status === 201) { 
+            if (response.ok) { 
                 const payload = data.details; 
                 const challengeData = payload.newChallenge;
                 const cost = payload.cost;
