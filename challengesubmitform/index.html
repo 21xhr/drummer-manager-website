@@ -429,15 +429,14 @@
             const data = await response.json();
 
             if (response.ok) {
-                // Success Logic (No Change)
-                selectedPlatformId = data.platformId;
-                selectedPlatform = data.platformName; 
+                // Success Logic
+                selectedPlatformId = data.username; 
+                selectedPlatform = data.platformName;
 
                 reminderUsername.textContent = selectedPlatformId;
                 reminderPlatform.textContent = selectedPlatform;
                 
                 // Apply platform styling to username and platform name
-                // Clean up any existing platform classes
                 reminderUsername.className = '';
                 reminderPlatform.className = '';
                 
@@ -462,16 +461,24 @@
 
             } else if (response.status === 401 || response.status === 400) {
                 // TOKEN EXPIRED/INVALID FAILURE
+                const apiMessage = data.message || 'The secure link you used is no longer valid. Please get a new token.';
+                
+                // Determine a concise title from the API error field (if available)
+                const title = (data.error && data.error.includes('expired')) 
+                    ? 'LINK EXPIRED' 
+                    : (data.error && data.error.includes('invalid')) 
+                    ? 'LINK INVALID/MALFORMED'
+                    : 'AUTHENTICATION FAILED'; // Default
+                                 
                 statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
                 statusIcon.classList.add('fa-hourglass-half', 'text-yellow-500'); 
                 statusMessage1.style.color = 'var(--primary-neon)';
+                
+                // Inject the specific error message from the API response
                 statusMessage1.innerHTML = `
-                    <span class="dm-sans font-bold text-lg">TOKEN EXPIRED OR INVALID</span>
+                    <span class="dm-sans font-bold text-lg">${title}</span>
                     <p class="roboto mt-2 mb-3">
-                        The secure link you used is no longer valid.
-                    </p>
-                    <p class="roboto">
-                        Please return to the stream chat and use the **!challengesubmit** command again to get a new secure link.
+                        ${apiMessage}
                     </p>
                 `; // 3. Fall back (Display static error)
             } else {
