@@ -589,3 +589,21 @@ textarea.form-input {
 .platform-YouTube { color: var(--platform-youtube); }
 .platform-Kick { color: var(--platform-kick); }
 
+
+/* --- WYSIWYG Placeholder Styling --- */
+#challengeEditor {
+    /* Ensures the background/container is distinct when disabled */
+    cursor: default;
+    position: relative; /* Required for :before positioning */
+}
+
+#challengeEditor:empty:not(:focus)::before {
+    content: attr(placeholder);
+    color: #777; /* Placeholder color */
+    pointer-events: none; /* Allows click to focus the element */
+}
+
+#challengeEditor[disabled] {
+    cursor: not-allowed;
+    background-color: #111111 !important; /* Visually indicate disabled */
+}
