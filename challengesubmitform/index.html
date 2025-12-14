@@ -102,7 +102,34 @@
                 </div>
 
                 <div id="challengeTextGroup" class="form-group mt-4 form-section-disabled">
-                    <textarea id="challengeText" class="form-input" rows="3" placeholder="Describe the task. (Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!)" disabled required></textarea>
+                    <div id="challengeEditor" 
+                        class="form-input p-2 rounded-t-lg shadow-sm w-full bg-[#1a1a1a] text-white border border-[#333]" 
+                        style="min-height: 100px; max-height: 300px; overflow-y: auto;"
+                        contenteditable="true"
+                        placeholder="Describe the task. (Min 10 chars) Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!"
+                        disabled
+                        required>
+                    </div>
+                    
+                    <input type="hidden" id="challengeText" value="">
+
+                    <div class="flex border-t-0 border border-[#333] rounded-b-lg p-2 bg-[#2a2a2a]">
+                        <button type="button" data-edit="blockquote" 
+                                class="editor-button text-gray-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none w-8 h-8 rounded-md hover:bg-[#3d3d3d] flex justify-center items-center mr-1"
+                                title="Blockquote" disabled>
+                            <i class="fa-solid fa-quote-right"></i>
+                        </button>
+                        <button type="button" data-edit="bold" 
+                                class="editor-button text-gray-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none w-8 h-8 rounded-md hover:bg-[#3d3d3d] flex justify-center items-center mr-1"
+                                title="Bold" disabled>
+                            <i class="fa-solid fa-bold"></i>
+                        </button>
+                        <button type="button" data-edit="italic" 
+                                class="editor-button text-gray-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none w-8 h-8 rounded-md hover:bg-[#3d3d3d] flex justify-center items-center mr-1"
+                                title="Italic" disabled>
+                            <i class="fa-solid fa-italic"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <div id="timePaceGroup" class="form-group mt-6 form-section-disabled">
@@ -326,8 +353,13 @@
     
     const durationTypeGroup = document.getElementById('durationTypeGroup');
     const durationCards = formWrapper.querySelectorAll('.duration-card');
+
     const challengeTextGroup = document.getElementById('challengeTextGroup');
+    // challengeEditor is the contenteditable DIV
+    const challengeEditor = document.getElementById('challengeEditor'); 
+    // challengeText is now the hidden INPUT holding the final HTML
     const challengeText = document.getElementById('challengeText');
+
     const timePaceGroup = document.getElementById('timePaceGroup');
     const currentCostDisplay = document.getElementById('currentCostDisplay');
     const oneOffGroup = document.getElementById('oneOffGroup');
@@ -532,18 +564,44 @@
     // --- HELPER FUNCTIONS ---
     
     const updateDynamicFields = () => {
-        const textLength = challengeText.value.trim().length;
+        // CRITICAL CHANGE: Read text length from the contenteditable div's plain text
+        const textLength = challengeEditor.textContent.trim().length;
         const durationType = challengeDurationTypeHidden.value;
         const isRecurring = durationType === 'RECURRING';
         const isOneOff = durationType === 'ONE_OFF';
 
-        // Update Placeholder based on selection
+        // Update Placeholder based on selection (via the div's attribute)
         if (isRecurring) {
-            challengeText.placeholder = RECURRING_PLACEHOLDER;
+            challengeEditor.setAttribute('placeholder', RECURRING_PLACEHOLDER);
         } else if (isOneOff) {
-            challengeText.placeholder = ONE_OFF_PLACEHOLDER;
+            challengeEditor.setAttribute('placeholder', ONE_OFF_PLACEHOLDER);
         } else {
-            challengeText.placeholder = DEFAULT_PLACEHOLDER;
+            challengeEditor.setAttribute('placeholder', DEFAULT_PLACEHOLDER);
+        }
+        
+
+        // Trigger 1 (Duration Type Selection)
+        if (durationType) {
+            challengeTextGroup.classList.remove('form-section-disabled');
+            // Enable the editor div and the toolbar buttons
+            challengeEditor.removeAttribute('disabled');
+            document.querySelectorAll('.editor-button').forEach(btn => btn.removeAttribute('disabled'));
+            
+            // UX FIX: The key fix is here: clear content if the user hasn't typed anything, 
+            // ensuring the new CSS placeholder shows correctly.
+            if (challengeEditor.textContent.trim().length === 0 || 
+                challengeEditor.innerHTML.trim() === '<br>') { // Check for empty or just a line break
+                challengeEditor.innerHTML = ''; 
+            }
+            
+        } else {
+            challengeTextGroup.classList.add('form-section-disabled');
+            // Disable the editor div and the toolbar buttons
+            challengeEditor.setAttribute('disabled', 'true');
+            document.querySelectorAll('.editor-button').forEach(btn => btn.setAttribute('disabled', 'true'));
+            
+            // Set the specific disabled placeholder
+            challengeEditor.setAttribute('placeholder', 'Please select a Duration Type above first.');
         }
 
         // Trigger 1 (Duration Type Selection)
@@ -877,7 +935,9 @@
 
             <div style="margin-top: 10px; padding: 8px; border: 1px dashed #555; border-radius: 4px; background-color: #0d0d0d;">
                 <strong>Challenge Text:</strong><br>
-                <span style="font-style: italic; color: #aaa; font-size: 0.9rem;">"${challenge.challengeText}"</span>
+                <div style="color: #aaa; font-size: 0.9rem; text-align: left;">
+                    ${challenge.challengeText}
+                </div>
             </div>
 
             ${statsInfo} 
@@ -1043,6 +1103,48 @@
             submitButton.disabled = false;
         }
     });
+
+    // --- WYSIWYG EDITOR LOGIC ---
+    const updateHiddenChallengeText = () => {
+        // Read the inner HTML from the contenteditable div
+        const content = challengeEditor.innerHTML.trim();
+        
+        // Use a simple, non-HTML version for length check and placeholder
+        const plainText = challengeEditor.textContent.trim();
+        
+        // Write the HTML content to the hidden input for submission
+        challengeText.value = content; 
+        
+        // Return the plain text length for validation
+        return plainText.length;
+    };
+
+    const execCommand = (command, value = null) => {
+        // Execute the native browser command for text formatting
+        document.execCommand(command, false, value);
+        challengeEditor.focus();
+        // Since content changed, trigger validation
+        updateDynamicFields(); 
+    };
+
+    // Toolbar button listeners
+    document.querySelectorAll('.editor-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const command = button.getAttribute('data-edit');
+            execCommand(command);
+        });
+    });
+
+    // Update the hidden input and check validation on content change
+    challengeEditor.addEventListener('input', () => {
+        updateHiddenChallengeText(); // Update the hidden field on input
+        updateDynamicFields(); // Trigger validation/cost check
+    });
+
+    
+    // Set initial placeholder/disabled state
+    handlePlaceholder();
 
     startNewChallengeButton.addEventListener('click', resetForm);
 </script>
