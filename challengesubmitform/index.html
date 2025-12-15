@@ -107,7 +107,6 @@
                         style="min-height: 100px; max-height: 300px; overflow-y: auto;"
                         contenteditable="true"
                         placeholder="Describe the task. (Min 10 chars) Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!"
-                        disabled
                         required>
                     </div>
                     
@@ -129,10 +128,11 @@
                 
                 <div id="timePaceGroup" class="form-group mt-6 form-section-disabled">
                     <div id="oneOffGroup" class="form-group hidden">
-                        <label for="totalTimeframeCount" class="roboto text-sm text-gray-400 block mb-1">Total 21-min Sessions:</label>
+                        <label for="totalTimeframeCount" class="roboto text-sm text-gray-400 block mb-1">Total:</label>
                         <div class="flex items-center gap-3">
                             <input type="number" id="totalTimeframeCount" class="form-input cadence-input" min="1" value="1" max="999" disabled required>
-                            <span class="roboto text-sm">Session(s)</span>
+                            <span class="roboto neon-text text-sm">Session(s)</span>
+                            <strong id="oneOffSummary" class="roboto text-xs neon-text ml-2"></strong>
                             
                             <div class="ml-auto flex items-center bg-[#1a1a1a] px-3 py-1 rounded border border-[#333]">
                                 <span class="roboto text-xs text-gray-400 mr-2">Cost:</span>
@@ -176,7 +176,7 @@
 
                         <div id="totalSummaryWrapper" class="mt-3 text-xs text-gray-400 pt-3 border-t border-[#333] flex justify-between items-center">
                             <div>
-                                <span class="roboto">Total Sessions Estimate:</span>
+                                <span class="roboto">Total:</span>
                                 <strong id="cadencePreview" class="neon-text ml-1">...</strong>
                             </div>
                             
@@ -303,9 +303,17 @@
     let baseChallengeCost = BASE_COST_PER_SESSION;
     let challengeTextCache = ''; // Cache challenge text for UX
 
-    const DEFAULT_PLACEHOLDER = 'Describe the task. (Min 10 chars) \nTip: Use an AI tool like Gemini to help you formulate a clear suggestion!';
-    const RECURRING_PLACEHOLDER = 'Describe the task. (Min 10 chars) \nReminder: Use the section below to define the cadence, NOT here.';
-    const ONE_OFF_PLACEHOLDER = 'Describe the task. (Min 10 chars) \nReminder: Use the section below to define the total 21-min sessions, NOT here.';
+    const DEFAULT_PLACEHOLDER = `Describe the task. (Min 10 chars)
+Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
+
+    const RECURRING_PLACEHOLDER = `Describe the task. (Min 10 chars)
+Reminder: Use the section below to define the cadence, NOT here.`;
+    
+    const ONE_OFF_PLACEHOLDER = `Describe the task. (Min 10 chars)
+Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
+    
+    // Create a new constant for the disabled state to handle line breaks if needed
+    const DISABLED_PLACEHOLDER = `Please select a Duration Type above first.`;
 
    // --- API URL LOGIC (The most robust dual-path) ---
     const getApiBaseUrl = () => {
@@ -484,7 +492,9 @@
                 setTimeout(() => {
                     renderStep(2); // 3. Enter challenge submission (Step 2)
                     statusMessage1.textContent = ''; 
-                }, 2100); 
+                    // FIX 6: Call the update function immediately after transitioning to Step 2
+                    updateDynamicFields();
+                }, 210); 
 
             } else if (response.status === 401 || response.status === 400) {
                 // TOKEN EXPIRED/INVALID FAILURE
@@ -559,7 +569,7 @@
     // --- HELPER FUNCTIONS ---
     
     const updateDynamicFields = () => {
-        // CRITICAL CHANGE: Read text length from the contenteditable div's plain text
+        // CRITICAL: Read text length from the contenteditable div's plain text
         const textLength = challengeEditor.textContent.trim().length;
         const durationType = challengeDurationTypeHidden.value;
         const isRecurring = durationType === 'RECURRING';
@@ -575,14 +585,14 @@
         }
         
 
-        // Trigger 1 (Duration Type Selection)
+        // Trigger: (Duration Type Selection)
         if (durationType) {
             challengeTextGroup.classList.remove('form-section-disabled');
             // Enable the editor div and the toolbar buttons
             challengeEditor.removeAttribute('disabled');
             document.querySelectorAll('.editor-button').forEach(btn => btn.removeAttribute('disabled'));
             
-            // UX FIX: The key fix is here: clear content if the user hasn't typed anything, 
+            // Clear content if the user hasn't typed anything, 
             // ensuring the new CSS placeholder shows correctly.
             if (challengeEditor.textContent.trim().length === 0 || 
                 challengeEditor.innerHTML.trim() === '<br>') { // Check for empty or just a line break
@@ -595,21 +605,15 @@
             challengeEditor.setAttribute('disabled', 'true');
             document.querySelectorAll('.editor-button').forEach(btn => btn.setAttribute('disabled', 'true'));
             
-            // Set the specific disabled placeholder
-            challengeEditor.setAttribute('placeholder', 'Please select a Duration Type above first.');
+            // Set the specific disabled placeholder on the DIV
+            challengeEditor.setAttribute('placeholder', DISABLED_PLACEHOLDER);
+            
+            // When the editor is disabled, ensure the content is empty 
+            // so the disabled placeholder shows immediately.
+            challengeEditor.innerHTML = '';
         }
 
-        // Trigger 1 (Duration Type Selection)
-        if (durationType) {
-            challengeTextGroup.classList.remove('form-section-disabled');
-            challengeText.disabled = false;
-        } else {
-            challengeTextGroup.classList.add('form-section-disabled');
-            challengeText.disabled = true;
-            challengeText.placeholder = 'Please select a Duration Type above first.';
-        }
-
-        // Trigger 2: Enable Time/Pace after sufficient challenge text is entered
+        // Trigger: Enable Time/Pace after sufficient challenge text is entered
         const canSetPace = durationType && textLength >= 10;
         
         if (canSetPace) {
@@ -809,18 +813,27 @@
         sessionCadenceHidden.value = text;
         calculatedCostInput.value = finalCost;
         
-        cadencePreview.textContent = `${calculatedTotal.toLocaleString()} Sessions (${totalMinutes.toLocaleString()} Mins)`;
+        // Implementation: Display total sessions/minutes correctly for the active duration type
+        const totalSessionsDisplay = `${calculatedTotal.toLocaleString()} sessions (${totalMinutes.toLocaleString()} Mins)`;
+        
+        // 3. Update One-Off Summary element if visible (uses the new HTML element)
+        const oneOffSummary = document.getElementById('oneOffSummary');
+        if (oneOffSummary && durationType === 'ONE_OFF') {
+             oneOffSummary.textContent = `(${totalMinutes.toLocaleString()} Mins)`;
+        }
+
+        // 4. Update Recurring/General Summary element if visible
+        cadencePreview.textContent = totalSessionsDisplay; 
         
         // --- Define formattedCost here ---
         const formattedCost = finalCost.toLocaleString();
 
-        // Update both displays (only the visible one will matter)
+        // Update both cost displays 
         const oneOffDisplay = document.getElementById('oneOffCostDisplay');
         const recurringDisplay = document.getElementById('recurringCostDisplay');
         
         if (oneOffDisplay) oneOffDisplay.textContent = formattedCost;
         if (recurringDisplay) recurringDisplay.textContent = formattedCost;
-        
     };
 
     // --- WARNING LOGIC IMPLEMENTATION ---
@@ -1079,7 +1092,7 @@
                 
                 summaryContent.innerHTML = generateChallengeSummary(challengeData, cost, userStats);
                 
-                statusMessage2.textContent = '✅ Challenge Submitted!'; // Add success confirmation
+                statusMessage2.textContent = '✅ Challenge Submitted!';
                 statusMessage2.style.color = 'var(--success-green)';
                 
                 renderStep(3);
@@ -1102,15 +1115,30 @@
     // --- WYSIWYG EDITOR LOGIC ---
     const updateHiddenChallengeText = () => {
         // Read the inner HTML from the contenteditable div
-        const content = challengeEditor.innerHTML.trim();
+        let content = challengeEditor.innerHTML.trim();
         
-        // Use a simple, non-HTML version for length check and placeholder
+        // 1. IMPORTANT: Check for fully empty content (or just line breaks)
+        // If content is empty or contains only non-visible formatting (like <br>), 
+        // set it to an empty string to trigger the CSS placeholder.
         const plainText = challengeEditor.textContent.trim();
         
-        // Write the HTML content to the hidden input for submission
+        if (plainText.length === 0) {
+            // Also check for common single line-break that contenteditable often leaves
+            if (content === '<br>') {
+                content = '';
+                challengeEditor.innerHTML = ''; // Force visual clear in the editor
+            }
+            
+            // If the user has truly cleared it, reset the content to empty string
+            if (content.length === 0) {
+                challengeEditor.innerHTML = '';
+            }
+        }
+        
+        // 2. Write the (potentially corrected) HTML content to the hidden input
         challengeText.value = content; 
         
-        // Return the plain text length for validation
+        // 3. Return the plain text length for validation
         return plainText.length;
     };
     
