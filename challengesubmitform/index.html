@@ -114,11 +114,6 @@
                     <input type="hidden" id="challengeText" value="">
 
                     <div class="flex border-t-0 border border-[#333] rounded-b-lg p-2 bg-[#2a2a2a]">
-                        <button type="button" data-edit="blockquote" 
-                                class="editor-button text-gray-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none w-8 h-8 rounded-md hover:bg-[#3d3d3d] flex justify-center items-center mr-1"
-                                title="Blockquote" disabled>
-                            <i class="fa-solid fa-quote-right"></i>
-                        </button>
                         <button type="button" data-edit="bold" 
                                 class="editor-button text-gray-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none w-8 h-8 rounded-md hover:bg-[#3d3d3d] flex justify-center items-center mr-1"
                                 title="Bold" disabled>
@@ -863,7 +858,7 @@
             periodText = timeframeUnitSentenceSpan.textContent.slice(0, -1); 
             
             if (unit === 'WEEKLY' && pace > THRESHOLDS.WEEKLY) shouldShowWarning = true;
-            if (unit === 'MONTHLY' && pace > THRESHOLDS.MONTHLY) shouldShowWarning = true;
+            if (unit === 'MONTHLY' && pace > THRESHOLDS.MONTHOLDS) shouldShowWarning = true;
 
         } else if (unit === 'CUSTOM_DAYS') {
             const customDays = parseInt(customDaysInput.value) || 1;
@@ -1118,19 +1113,25 @@
         // Return the plain text length for validation
         return plainText.length;
     };
-
+    
+    // --- CLEANED: execCommand no longer contains blockquote logic ---
     const execCommand = (command, value = null) => {
-        // Execute the native browser command for text formatting
-        document.execCommand(command, false, value);
+        // --- Standard Browser Command execution for all commands (Bold, Italic) ---
         challengeEditor.focus();
-        // Since content changed, trigger validation
+        
+        try {
+            document.execCommand(command, false, value);
+        } catch (error) {
+            console.error(`execCommand failed for ${command}:`, error);
+        }
+
         updateDynamicFields(); 
     };
 
     // Toolbar button listeners
     document.querySelectorAll('.editor-button').forEach(button => {
         button.addEventListener('click', (e) => {
-            e.preventDefault();
+            e.preventDefault(); // Prevents the contenteditable div from losing focus on some browsers
             const command = button.getAttribute('data-edit');
             execCommand(command);
         });
@@ -1143,8 +1144,5 @@
     });
 
     
-    // Set initial placeholder/disabled state
-    handlePlaceholder();
-
     startNewChallengeButton.addEventListener('click', resetForm);
 </script>
