@@ -9,7 +9,7 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
     --primary-neon: rgb(242, 189, 21);
     --text-color: rgb(242, 242, 242);
     --secondary-bg: rgb(21, 21, 21);
-    --subtext-color: rgb(242, 242, 242); 
+    --subtext-color: rgba(242, 242, 242, 0.84); 
 
     --disabled-color: #666; 
     --error-red: #d24242;
@@ -599,11 +599,26 @@ textarea.form-input {
 
 #challengeEditor:empty:not(:focus)::before {
     content: attr(placeholder);
-    color: #777; /* Placeholder color */
+    color: var(--subtext-color); /* Placeholder color */
     pointer-events: none; /* Allows click to focus the element */
 }
 
 #challengeEditor[disabled] {
     cursor: not-allowed;
-    background-color: #111111 !important; /* Visually indicate disabled */
+    background-color: var(--background-color) !important; /* Visually indicate disabled */
+}
+
+/* Placeholder fix for contenteditable multiline */
+[contenteditable]:empty::before {
+    content: attr(placeholder);
+    color: #888; /* Placeholder color, adjust as needed */
+    display: block;
+    /* CRITICAL: Allows template literal line breaks (\n) to render */
+    white-space: pre-wrap; 
+}
+/* Ensure the placeholder is not shown if the field is disabled, 
+   or if you want a different style for disabled placeholders */
+.form-section-disabled [contenteditable]:empty::before {
+    /* Optional: Style adjustments for disabled state */
+    filter: none; /* Keep color visible */
 }
