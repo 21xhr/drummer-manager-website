@@ -131,7 +131,7 @@
                         <label for="totalTimeframeCount" class="roboto text-sm text-gray-400 block mb-1">Total:</label>
                         <div class="flex items-center gap-3">
                             <input type="number" id="totalTimeframeCount" class="form-input cadence-input" min="1" value="1" max="999" disabled required>
-                            <span class="roboto neon-text text-sm">Session(s)</span>
+                            <span id="oneOffSessionPluralization" class="roboto neon-text text-sm">Session(s)</span>
                             <strong id="oneOffSummary" class="roboto text-xs neon-text ml-2"></strong>
                             
                             <div class="ml-auto flex items-center bg-[#1a1a1a] px-3 py-1 rounded border border-[#333]">
@@ -769,7 +769,6 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
             recurrenceDurationCountInput.value = timeframeCount;
             // --- End Enforcement ---
 
-            // Correct logic: Total sessions = Pace * TimeframeCount
             calculatedTotal = pace * timeframeCount;
             
             if (!unit) {
@@ -783,7 +782,7 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
                 const paceText = pace === 1 ? 'session' : 'sessions';
                 let unitDisplay = unit.toLowerCase();
                 
-                // FIX: Map 'daily', 'weekly', 'monthly' to 'day', 'week', 'month'
+                // Map 'daily', 'weekly', 'monthly' to 'day', 'week', 'month'
                 if (unitDisplay === 'daily') unitDisplay = 'day';
                 else if (unitDisplay === 'weekly') unitDisplay = 'week';
                 else if (unitDisplay === 'monthly') unitDisplay = 'month';
@@ -834,6 +833,13 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
         
         if (oneOffDisplay) oneOffDisplay.textContent = formattedCost;
         if (recurringDisplay) recurringDisplay.textContent = formattedCost;
+
+        // --- PLURALIZATION LOGIC ---
+        const oneOffPluralizer = document.getElementById('oneOffSessionPluralization');
+        if (oneOffPluralizer && durationType === 'ONE_OFF') {
+            const currentCount = parseInt(totalTimeframeCountInput.value) || 0;
+            oneOffPluralizer.textContent = currentCount === 1 ? 'Session' : 'Sessions';
+        }
     };
 
     
@@ -1055,7 +1061,7 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
     cadenceUnitSelect.addEventListener('change', (e) => {
         setCadenceTimeframeDefaults(e.target.value); 
     });
-    // Input changes now call calculateTotalSessions indirectly via updateDynamicFields
+    // Input changes calls the update function
     cadenceCountInput.addEventListener('input', updateDynamicFields);
     customDaysInput.addEventListener('input', updateDynamicFields);
     recurrenceDurationCountInput.addEventListener('input', updateDynamicFields); 
