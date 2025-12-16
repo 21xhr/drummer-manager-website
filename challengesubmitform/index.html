@@ -836,65 +836,81 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
         if (recurringDisplay) recurringDisplay.textContent = formattedCost;
     };
 
+    
     // --- WARNING LOGIC IMPLEMENTATION ---
     const checkHighDemandWarning = () => {
         const durationType = challengeDurationTypeHidden.value;
-        const isRecurring = durationType === 'RECURRING';
-
+        const totalSessions = parseInt(calculatedTotalSessionsInput.value) || 0;
+        
         let shouldShowWarning = false;
         let sessionsPerPeriod = 0;
         let periodText = '';
-
-        // If the duration card hasn't been selected or it's not recurring, we skip the check
-        if (!isRecurring) {
-            highDemandWarningBanner.classList.add('hidden');
-            return;
-        }
-
-        const unit = cadenceUnitSelect.value;
-        const pace = parseInt(cadenceCountInput.value) || 0;
         
-        const THRESHOLDS = {
+        // Constants for thresholds (Self-documenting and easy to adjust)
+        const ONE_OFF_MAX_SESSIONS = 7; 
+        const RECURRING_THRESHOLDS = {
             'DAILY': 7,
             'WEEKLY': 42,
             'MONTHLY': 147,
         };
 
-        if (unit === 'DAILY') {
-            sessionsPerPeriod = pace;
-            periodText = 'Day';
-            if (pace > THRESHOLDS.DAILY) shouldShowWarning = true;
-            
-        } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
-            sessionsPerPeriod = pace;
-            // Use the display text from the global variable (Days, Weeks, Months)
-            periodText = timeframeUnitSentenceSpan.textContent.slice(0, -1); 
-            
-            if (unit === 'WEEKLY' && pace > THRESHOLDS.WEEKLY) shouldShowWarning = true;
-            if (unit === 'MONTHLY' && pace > THRESHOLDS.MONTHOLDS) shouldShowWarning = true;
+        // If no duration is selected, hide and exit
+        if (!durationType) {
+            highDemandWarningBanner.classList.add('hidden');
+            return;
+        }
 
-        } else if (unit === 'CUSTOM_DAYS') {
-            const customDays = parseInt(customDaysInput.value) || 1;
-            // Normalized check: Average daily pace must be > 7 sessions/day
-            const averageDailyPace = pace / customDays; 
-            
-            sessionsPerPeriod = pace; 
-            periodText = ` ${customDays} Day cycle`;
-            
-            // Check against the DAILY threshold for the average pace
-            if (averageDailyPace > THRESHOLDS.DAILY) {
+        // 1. ONE-OFF CHALLENGE LOGIC
+        if (durationType === 'ONE_OFF') {
+            if (totalSessions > ONE_OFF_MAX_SESSIONS) {
                 shouldShowWarning = true;
+                sessionsPerPeriod = totalSessions; 
+                periodText = 'Single Challenge Day';
             }
         }
         
-        // --- Update UI ---
+        // 2. RECURRING CHALLENGE LOGIC
+        else if (durationType === 'RECURRING') {
+            const unit = cadenceUnitSelect.value;
+            const pace = parseInt(cadenceCountInput.value) || 0;
+            
+            if (unit === 'DAILY') {
+                sessionsPerPeriod = pace;
+                periodText = 'Day';
+                if (pace > RECURRING_THRESHOLDS.DAILY) shouldShowWarning = true;
+                
+            } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
+                sessionsPerPeriod = pace;
+                // Use the display text from the global variable (Days, Weeks, Months)
+                periodText = timeframeUnitSentenceSpan.textContent.slice(0, -1); 
+                
+                if (unit === 'WEEKLY' && pace > RECURRING_THRESHOLDS.WEEKLY) shouldShowWarning = true;
+                if (unit === 'MONTHLY' && pace > RECURRING_THRESHOLDS.MONTHLY) shouldShowWarning = true;
+
+            } else if (unit === 'CUSTOM_DAYS') {
+                const customDays = parseInt(customDaysInput.value) || 1;
+                // Normalized check: Average daily pace must be > 7 sessions/day
+                const averageDailyPace = pace / customDays; 
+                
+                sessionsPerPeriod = pace; 
+                periodText = ` ${customDays} Day cycle`;
+                
+                // Check against the DAILY threshold for the average pace
+                if (averageDailyPace > RECURRING_THRESHOLDS.DAILY) {
+                    shouldShowWarning = true;
+                }
+            }
+        }
+        
+        // 3. UI UPDATE (Runs only if a warning was triggered in step 1 or 2)
         if (shouldShowWarning) {
-            highDemandWarningText.innerHTML = `This submission requires <strong>${sessionsPerPeriod} session(s) per${periodText}</strong>, which far exceeds the normal demand threshold. If activated, it will rapidly monopolize the execution slot for an extended duration.`;
+            highDemandWarningText.innerHTML = `This submission requires <strong>${sessionsPerPeriod} session(s) per ${periodText}</strong>, which far exceeds the normal demand threshold. If activated, it will rapidly monopolize the execution slot for an extended duration.`;
             highDemandWarningBanner.classList.remove('hidden');
         } else {
             highDemandWarningBanner.classList.add('hidden');
         }
     };
+
 
     const generateChallengeSummary = (challenge, cost, userStats) => {
         if (!challenge || !userStats) return `<p class="roboto" style="color: red;">Error: Challenge data or user stats are missing.</p>`;
