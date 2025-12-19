@@ -5,44 +5,63 @@
     <title>DMG | Command Center</title>
     <link rel="stylesheet" href="../styles.css">
     <style>
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
-        .card { border: 2px solid #212121; padding: 15px; background: #0a0a0a; }
-        .status-up { color: #00ff00; }
-        .status-down { color: #ff0000; }
-        .metric { font-size: 1.5rem; font-weight: bold; color: #2196f3; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
+        .card { border: 2px solid #212121; padding: 15px; background: #0a0a0a; border-radius: 8px; }
+        .status-up { color: #00ff00; font-weight: bold; }
+        .status-down { color: #ff0000; font-weight: bold; }
+        .metric { font-size: 1.8rem; font-weight: bold; color: #2196f3; display: block; margin-top: 10px; }
+        .label { font-size: 0.8rem; text-transform: uppercase; color: #666; }
     </style>
 </head>
 <body>
     <h1>DRUMMER MANAGER COMMAND CENTER</h1>
+    
     <div class="admin-grid">
         <div class="card">
             <h3>System Health</h3>
-            <p>Supabase: <span id="db-status">Checking...</span></p>
-            <p>Upstash: <span id="redis-status">Checking...</span></p>
+            <p>Supabase: <span id="db-status">--</span></p>
+            <p>Upstash: <span id="redis-status">--</span></p>
         </div>
+
         <div class="card">
             <h3>Clock Status</h3>
-            <p>Real Day: <span id="real-day" class="metric">-</span></p>
-            <p>Stream Day: <span id="stream-day" class="metric">-</span></p>
+            <span class="label">Real Day</span>
+            <span id="real-day" class="metric">-</span>
+            <span class="label">Stream Day</span>
+            <span id="stream-day" class="metric">-</span>
         </div>
+
         <div class="card">
-            <h3>Financials (World Ledger)</h3>
-            <p>Community Chest: <span id="chest" class="metric">0</span> NUMBERS</p>
-            <p>Pusher Pool: <span id="pushers" class="metric">0</span> NUMBERS</p>
+            <h3>Financial Ledger</h3>
+            <span class="label">Community Chest</span>
+            <span id="chest" class="metric">0</span>
+            <span class="label">Pusher Pool</span>
+            <span id="pushers" class="metric">0</span>
         </div>
     </div>
 
     <script>
-        const API_URL = 'http://192.168.1.37:3000/api/admin/pulse';
-        const SECRET = 'YOUR_X_ADMIN_SECRET'; // Replace with your actual secret
+        // --- DUAL-PATH API LOGIC ---
+        const getApiBaseUrl = () => {
+            const hostname = window.location.hostname;
+            if (['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)) return 'http://127.0.0.1:3000/api';
+            if (hostname.startsWith('192.168.')) return `http://${hostname}:3000/api`;
+            return 'https://drummer-manager-api.vercel.app/api';
+        };
+
+        const API_BASE_URL = getApiBaseUrl();
+        const ADMIN_SECRET = 'yv3C6A9f!AueA>GQfvY~(ut(XAHHb_"/MyD)}\cHNy';
 
         async function updateDashboard() {
             try {
-                const res = await fetch(API_URL, {
-                    headers: { 'X-Admin-Secret': SECRET }
+                const res = await fetch(`${API_BASE_URL}/admin/pulse`, {
+                    headers: { 'X-Admin-Secret': ADMIN_SECRET }
                 });
+                
+                if (!res.ok) throw new Error('Unauthorized or Server Error');
                 const data = await res.json();
                 
+                // Update UI
                 document.getElementById('db-status').textContent = data.health.supabase ? 'ONLINE' : 'OFFLINE';
                 document.getElementById('db-status').className = data.health.supabase ? 'status-up' : 'status-down';
                 document.getElementById('redis-status').textContent = data.health.upstash ? 'ONLINE' : 'OFFLINE';
@@ -51,12 +70,15 @@
                 document.getElementById('real-day').textContent = data.maintenance.daysSinceInception;
                 document.getElementById('stream-day').textContent = data.maintenance.streamDaysSinceInception;
                 
-                document.getElementById('chest').textContent = data.financials.totalToCommunityChest;
-                document.getElementById('pushers').textContent = data.financials.totalToPushers;
-            } catch (e) { console.error("Pulse Failed", e); }
+                document.getElementById('chest').textContent = data.financials.totalToCommunityChest.toLocaleString();
+                document.getElementById('pushers').textContent = data.financials.totalToPushers.toLocaleString();
+
+            } catch (e) {
+                console.error("Pulse Failed:", e);
+            }
         }
 
-        setInterval(updateDashboard, 60000);
+        setInterval(updateDashboard, 60000); // Auto-refresh every 60s
         updateDashboard();
     </script>
 </body>
