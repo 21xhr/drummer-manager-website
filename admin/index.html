@@ -1,71 +1,114 @@
-<div id="login-overlay">
-    <form id="login-form" class="card" onsubmit="unlock(event)">
-        <h3>Enter Admin Key</h3>
-        <input type="password" id="admin-key-input" name="password" 
-               placeholder="••••••••" autocomplete="current-password"
-               style="padding: 10px; width: 100%; margin-bottom: 10px;">
-        <button type="submit" style="width: 100%; padding: 10px; cursor: pointer;">
-            Access Console
-        </button>
-    </form>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DMG | Command Center</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        #admin-content { display: none; padding: 20px; }
+        #login-overlay { 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.95); 
+            display: flex; /* This shows the login */
+            align-items: center; 
+            justify-content: center; 
+            z-index: 999; 
+        }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { border: 2px solid #212121; padding: 15px; background: #0a0a0a; border-radius: 8px; }
+        .metric { font-size: 1.8rem; font-weight: bold; color: #2196f3; display: block; margin-top: 10px; }
+        .status-up { color: #00ff00; }
+        .status-down { color: #ff0000; }
+    </style>
+</head>
+<body>
+    <div id="login-overlay">
+        <form id="login-form" class="card" onsubmit="unlock(event)">
+            <h3>Enter Admin Key</h3>
+            <div id="login-feedback" style="color: #ff0000; font-size: 0.8rem; margin-bottom: 5px;"></div>
+            <input type="password" id="admin-key-input" name="password" placeholder="••••••••" autocomplete="current-password" style="padding: 10px; width: 100%; margin-bottom: 10px; background: #222; border: 1px solid #444; color: white;">
+            <button type="submit" id="login-btn" style="width: 100%; padding: 10px; cursor: pointer; background: #2196f3; color: white; border: none;">Access Console</button>
+        </form>
+    </div>
 
-<script>
-    // ... getApiBaseUrl stays the same ...
+    <div id="admin-content">
+        <h1>DRUMMER MANAGER COMMAND CENTER</h1>
+        <div class="admin-grid">
+            <div class="card">
+                <h3>System Health</h3>
+                <p>Supabase: <span id="db-status">--</span></p>
+                <p>Upstash: <span id="redis-status">--</span></p>
+            </div>
+            <div class="card">
+                <h3>Clock Status</h3>
+                <p>Real Day: <span id="real-day" class="metric">-</span></p>
+                <p>Stream Day: <span id="stream-day" class="metric">-</span></p>
+            </div>
+            <div class="card">
+                <h3>Financials</h3>
+                <p>Community Chest: <span id="chest" class="metric">0</span></p>
+                <p>Pusher Pool: <span id="pushers" class="metric">0</span></p>
+            </div>
+        </div>
+    </div>
 
-    function unlock(event) {
-        if (event) event.preventDefault(); // Prevent page reload
-        const key = document.getElementById('admin-key-input').value;
-        if (key) {
+    <script>
+        const getApiBaseUrl = () => {
+            const hostname = window.location.hostname;
+            if (['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)) return 'http://127.0.0.1:3000/api/v1';
+            if (hostname.startsWith('192.168.')) return `http://${hostname}:3000/api/v1`;
+            return 'https://drummer-manager-api.vercel.app/api/v1';
+        };
+
+        const API_BASE_URL = getApiBaseUrl();
+
+        function unlock(event) {
+            if (event) event.preventDefault();
+            const feedback = document.getElementById('login-feedback');
+            const btn = document.getElementById('login-btn');
+            const key = document.getElementById('admin-key-input').value;
+            if (!key) { feedback.textContent = "Key is required"; return; }
+            feedback.textContent = "Authenticating...";
+            btn.disabled = true;
             sessionStorage.setItem('dmg_admin_key', key);
-            checkAuthAndLoad();
+            updateDashboard();
         }
-    }
 
-    async function updateDashboard() {
-        const key = sessionStorage.getItem('dmg_admin_key');
-        if (!key) return;
+        async function updateDashboard() {
+            const key = sessionStorage.getItem('dmg_admin_key');
+            if (!key) return;
+            try {
+                const res = await fetch(`${API_BASE_URL}/admin/pulse`, { headers: { 'X-Admin-Secret': key } });
+                if (res.status === 401) {
+                    document.getElementById('login-feedback').textContent = "Invalid Admin Key";
+                    document.getElementById('login-btn').disabled = false;
+                    sessionStorage.removeItem('dmg_admin_key');
+                    return;
+                }
+                const data = await res.json();
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
 
-        try {
-            const res = await fetch(`${API_BASE_URL}/admin/pulse`, {
-                headers: { 'X-Admin-Secret': key }
-            });
-            
-            if (res.status === 401) {
-                alert("Invalid Admin Key");
-                sessionStorage.removeItem('dmg_admin_key');
-                location.reload();
-                return;
+                document.getElementById('db-status').textContent = data.systems.supabase;
+                document.getElementById('db-status').className = data.systems.supabase === 'UP' ? 'status-up' : 'status-down';
+                document.getElementById('redis-status').textContent = data.systems.upstash;
+                document.getElementById('redis-status').className = data.systems.upstash === 'UP' ? 'status-up' : 'status-down';
+                document.getElementById('real-day').textContent = data.maintenance.realDay;
+                document.getElementById('stream-day').textContent = data.maintenance.streamDay;
+                document.getElementById('chest').textContent = parseInt(data.financials.communityChest).toLocaleString();
+                document.getElementById('pushers').textContent = parseInt(data.financials.totalToPushers).toLocaleString();
+            } catch (e) {
+                document.getElementById('login-feedback').textContent = "Connection Error";
+                document.getElementById('login-btn').disabled = false;
+                console.error(e);
             }
-
-            const data = await res.json();
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('admin-content').style.display = 'block';
-
-            // UI Updates
-            document.getElementById('db-status').textContent = data.health.supabase ? 'ONLINE' : 'OFFLINE';
-            document.getElementById('db-status').style.color = data.health.supabase ? '#00ff00' : '#ff0000';
-            document.getElementById('redis-status').textContent = data.health.upstash ? 'ONLINE' : 'OFFLINE';
-            document.getElementById('redis-status').style.color = data.health.upstash ? '#00ff00' : '#ff0000';
-            
-            document.getElementById('real-day').textContent = data.maintenance.daysSinceInception;
-            document.getElementById('stream-day').textContent = data.maintenance.streamDaysSinceInception;
-            document.getElementById('chest').textContent = data.financials.totalToCommunityChest.toLocaleString();
-            document.getElementById('pushers').textContent = data.financials.totalToPushers.toLocaleString();
-        } catch (e) { 
-            console.error("Update Failed", e); 
         }
-    }
 
-    function checkAuthAndLoad() {
         if (sessionStorage.getItem('dmg_admin_key')) {
             updateDashboard();
-            // Start interval only once
-            if (!window.dashboardInterval) {
-                window.dashboardInterval = setInterval(updateDashboard, 60000);
-            }
+            setInterval(updateDashboard, 60000);
         }
-    }
-
-    checkAuthAndLoad();
-</script>
+    </script>
+</body>
+</html>
