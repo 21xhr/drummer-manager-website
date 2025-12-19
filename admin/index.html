@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DMG | Command Center</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
+        .card { border: 2px solid #212121; padding: 15px; background: #0a0a0a; }
+        .status-up { color: #00ff00; }
+        .status-down { color: #ff0000; }
+        .metric { font-size: 1.5rem; font-weight: bold; color: #2196f3; }
+    </style>
+</head>
+<body>
+    <h1>DRUMMER MANAGER COMMAND CENTER</h1>
+    <div class="admin-grid">
+        <div class="card">
+            <h3>System Health</h3>
+            <p>Supabase: <span id="db-status">Checking...</span></p>
+            <p>Upstash: <span id="redis-status">Checking...</span></p>
+        </div>
+        <div class="card">
+            <h3>Clock Status</h3>
+            <p>Real Day: <span id="real-day" class="metric">-</span></p>
+            <p>Stream Day: <span id="stream-day" class="metric">-</span></p>
+        </div>
+        <div class="card">
+            <h3>Financials (World Ledger)</h3>
+            <p>Community Chest: <span id="chest" class="metric">0</span> NUMBERS</p>
+            <p>Pusher Pool: <span id="pushers" class="metric">0</span> NUMBERS</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://192.168.1.37:3000/api/admin/pulse';
+        const SECRET = 'YOUR_X_ADMIN_SECRET'; // Replace with your actual secret
+
+        async function updateDashboard() {
+            try {
+                const res = await fetch(API_URL, {
+                    headers: { 'X-Admin-Secret': SECRET }
+                });
+                const data = await res.json();
+                
+                document.getElementById('db-status').textContent = data.health.supabase ? 'ONLINE' : 'OFFLINE';
+                document.getElementById('db-status').className = data.health.supabase ? 'status-up' : 'status-down';
+                document.getElementById('redis-status').textContent = data.health.upstash ? 'ONLINE' : 'OFFLINE';
+                document.getElementById('redis-status').className = data.health.upstash ? 'status-up' : 'status-down';
+                
+                document.getElementById('real-day').textContent = data.maintenance.daysSinceInception;
+                document.getElementById('stream-day').textContent = data.maintenance.streamDaysSinceInception;
+                
+                document.getElementById('chest').textContent = data.financials.totalToCommunityChest;
+                document.getElementById('pushers').textContent = data.financials.totalToPushers;
+            } catch (e) { console.error("Pulse Failed", e); }
+        }
+
+        setInterval(updateDashboard, 60000);
+        updateDashboard();
+    </script>
+</body>
+</html>

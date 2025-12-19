@@ -284,7 +284,7 @@
             <a href="https://www.youtube.com/@21xhr" target="_blank" aria-label="YouTube" class="social-link">
                 <i class="fab fa-youtube"></i>
             </a>
-            <a href="https://21xhr.github.io/drummer-manager/donation" target="_blank" aria-label="Make a Donation" class="social-link">
+            <a href="https://drummer-manager-website.vercel.app/donation" target="_blank" aria-label="Make a Donation" class="social-link">
                 <i class="fa-solid fa-mug-hot"></i>
             </a>
         </div>
@@ -492,9 +492,9 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
                 setTimeout(() => {
                     renderStep(2); // 3. Enter challenge submission (Step 2)
                     statusMessage1.textContent = ''; 
-                    // FIX 6: Call the update function immediately after transitioning to Step 2
+                    // Call the update function immediately after transitioning to Step 2
                     updateDynamicFields();
-                }, 210); 
+                }, 2100); 
 
             } else if (response.status === 401 || response.status === 400) {
                 // TOKEN EXPIRED/INVALID FAILURE
@@ -718,7 +718,6 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
     
     const calculateTotalSessions = () => {
         const durationType = challengeDurationTypeHidden.value;
-        const isRecurring = durationType === 'RECURRING';
 
         let text = "";
         let calculatedTotal = 0;
@@ -730,7 +729,7 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
             totalTimeframeCountInput.value = calculatedTotal;
             text = `ONE_OFF: ${calculatedTotal} session(s).`;
             
-        } else if (isRecurring) {
+        } else if (durationType === 'RECURRING') { 
             const unit = cadenceUnitSelect.value;
             // Get user inputs, default to 1
             let pace = Math.min(parseInt(cadenceCountInput.value) || 1, 999);
@@ -941,7 +940,7 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
             </div>
         `;
 
-        const challengeUrl = `https://21xhr.github.io/drummer-manager/`; 
+        const challengeUrl = `https://drummer-manager-website.vercel.app/`; 
         const shareText = encodeURIComponent(`I just proposed Challenge #${challenge.challengeId} (Cost: ${cost.toLocaleString()} NUMBERS) to @21xhr on the Drummer Manager Game! #DrummerManager #ChallengeAccepted`);
         const twitterShare = `https://x.com/intent/tweet?text=${shareText}&url=${challengeUrl}`;
         
