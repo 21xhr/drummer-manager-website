@@ -5,81 +5,98 @@
     <title>DMG | Command Center</title>
     <link rel="stylesheet" href="../styles.css">
     <style>
+        #login-overlay { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 100; }
+        #admin-content { display: none; } /* Hidden by default */
         .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 20px; }
         .card { border: 2px solid #212121; padding: 15px; background: #0a0a0a; border-radius: 8px; }
         .status-up { color: #00ff00; font-weight: bold; }
-        .status-down { color: #ff0000; font-weight: bold; }
         .metric { font-size: 1.8rem; font-weight: bold; color: #2196f3; display: block; margin-top: 10px; }
-        .label { font-size: 0.8rem; text-transform: uppercase; color: #666; }
     </style>
 </head>
 <body>
-    <h1>DRUMMER MANAGER COMMAND CENTER</h1>
-    
-    <div class="admin-grid">
+    <div id="login-overlay">
         <div class="card">
-            <h3>System Health</h3>
-            <p>Supabase: <span id="db-status">--</span></p>
-            <p>Upstash: <span id="redis-status">--</span></p>
+            <h3>Enter Admin Key</h3>
+            <input type="password" id="admin-key-input" placeholder="••••••••" style="padding: 10px; width: 100%;">
+            <button onclick="unlock()" style="margin-top: 10px; width: 100%; padding: 10px; cursor: pointer;">Access Console</button>
         </div>
+    </div>
 
-        <div class="card">
-            <h3>Clock Status</h3>
-            <span class="label">Real Day</span>
-            <span id="real-day" class="metric">-</span>
-            <span class="label">Stream Day</span>
-            <span id="stream-day" class="metric">-</span>
-        </div>
-
-        <div class="card">
-            <h3>Financial Ledger</h3>
-            <span class="label">Community Chest</span>
-            <span id="chest" class="metric">0</span>
-            <span class="label">Pusher Pool</span>
-            <span id="pushers" class="metric">0</span>
+    <div id="admin-content">
+        <h1>DRUMMER MANAGER COMMAND CENTER</h1>
+        <div class="admin-grid">
+            <div class="card">
+                <h3>System Health</h3>
+                <p>Supabase: <span id="db-status">--</span></p>
+                <p>Upstash: <span id="redis-status">--</span></p>
+            </div>
+            <div class="card">
+                <h3>Clock Status</h3>
+                <p>Real Day: <span id="real-day" class="metric">-</span></p>
+                <p>Stream Day: <span id="stream-day" class="metric">-</span></p>
+            </div>
+            <div class="card">
+                <h3>Financials</h3>
+                <p>Community Chest: <span id="chest" class="metric">0</span></p>
+                <p>Pusher Pool: <span id="pushers" class="metric">0</span></p>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- DUAL-PATH API LOGIC ---
         const getApiBaseUrl = () => {
             const hostname = window.location.hostname;
-            if (['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)) return 'http://127.0.0.1:3000/api';
-            if (hostname.startsWith('192.168.')) return `http://${hostname}:3000/api`;
+            if (['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)) return 'http://127.0.0.1:3000/api/v1';
+            if (hostname.startsWith('192.168.')) return `http://${hostname}:3000/api/v1`;
             return 'https://drummer-manager-api.vercel.app/api/v1';
         };
 
         const API_BASE_URL = getApiBaseUrl();
-        const ADMIN_SECRET = 'yv3C6A9f!AueA>GQfvY~(ut(XAHHb_"/MyD)}\cHNy';
+
+        function unlock() {
+            const key = document.getElementById('admin-key-input').value;
+            sessionStorage.setItem('dmg_admin_key', key);
+            checkAuthAndLoad();
+        }
 
         async function updateDashboard() {
+            const key = sessionStorage.getItem('dmg_admin_key');
+            if (!key) return;
+
             try {
                 const res = await fetch(`${API_BASE_URL}/admin/pulse`, {
-                    headers: { 'X-Admin-Secret': ADMIN_SECRET }
+                    headers: { 'X-Admin-Secret': key }
                 });
                 
-                if (!res.ok) throw new Error('Unauthorized or Server Error');
+                if (res.status === 401) {
+                    alert("Invalid Admin Key");
+                    sessionStorage.removeItem('dmg_admin_key');
+                    location.reload();
+                    return;
+                }
+
                 const data = await res.json();
-                
-                // Update UI
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+
+                // Update UI fields
                 document.getElementById('db-status').textContent = data.health.supabase ? 'ONLINE' : 'OFFLINE';
-                document.getElementById('db-status').className = data.health.supabase ? 'status-up' : 'status-down';
                 document.getElementById('redis-status').textContent = data.health.upstash ? 'ONLINE' : 'OFFLINE';
-                document.getElementById('redis-status').className = data.health.upstash ? 'status-up' : 'status-down';
-                
                 document.getElementById('real-day').textContent = data.maintenance.daysSinceInception;
                 document.getElementById('stream-day').textContent = data.maintenance.streamDaysSinceInception;
-                
                 document.getElementById('chest').textContent = data.financials.totalToCommunityChest.toLocaleString();
                 document.getElementById('pushers').textContent = data.financials.totalToPushers.toLocaleString();
+            } catch (e) { console.error("Update Failed", e); }
+        }
 
-            } catch (e) {
-                console.error("Pulse Failed:", e);
+        function checkAuthAndLoad() {
+            if (sessionStorage.getItem('dmg_admin_key')) {
+                updateDashboard();
+                setInterval(updateDashboard, 60000);
             }
         }
 
-        setInterval(updateDashboard, 60000); // Auto-refresh every 60s
-        updateDashboard();
+        checkAuthAndLoad();
     </script>
 </body>
 </html>
