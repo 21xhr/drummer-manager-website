@@ -622,3 +622,103 @@ textarea.form-input {
     /* Optional: Style adjustments for disabled state */
     filter: none; /* Keep color visible */
 }
+
+
+/* ------------------------------------------------------------------
+   ADMIN / COMMAND CENTER STYLES (REFINED)
+   ------------------------------------------------------------------ */
+
+body.admin-body {
+    display: block; /* Overrides global flex centering */
+    text-align: left;
+    padding: 40px;
+}
+
+#login-overlay { 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(12, 12, 12, 0.99); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 999; 
+}
+
+.admin-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+    gap: 25px; 
+    width: 100%;
+    max-width: 1200px;
+    margin: 2rem auto 0 auto;
+}
+
+.admin-card { 
+    border: 2px solid var(--secondary-bg); 
+    padding: 25px; 
+    background: var(--secondary-bg); 
+    border-radius: 12px; 
+    transition: all 0.3s ease;
+}
+
+.admin-card:hover {
+    border-color: var(--primary-neon);
+    box-shadow: 0 0 20px rgba(242, 189, 21, 0.15);
+}
+
+.admin-feedback {
+    color: var(--error-red);
+    font-size: 0.85rem; /* Slightly larger for better readability */
+    font-weight: bold;
+    margin-bottom: 12px;
+    min-height: 1.2rem; /* Prevents the layout from jumping when text appears */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 550px; /* Increased from 400px for a more imposing look */
+    padding: 50px;
+    text-align: center;
+}
+
+.login-box h3 {
+    width: 100%;
+    margin-bottom: 30px;
+    font-size: 2rem; /* Larger title */
+    letter-spacing: 8px; /* Extra spacing for that "System" feel */
+    text-align: center;
+}
+
+.admin-input {
+    width: 100%;
+    box-sizing: border-box; 
+    padding: 21px;
+    margin-bottom: 21px;
+    background: var(--background-color) !important;
+    border: 1px solid #333;
+    color: var(--primary-neon);
+    font-size: 1.2rem; /* Increased from 0.79rem so dots/text are visible */
+    text-align: center;
+    border-radius: 8px;
+    letter-spacing: 4px;
+}
+
+.admin-input:focus {
+    border-color: var(--primary-neon);
+    outline: none;
+    box-shadow: 0 0 15px var(--primary-neon);
+}
+
+.admin-metric { 
+    font-size: 2.2rem; 
+    font-family: 'DM Sans', sans-serif;
+    font-weight: bold; 
+    color: var(--primary-neon); 
+    display: block; 
+    margin-top: 10px;
+}
+
+.status-up { color: var(--success-green); font-weight: bold; }
+.status-down { color: var(--error-red); font-weight: bold; }
