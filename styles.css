@@ -625,15 +625,39 @@ textarea.form-input {
 
 
 /* ------------------------------------------------------------------
-   ADMIN / COMMAND CENTER STYLES (REFINED)
+   ADMIN / GAME STATE MONITOR - FINAL CONSOLIDATED STRUCTURE
    ------------------------------------------------------------------ */
 
+/* 1. Base Admin Layout - Force Centering */
 body.admin-body {
-    display: block; /* Overrides global flex centering */
-    text-align: left;
-    padding: 40px;
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers everything horizontally */
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-color);
+    min-height: 100vh;
 }
 
+#admin-content {
+    width: 95%;
+    max-width: 1600px; /* Wider to fill your desktop monitor */
+    padding: 60px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1.neon-text {
+    font-size: 4rem; /* Massive title to reduce empty space on PC */
+    text-align: center;
+    letter-spacing: 6px;
+    margin-bottom: 4rem;
+}
+
+/* 2. Login Overlay & Card (Full Logic Preserved) */
 #login-overlay { 
     position: fixed; 
     inset: 0; 
@@ -644,51 +668,13 @@ body.admin-body {
     z-index: 999; 
 }
 
-.admin-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-    gap: 25px; 
-    width: 100%;
-    max-width: 1200px;
-    margin: 2rem auto 0 auto;
-}
-
-.admin-card { 
-    border: 2px solid var(--secondary-bg); 
-    padding: 25px; 
-    background: var(--secondary-bg); 
-    border-radius: 12px; 
-    transition: all 0.3s ease;
-}
-
-.admin-card:hover {
-    border-color: var(--primary-neon);
-    box-shadow: 0 0 20px rgba(242, 189, 21, 0.15);
-}
-
-.admin-feedback {
-    color: var(--error-red);
-    font-size: 0.85rem; /* Slightly larger for better readability */
-    font-weight: bold;
-    margin-bottom: 12px;
-    min-height: 1.2rem; /* Prevents the layout from jumping when text appears */
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
 .login-box {
-    width: 100%;
-    max-width: 550px; /* Increased from 400px for a more imposing look */
+    width: 90%;
+    max-width: 550px; 
     padding: 50px;
     text-align: center;
-}
-
-.login-box h3 {
-    width: 100%;
-    margin-bottom: 30px;
-    font-size: 2rem; /* Larger title */
-    letter-spacing: 8px; /* Extra spacing for that "System" feel */
-    text-align: center;
+    background: var(--secondary-bg);
+    border-radius: 12px;
 }
 
 .admin-input {
@@ -699,26 +685,105 @@ body.admin-body {
     background: var(--background-color) !important;
     border: 1px solid #333;
     color: var(--primary-neon);
-    font-size: 1.2rem; /* Increased from 0.79rem so dots/text are visible */
+    font-size: 1.2rem; 
     text-align: center;
     border-radius: 8px;
     letter-spacing: 4px;
 }
 
-.admin-input:focus {
+.admin-feedback {
+    color: var(--error-red);
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 12px;
+    min-height: 1.2rem;
+    text-transform: uppercase;
+}
+
+/* 3. The Monitor Grid */
+.admin-grid { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); /* 4 Columns on PC */
+    gap: 35px; 
+    width: 100%;
+}
+
+/* 4. Individual Monitor Cards - Huge Scaling */
+.admin-card { 
+    background: var(--secondary-bg); 
+    border: 3px solid #222; 
+    border-radius: 20px; 
+    padding: 40px; /* Deep padding for a "Command" feel */
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+}
+
+.admin-card:hover {
     border-color: var(--primary-neon);
-    outline: none;
-    box-shadow: 0 0 15px var(--primary-neon);
+    transform: translateY(-8px);
 }
 
-.admin-metric { 
-    font-size: 2.2rem; 
-    font-family: 'DM Sans', sans-serif;
-    font-weight: bold; 
+.admin-card h2 {
+    font-size: 2rem; /* Massive headers */
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 30px;
+    color: var(--primary-neon);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 3px solid #333;
+    padding-bottom: 15px;
+}
+
+/* 5. Data Alignment & Metrics */
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    margin-bottom: 22px;
+    gap: 20px;
+}
+
+.metric-label {
+    font-size: 1.4rem; /* Large readable labels */
+    color: var(--subtext-color);
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.admin-metric, .data-value { 
+    font-size: 3rem; /* Huge metrics for both PC and Redmi */
+    font-weight: 900; 
     color: var(--primary-neon); 
-    display: block; 
-    margin-top: 10px;
 }
 
-.status-up { color: var(--success-green); font-weight: bold; }
-.status-down { color: var(--error-red); font-weight: bold; }
+.status-up { font-size: 1.8rem; color: var(--success-green); font-weight: bold; }
+.status-down { font-size: 1.8rem; color: var(--error-red); font-weight: bold; }
+
+.clock-divider {
+    border: 0;
+    border-top: 3px dashed #444;
+    margin: 25px 0;
+}
+
+/* 6. Responsive Fix for Redmi Note 8 Pro (1080p width) */
+@media (max-width: 1100px) {
+    .admin-grid {
+        grid-template-columns: 1fr; /* Force single column to allow text growth */
+        width: 100%;
+    }
+
+    .admin-card h2 {
+        font-size: 2.5rem; /* Massive mobile title */
+    }
+
+    .metric-label {
+        font-size: 1.8rem;
+    }
+
+    .admin-metric, .data-value {
+        font-size: 4rem; /* Gigantic numbers for mobile myopia */
+    }
+}

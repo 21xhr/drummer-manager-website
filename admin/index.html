@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>DMG | Command Center</title>
->    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="../styles.css">
 </head>
 <body class="admin-body">
     <div id="login-overlay">
@@ -24,26 +24,66 @@
         </form>
     </div>
 
-    <div id="admin-content" style="display:none; width: 100%; max-width: 1200px;">
-        <h1 class="dm-sans neon-text">COMMAND CENTER</h1>
-        
+    <div id="admin-content" style="display:none; width: 100%;">
+    <h1 class="dm-sans neon-text" style="text-align: center; width: 100%; margin: 40px 0;">GAME STATE MONITOR</h1>
         <div class="admin-grid">
             <div class="admin-card">
-                <h3>System Health</h3>
-                <p>Supabase: <span id="db-status">--</span></p>
-                <p>Upstash: <span id="redis-status">--</span></p>
+                <h2>System Status</h2>
+                <div class="data-row">
+                    <span class="metric-label">Supabase</span>
+                    <span id="db-status" class="status-up">--</span>
+                </div>
+                <div class="data-row">
+                    <span class="metric-label">Upstash</span>
+                    <span id="redis-status" class="status-up">--</span>
+                </div>
             </div>
             
             <div class="admin-card">
-                <h3>Clock Status</h3>
-                <p>Real Day: <span id="real-day" class="admin-metric">-</span></p>
-                <p>Stream Day: <span id="stream-day" class="admin-metric">-</span></p>
+                <h2>Operational Clocks</h2>
+                <div class="data-row">
+                    <span class="metric-label">Days Live</span>
+                    <span id="real-day" class="admin-metric">0</span>
+                </div>
+                <hr class="clock-divider">
+                <div class="data-row">
+                    <span class="metric-label">Stream Days</span>
+                    <span id="stream-day" class="admin-metric">0</span>
+                </div>
             </div>
-            
+
             <div class="admin-card">
-                <h3>Financials</h3>
-                <p>Community Chest: <span id="chest" class="admin-metric">0</span></p>
-                <p>Pusher Pool: <span id="pushers" class="admin-metric">0</span></p>
+                <h2>Global Economy</h2>
+                <div class="data-row">
+                    <span class="metric-label">Gross Spent</span>
+                    <span id="gross-spent" class="data-value">0</span>
+                </div>
+                <div class="data-row">
+                    <span class="metric-label">Total Refunded</span>
+                    <span id="refunded" class="data-value" style="color: var(--error-red)">0</span>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
+                <div class="data-row">
+                    <span class="neon-text metric-label">Net Flow</span>
+                    <span id="net-economy" class="admin-metric">0</span>
+                </div>
+            </div>
+
+           <div class="admin-card">
+                <h2>Asset Allocation</h2>
+                <div class="data-row">
+                    <span class="metric-label">Community Chest</span>
+                    <span id="chest" class="admin-metric">0</span>
+                </div>
+                <div class="data-row">
+                    <span class="metric-label">Pusher Pool</span>
+                    <span id="pushers" class="admin-metric">0</span>
+                </div>
+                <hr style="border:0; border-top:1px dashed #444; margin:15px 0;">
+                <div class="data-row">
+                    <span class="metric-label">"Removals" Refunded</span>
+                    <span id="volatility" class="data-value">0</span>
+                </div>
             </div>
         </div>
     </div>
@@ -91,6 +131,12 @@ async function updateDashboard() {
         }
 
         const data = await res.json();
+
+        // Check if the API actually returned a success status
+        if (data.status !== "OK") {
+            document.getElementById('login-feedback').textContent = data.message || "API ERROR";
+            return;
+        }
         
         // Toggle UI visibility
         document.getElementById('login-overlay').classList.add('hidden');
@@ -111,9 +157,15 @@ async function updateDashboard() {
         document.getElementById('real-day').textContent = maintenance.realDay;
         document.getElementById('stream-day').textContent = maintenance.streamDay;
 
-        // Money
-        document.getElementById('chest').textContent = parseInt(financials.communityChest).toLocaleString();
-        document.getElementById('pushers').textContent = parseInt(financials.totalToPushers).toLocaleString();
+        // Financials
+        document.getElementById('gross-spent').textContent = Number(financials.grossSpent).toLocaleString();
+        document.getElementById('refunded').textContent = Number(financials.refunded).toLocaleString();
+        document.getElementById('net-economy').textContent = Number(financials.netEconomy).toLocaleString();
+
+        // Asset Allocation
+        document.getElementById('chest').textContent = Number(financials.communityChest).toLocaleString();
+        document.getElementById('pushers').textContent = Number(financials.totalToPushers).toLocaleString();
+        document.getElementById('volatility').textContent = Number(financials.totalCausedByRemovals).toLocaleString();
 
         // Start Auto-Refresh if not already running
         if (!refreshInterval) refreshInterval = setInterval(updateDashboard, 60000);
