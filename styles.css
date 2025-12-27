@@ -768,22 +768,76 @@ h1.neon-text {
     margin: 25px 0;
 }
 
-/* 6. Responsive Fix for Redmi Note 8 Pro (1080p width) */
+/* 6. High-Scaling Responsive Fix (Hard Trench & Harmonized Padding) */
 @media (max-width: 1100px) {
-    .admin-grid {
-        grid-template-columns: 1fr; /* Force single column to allow text growth */
+    body.admin-body {
+        padding: 10px;
+    }
+
+    #admin-content {
         width: 100%;
+        padding: 15px 0;
+    }
+
+    h1.neon-text {
+        font-size: 8vw; 
+        margin-bottom: 25px;
+    }
+
+    .admin-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 63px; /* THE TRENCH: 42px horizontal and vertical gap */
+        width: 100%;
+        padding: 0 10px; 
+        box-sizing: border-box;
+    }
+
+    .admin-card {
+        border: 2px solid #333 !important; 
+        background: #0f0f0f;
+        padding: 21px 42px; /* Massive horizontal padding for separation */
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.9);
+        min-height: auto;
     }
 
     .admin-card h2 {
-        font-size: 2.5rem; /* Massive mobile title */
+        font-size: 3.8vw;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #222;
+    }
+
+    .data-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 10px;
     }
 
     .metric-label {
-        font-size: 1.8rem;
+        font-size: 2.8vw;
+        color: #888;
+    }
+
+    /* HARMONIZED RIGHT PADDING: Metrics and Status labels align perfectly */
+    .admin-metric, .data-value, .status-up, .status-down {
+        padding-right: 42px; 
+        text-align: right;
     }
 
     .admin-metric, .data-value {
-        font-size: 4rem; /* Gigantic numbers for mobile myopia */
+        font-size: 6.5vw;
+        line-height: 1;
+    }
+
+    .status-up, .status-down {
+        font-size: 3.5vw;
+    }
+
+    .clock-divider {
+        margin: 12px 0;
+        border-top: 1px dashed #444;
     }
 }
