@@ -939,10 +939,18 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
                 </p>
             </div>
         `;
-
+        
+        // Social Sharing Logic
         const challengeUrl = `https://drummer-manager-website.vercel.app/`; 
-        const shareText = encodeURIComponent(`I just proposed Challenge #${challenge.challengeId} (Cost: ${cost.toLocaleString()} NUMBERS) to @21xhr on the Drummer Manager Game! #DrummerManager #ChallengeAccepted`);
-        const twitterShare = `https://x.com/intent/tweet?text=${shareText}&url=${challengeUrl}`;
+
+        const shareText = encodeURIComponent(
+            `🥁 Just proposed Challenge #${challenge.challengeId} to @21xhr!\n\n` +
+            `Cost: ${cost.toLocaleString()} NUMBERS\n` +
+            `Help me push it to the top! 🚀\n\n` +
+            `#21 #21xhr #DrummerManager #DMG`
+        );
+
+        const twitterShare = `https://x.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(challengeUrl)}`;
         
         shareChallengeButton.href = twitterShare;
 
