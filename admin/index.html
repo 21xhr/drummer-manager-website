@@ -50,6 +50,11 @@
                     <span class="metric-label">Stream Days</span>
                     <span id="stream-day" class="admin-metric">0</span>
                 </div>
+                <hr class="clock-divider">
+                <div class="data-row">
+                    <span class="metric-label" style="font-size: 0.7rem; opacity: 0.6;">Last Maintenance</span>
+                    <span id="last-maint" class="data-value" style="font-size: 0.8rem; font-family: monospace;">--</span>
+                </div>
             </div>
 
             <div class="admin-card">
@@ -156,6 +161,16 @@ async function updateDashboard() {
         // Clocks
         document.getElementById('real-day').textContent = maintenance.realDay;
         document.getElementById('stream-day').textContent = maintenance.streamDay;
+
+        // Handle the ISO Date
+        const maintDisplay = document.getElementById('last-maint');
+        if (maintenance.lastRun) {
+            const dateObj = new Date(maintenance.lastRun);
+            // Display in a clean, readable UTC format
+            maintDisplay.textContent = dateObj.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+        } else {
+            maintDisplay.textContent = "NEVER";
+        }
 
         // Financials
         document.getElementById('gross-spent').textContent = Number(financials.grossSpent).toLocaleString();
