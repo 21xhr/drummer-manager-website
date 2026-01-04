@@ -713,9 +713,10 @@ h1.neon-text {
     background: var(--secondary-bg); 
     border: 3px solid #222; 
     border-radius: 20px; 
-    padding: 40px; 
+    padding: 35px 20px; 
     display: flex;
     flex-direction: column;
+    align-items: center; 
     transition: all 0.3s ease;
     box-shadow: 0 15px 40px rgba(0,0,0,0.6);
 }
@@ -726,40 +727,64 @@ h1.neon-text {
 }
 
 .admin-card h2 {
-    font-size: 2rem;
+    /* THE DESKTOP ALIGNMENT ANCHOR */
+    height: 5rem; /* Fixed height for desktop headers */
+    display: flex;
+    align-items: center; 
+    justify-content: center;
+    
+    font-size: 1.8rem;
     font-weight: bold;
+    width: 100%;
+    text-align: center;
     margin-top: 0;
-    margin-bottom: 30px;
+    margin-bottom: 30px; /* Constant gap to the first data-row */
+    padding-bottom: 15px;
+    border-bottom: 3px solid #333;
+    box-sizing: border-box;
     color: var(--primary-neon);
     text-transform: uppercase;
     letter-spacing: 2px;
-    border-bottom: 3px solid #333;
-    padding-bottom: 15px;
 }
 
 /* 5. Data Alignment & Metrics (PC Desktop View) */
 .data-row {
     display: flex;
-    justify-content: space-between;
-    align-items: center; 
-    margin-bottom: 22px;
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 25px; 
 }
 
 .metric-label {
-    font-size: 1.4rem;
-    color: var(--subtext-color);
+    font-size: 1.1rem;
+    color: var(--subtext-color); 
+    text-align: center;
+    width: 100%;
     text-transform: uppercase;
-    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
 }
 
-.admin-metric, .data-value { 
-    font-size: 2rem;
-    font-weight: 900; 
-    color: var(--primary-neon); 
+.admin-metric, .data-value, .status-up, .status-down {
+    text-align: center;
+    font-size: 2.2rem;
+    line-height: 1.1;
+    font-weight: 900;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    color: var(--primary-neon);
 }
 
-.status-up { font-size: 1.8rem; color: var(--success-green); font-weight: bold; }
-.status-down { font-size: 1.8rem; color: var(--error-red); font-weight: bold; }
+.status-up, .status-down {
+    font-size: 1.8rem;
+}
+
+.data-row:last-of-type {
+    margin-bottom: 0;
+}
 
 .clock-divider {
     border: 0;
