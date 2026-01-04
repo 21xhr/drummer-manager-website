@@ -635,7 +635,7 @@ body.admin-body {
     padding: 0;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centers everything horizontally */
+    align-items: center; 
     font-family: 'DM Sans', sans-serif;
     color: var(--text-color);
     min-height: 100vh;
@@ -643,7 +643,7 @@ body.admin-body {
 
 #admin-content {
     width: 95%;
-    max-width: 1600px; /* Wider to fill your desktop monitor */
+    max-width: 1600px; 
     padding: 60px 0;
     display: flex;
     flex-direction: column;
@@ -651,13 +651,13 @@ body.admin-body {
 }
 
 h1.neon-text {
-    font-size: 4rem; /* Massive title to reduce empty space on PC */
+    font-size: 4rem; 
     text-align: center;
     letter-spacing: 6px;
     margin-bottom: 4rem;
 }
 
-/* 2. Login Overlay & Card (Full Logic Preserved) */
+/* 2. Login Overlay & Card */
 #login-overlay { 
     position: fixed; 
     inset: 0; 
@@ -703,17 +703,17 @@ h1.neon-text {
 /* 3. The Monitor Grid */
 .admin-grid { 
     display: grid; 
-    grid-template-columns: repeat(4, 1fr); /* 4 Columns on PC */
+    grid-template-columns: repeat(4, 1fr); 
     gap: 35px; 
     width: 100%;
 }
 
-/* 4. Individual Monitor Cards - Huge Scaling */
+/* 4. Individual Monitor Cards */
 .admin-card { 
     background: var(--secondary-bg); 
     border: 3px solid #222; 
     border-radius: 20px; 
-    padding: 40px; /* Deep padding for a "Command" feel */
+    padding: 40px; 
     display: flex;
     flex-direction: column;
     transition: all 0.3s ease;
@@ -726,7 +726,7 @@ h1.neon-text {
 }
 
 .admin-card h2 {
-    font-size: 2rem; /* Massive headers */
+    font-size: 2rem;
     font-weight: bold;
     margin-top: 0;
     margin-bottom: 30px;
@@ -737,24 +737,23 @@ h1.neon-text {
     padding-bottom: 15px;
 }
 
-/* 5. Data Alignment & Metrics */
+/* 5. Data Alignment & Metrics (PC Desktop View) */
 .data-row {
     display: flex;
     justify-content: space-between;
     align-items: center; 
     margin-bottom: 22px;
-    gap: 20px;
 }
 
 .metric-label {
-    font-size: 1.4rem; /* Large readable labels */
+    font-size: 1.4rem;
     color: var(--subtext-color);
     text-transform: uppercase;
     font-weight: bold;
 }
 
 .admin-metric, .data-value { 
-    font-size: 3rem; /* Huge metrics for both PC and Redmi */
+    font-size: 2rem;
     font-weight: 900; 
     color: var(--primary-neon); 
 }
@@ -768,7 +767,7 @@ h1.neon-text {
     margin: 25px 0;
 }
 
-/* 6. High-Scaling Responsive Fix (Hard Trench & Harmonized Padding) */
+/* 6. High-Scaling Responsive Fix (Redmi / Mobile View) */
 @media (max-width: 1100px) {
     body.admin-body {
         padding: 10px;
@@ -781,63 +780,88 @@ h1.neon-text {
 
     h1.neon-text {
         font-size: 8vw; 
-        margin-bottom: 25px;
+        margin-bottom: 30px;
     }
 
     .admin-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 63px; /* THE TRENCH: 42px horizontal and vertical gap */
+        gap: 20px; 
         width: 100%;
-        padding: 0 10px; 
-        box-sizing: border-box;
+        padding: 0 5px; 
     }
 
     .admin-card {
         border: 2px solid #333 !important; 
         background: #0f0f0f;
-        padding: 21px 42px; /* Massive horizontal padding for separation */
+        padding: 25px 10px; 
         border-radius: 12px;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.9);
-        min-height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
     }
 
     .admin-card h2 {
-        font-size: 3.8vw;
-        margin-bottom: 15px;
-        padding-bottom: 8px;
+        /* THE ALIGNMENT ANCHOR */
+        height: 12vw; /* Fixed height for all headers */
+        display: flex;
+        align-items: center; /* Vertically centers the text within the 12vw */
+        justify-content: center;
+        
+        font-size: 4vw;
+        width: 100%;
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 25px; /* The gap to the first data-row is now constant */
+        padding-bottom: 10px;
         border-bottom: 1px solid #222;
+        box-sizing: border-box; /* Ensures padding doesn't add to the 12vw height */
     }
 
+    /* ATOMIC GROUPING */
     .data-row {
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
         align-items: center;
-        margin-bottom: 10px;
-        gap: 10px;
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 30px; 
     }
 
     .metric-label {
-        font-size: 2.8vw;
-        color: #888;
+        font-size: 2.8vw; /* Slightly smaller label */
+        color: var(--subtext-color); 
+        text-align: center;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 2px;
     }
 
-    /* HARMONIZED RIGHT PADDING: Metrics and Status labels align perfectly */
     .admin-metric, .data-value, .status-up, .status-down {
-        padding-right: 42px; 
-        text-align: right;
-    }
-
-    .admin-metric, .data-value {
-        font-size: 6.5vw;
-        line-height: 1;
+        text-align: center;
+        font-size: 6.5vw; /* SMALLER METRIC: More professional readout */
+        line-height: 1.1;
+        font-weight: 900;
+        margin: 0;
+        padding: 0;
+        width: 100%;
     }
 
     .status-up, .status-down {
-        font-size: 3.5vw;
+        font-size: 4.5vw;
+        margin-top: 5px;
     }
 
-    .clock-divider {
-        margin: 12px 0;
-        border-top: 1px dashed #444;
+    .data-row:last-of-type {
+        margin-bottom: 0;
+    }
+
+    #last-maint {
+        font-size: 2.8vw !important;
+        margin-top: 8px;
+        color: var(--primary-neon);
+        opacity: 0.8;
+        font-family: monospace;
+        word-break: break-all;
     }
 }
