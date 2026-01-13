@@ -7,69 +7,325 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="../styles.css">
-    <style>
-        /* Specific Styles for Challenge Submission Form */
+    <link rel="icon" href="data:,">
+<style>
+    /* ==========================================================================
+       1. ANIMATIONS & KEYFRAMES
+       ========================================================================== */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-        /* Smaller Description Text */
-        .desc-text-custom {
-            font-size: 11px; /* Smaller than text-xs (12px) */
-            line-height: 1.35;
-        }
+    @keyframes glow-pulse {
+        from { transform: translate(-50%, -50%) scale(0.8); opacity: 0.6; }
+        to { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+    }
 
-        /* --- Structural/Behavioral --- */
-        .form-container {
-            padding: 15px !important; 
-            margin-top: 1rem !important;
-            margin-bottom: 70px !important; 
-        }
+    @keyframes success-glow {
+        0% { box-shadow: 0 0 5px var(--primary-neon); }
+        100% { box-shadow: 0 0 20px var(--primary-neon); }
+    }
 
-        .step-container {
-            transition: opacity 0.3s ease, transform 0.3s ease;
+    @keyframes neonPulse {
+        from {
+            text-shadow: 0 0 10px rgba(242, 189, 21, 0.7), 0 0 20px rgba(242, 189, 21, 0.3);
+            transform: scale(1);
         }
+        to {
+            text-shadow: 0 0 20px rgba(242, 189, 21, 0.9), 0 0 30px rgba(242, 189, 21, 0.6);
+            transform: scale(1.02);
+        }
+    }
 
-        .step-container.hidden {
-            display: none;
-        }
+    @keyframes pulse-horizontal {
+        0%, 100% { transform: translateX(0); opacity: 0.5; }
+        50% { transform: translateX(6px); opacity: 1; }
+    }
+
+    .animate-fadeIn { animation: fadeIn 0.6s ease-out forwards; }
+    .animate-pulse-horizontal { animation: pulse-horizontal 1.5s ease-in-out infinite; }
+    .starburst-glow { animation: glow-pulse 2s infinite alternate; }
+
+    .glow-arrow {
+        position: relative;
+        z-index: 1;
+    }
+
+    .glow-arrow::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 25px;
+        height: 25px;
+        background: var(--primary-neon);
+        filter: blur(12px);
+        border-radius: 50%;
+        z-index: -1;
+        opacity: 0.5;
+        animation: glow-pulse 2s infinite alternate;
+    }
+
+    /* ==========================================================================
+       2. CORE LAYOUT & STRUCTURE
+       ========================================================================== */
+    html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    #form-wrapper {
+        overflow-x: hidden;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .form-container {
+        padding: 15px !important; 
+        margin-top: 1rem !important;
+        margin-bottom: 70px !important; 
+    }
+
+    .step-container {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .step-container.hidden {
+        display: none;
+    }
+
+    /* --- TOOLTIP CENTERING FIXED --- */
+    .duration-card, .info-tooltip-container {
+        position: relative;
+    }
+
+    .info-tooltip-text {
+        visibility: hidden;
+        opacity: 0;
         
-        /* --- Success/Confetti Animation Keyframes (MUST stay here if not moving to styles.css) --- */
-        .starburst-glow {
-            animation: glow-pulse 2s infinite alternate;
-        }
+        /* Fixed positioning ignores parents ONLY if center is forced like this */
+        position: fixed !important;
+        top: 50dvh !important;  /* dvh ensures it accounts for mobile browser bars */
+        left: 50dvw !important; /* dvw ensures it accounts for the full viewport width */
+        transform: translate(-50%, -50%) !important;
         
-        @keyframes glow-pulse {
-            from { transform: translate(-50%, -50%) scale(0.8); opacity: 0.6; }
-            to { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+        /* Reset any inherited alignment */
+        right: auto !important;
+        bottom: auto !important;
+        margin: 0 !important;
+
+        width: 280px;
+        max-width: 85vw;
+        min-height: fit-content !important;
+        background-color: rgba(0, 0, 0, 0.98) !important;
+        color: #fff !important;
+        text-align: center;
+        padding: 24px;
+        border-radius: 12px;
+        border: 2px solid var(--primary-neon);
+        z-index: 99999;
+        pointer-events: none;
+        box-shadow: 0 0 100px rgba(0,0,0,0.9);
+        font-size: 14px;
+        line-height: 1.6;
+        transition: opacity 0.3s ease;
+    }
+
+    .duration-card:hover .info-tooltip-text,
+    .info-tooltip-container:hover .info-tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    /* Remove the arrow as it no longer points to the button */
+    .info-tooltip-text::after { display: none !important; }
+
+    /* --- RESPONSIVE SUMMARY ROW --- */
+    .summary-line-wrapper {
+        display: flex;
+        flex-wrap: wrap; 
+        align-items: center;
+        justify-content: flex-start; 
+        width: 100%;
+        gap: 8px; 
+    }
+
+    /* Uniform Badge Styling */
+    .summary-badge {
+        display: flex;
+        align-items: center;
+        background-color: #1a1a1a;
+        padding: 4px 12px;
+        border-radius: 4px;
+        border: 1px solid #333;
+        min-height: 42px; /* Set a consistent height */
+        width: fit-content;
+    }
+
+    /* Only push to right on wider screens */
+    @media (min-width: 575px) {
+        .cost-badge-container {
+            margin-left: auto;
         }
-        
-        /* --- NEW: Platform Color Classes for Identity Reminder (Uses variables from styles.css) --- */
-        .platform-twitch { color: var(--platform-twitch); }
-        .platform-youtube { color: var(--platform-youtube); }
-        .platform-kick { color: var(--platform-kick); }
-    </style>
+    }
+
+    /* ==========================================================================
+       3. UI COMPONENTS (Generic)
+       ========================================================================== */
+    .desc-text-custom {
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    #identityReminder {
+        max-width: 189px;
+    }
+
+    #reminderUsername {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    #shareChallengeButton, .interactive-button {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Platform Color Classes */
+    .platform-twitch { color: var(--platform-twitch); }
+    .platform-youtube { color: var(--platform-youtube); }
+    .platform-kick { color: var(--platform-kick); }
+
+    /* ==========================================================================
+       4. SUCCESS STEP (STEP 3) & SUMMARY
+       ========================================================================== */
+    #step3 h2 {
+        animation: neonPulse 1.5s ease-in-out infinite alternate;
+        text-shadow: 0 0 5px rgba(242, 189, 21, 0.5);
+    }
+
+    #toggleDetailsBtn {
+        background: linear-gradient(to right, #0a0a0a, #111);
+        border: 1px solid #222;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    #toggleDetailsBtn:hover {
+        border-color: var(--primary-neon);
+    }
+
+    #summaryContent {
+        max-width: 100%;
+        max-height: 220px;
+        box-sizing: border-box;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--primary-neon) #0a0a0a;
+        padding-right: 10px;
+        border-radius: 0 0 8px 8px;
+        border-bottom: 1px solid #1a1a1a;
+        margin-bottom: 10px;
+        margin-top: 1px;
+        background-color: var(--background-color);
+    }
+
+    .summary-scroll-box {
+        max-height: 120px;
+        overflow-y: auto;
+        background-color: #0d0d0d;
+        padding: 10px;
+        border: 1px solid #333;
+        border-radius: 4px;
+        color: #aaa;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    #summaryContent .challenge-text-box {
+        word-break: break-word;
+        white-space: pre-wrap;
+        background: #000;
+        padding: 10px;
+        border-radius: 4px;
+        border-left: 3px solid var(--primary-neon);
+    }
+
+    .summary-label {
+        font-size: 9px;
+        text-transform: uppercase;
+        color: #666;
+        letter-spacing: 1px;
+    }
+
+    .summary-value {
+        font-size: 12px;
+        color: #eee;
+        font-weight: bold;
+    }
+
+    .success-card-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+        .success-card-content {
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        .glow-arrow-container {
+            margin-left: -50px; 
+            margin-right: 20px;
+        }
+    }
+</style>
 </head>
-<body class="dm-sans"> 
+<body class="dm-sans">
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3" type="audio/mpeg">
+    </audio>
+
     <div class="form-container mx-auto" id="form-wrapper">
-        <div class="flex justify-between items-start mb-4">
-            <div class="text-left mt-1">
-                <div class="dm-sans text-3xl font-extrabold neon-text leading-tight">
-                    DRUMMER
-                </div>
-                <div class="roboto font-normal text-lg text-white tracking-widest leading-none">
-                    MANAGER
-                </div>
+        
+        <div class="flex justify-between items-stretch mb-6 min-h-[50px]"> 
+            <div class="flex flex-col justify-center space-y-3">
+                <div class="dm-sans text-3xl font-extrabold neon-text leading-[0.8]">DRUMMER</div>
+                <div class="roboto font-normal text-lg text-white tracking-[0.25em] leading-[0.8]">MANAGER</div>
             </div>
             
-            <div class="flex items-center space-x-1">
-                <span id="streamStatusText" class="roboto text-xs text-gray-400">OFFLINE</span>
-                <div id="streamStatusIndicator" class="stream-status-indicator offline"></div>
+            <div class="flex flex-col justify-between items-end text-right"> 
+                <div class="flex items-center space-x-2">
+                    <button type="button" id="muteToggle" class="text-gray-500 hover:text-primary-neon transition-colors">
+                        <i id="muteIcon" class="fa-solid fa-volume-high text-[10px]"></i>
+                    </button>
+                    <span id="streamStatusText" class="roboto text-[10px] uppercase text-gray-400 tracking-tighter">OFFLINE</span>
+                    <div id="streamStatusIndicator" class="stream-status-indicator offline"></div>
+                </div>
+                
+                <div id="identityReminder" class="hidden">
+                    <div class="flex flex-nowrap items-center justify-end space-x-1">
+                        <span id="reminderUsername" class="roboto text-[11px] text-white font-bold leading-none"></span>
+                        <div class="roboto text-[9px] text-gray-500 tracking-tighter flex-shrink-0">
+                            on <span id="reminderPlatform" class="font-bold"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <p id="identityReminder" class="roboto text-xs text-center text-gray-400 mt-2 mb-4 hidden border-b border-[#333] pb-2">
-            Submitting as: <strong id="reminderUsername"></strong> on <strong id="reminderPlatform"></strong>
-        </p>
-
         <form id="challengeForm">
+
             <div id="step1" class="step-container text-center">
                 <div class="form-group">
                     <i id="statusIcon" class="fa-solid fa-spinner text-3xl mb-4"></i>
@@ -83,21 +339,18 @@
                 
                 <div id="durationTypeGroup" class="form-group">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        
-                        <div class="duration-card w-full flex flex-col h-full" data-duration="ONE_OFF">
-                            <h4 class="dm-sans font-bold text-sm mb-0">One-Off Challenge</h4>
-                            <p class="roboto text-gray-400 flex-grow mt-1 mb-0 desc-text-custom" id="oneOffDescription">
-                                Continuous effort, must be completed within one stream day (21-min units).
-                            </p>
+                        <div class="duration-card p-4 flex items-center justify-center border border-[#222] rounded-lg hover:border-primary-neon transition-all" data-duration="ONE_OFF">
+                            <h4 class="dm-sans font-black text-lg uppercase tracking-wider mb-0">
+                                One-Off <span class="text-xs ml-1">ⓘ</span>
+                            </h4>
+                            <span class="info-tooltip-text">Must be completed within the current stream day. If still "In Progress" at 21:00 UTC maintenance, the challenge fails.</span>
                         </div>
-                        
-                        <div class="duration-card w-full flex flex-col h-full" data-duration="RECURRING">
-                            <h4 class="dm-sans font-bold text-sm mb-0">Recurring Challenge</h4>
-                            <p class="roboto text-gray-400 flex-grow mt-1 mb-0 desc-text-custom" id="recurringDescription">
-                                Multi-session task scheduled across multiple days/weeks. Requires cadence.
-                            </p>
+                        <div class="duration-card p-4 flex items-center justify-center border border-[#222] rounded-lg hover:border-primary-neon transition-all" data-duration="RECURRING">
+                            <h4 class="dm-sans font-black text-lg uppercase tracking-wider mb-0">
+                                Recurring <span class="text-xs ml-1">ⓘ</span>
+                            </h4>
+                            <span class="info-tooltip-text">Multi-session task scheduled across multiple days/weeks. Requires cadence.</span>
                         </div>
-                        
                     </div>
                 </div>
 
@@ -109,18 +362,12 @@
                         placeholder="Describe the task. (Min 10 chars) Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!"
                         required>
                     </div>
-                    
                     <input type="hidden" id="challengeText" value="">
-
                     <div class="flex border-t-0 border border-[#333] rounded-b-lg p-2 bg-[#2a2a2a]">
-                        <button type="button" data-edit="bold" 
-                                class="editor-button text-gray-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none w-8 h-8 rounded-md hover:bg-[#3d3d3d] flex justify-center items-center mr-1"
-                                title="Bold" disabled>
+                        <button type="button" data-edit="bold" class="editor-button text-gray-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none w-8 h-8 rounded-md hover:bg-[#3d3d3d] flex justify-center items-center mr-1" title="Bold" disabled>
                             <i class="fa-solid fa-bold"></i>
                         </button>
-                        <button type="button" data-edit="italic" 
-                                class="editor-button text-gray-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none w-8 h-8 rounded-md hover:bg-[#3d3d3d] flex justify-center items-center mr-1"
-                                title="Italic" disabled>
+                        <button type="button" data-edit="italic" class="editor-button text-gray-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none w-8 h-8 rounded-md hover:bg-[#3d3d3d] flex justify-center items-center mr-1" title="Italic" disabled>
                             <i class="fa-solid fa-italic"></i>
                         </button>
                     </div>
@@ -128,30 +375,29 @@
                 
                 <div id="timePaceGroup" class="form-group mt-6 form-section-disabled">
                     <div id="oneOffGroup" class="form-group hidden">
-                        <label for="totalTimeframeCount" class="roboto text-sm text-gray-400 block mb-1">Total:</label>
-                        <div class="flex items-center gap-3">
-                            <input type="number" id="totalTimeframeCount" class="form-input cadence-input" min="1" value="1" max="999" disabled required>
-                            <span id="oneOffSessionPluralization" class="roboto neon-text text-sm">Session(s)</span>
-                            <strong id="oneOffSummary" class="roboto text-xs neon-text ml-2"></strong>
+                        <div class="summary-line-wrapper">
+                            <div class="summary-badge flex items-center gap-2">
+                                <span class="roboto text-xs text-gray-400 uppercase tracking-tighter">Total:</span>
+                                <input type="number" id="totalTimeframeCount" class="form-input cadence-input" min="1" value="1" max="999" disabled required>
+                                <span class="roboto neon-text text-sm">Session(s)</span>
+                                <strong id="oneOffSummary" class="roboto text-[10px] neon-text ml-1"></strong>
+                            </div>
                             
-                            <div class="ml-auto flex items-center bg-[#1a1a1a] px-3 py-1 rounded border border-[#333]">
-                                <span class="roboto text-xs text-gray-400 mr-2">Cost:</span>
-                                <span id="oneOffCostDisplay" class="neon-text font-bold">--</span> 
-                                <span class="text-xs text-gray-500 ml-1">NUMBERS</span>
+                            <div class="cost-badge-container summary-badge">
+                                <span class="roboto text-xs text-gray-400 mr-2 uppercase">Cost:</span>
+                                <span id="oneOffCostDisplay" class="neon-text font-bold text-sm">--</span> 
+                                <span class="text-[9px] text-gray-500 ml-1 font-bold">NUMBERS</span>
                             </div>
                         </div>
                     </div>
 
                     <div id="cadenceGroup" class="form-group hidden">
-                        <label class="roboto text-sm text-gray-400 block mb-1">Set Cadence:</label>
-                        
+                        <label for="cadenceCount" class="roboto text-sm text-gray-400 block mb-1">Set Cadence:</label>
                         <div id="cadenceFieldsWrapper" class="space-y-2 mt-2">
-                            
                             <div class="flex flex-wrap items-center gap-2 text-sm">
                                 <span class="roboto">Do</span> 
                                 <input type="number" id="cadenceCount" class="form-input cadence-input" value="1" min="1" max="999" disabled>
                                 <span class="roboto">session(s)</span>
-                                
                                 <select id="cadenceUnit" class="form-input" style="width: 120px !important; padding: 5px 8px !important;" disabled>
                                     <option value="" disabled selected class="hidden">select frequency</option>
                                     <option value="DAILY">per Day</option>
@@ -160,13 +406,11 @@
                                     <option value="CUSTOM_DAYS">every X days</option> 
                                 </select>
                             </div>
-
                             <div id="customDaysGroup" class="hidden flex flex-wrap items-center gap-2 text-sm">
                                 <span class="roboto">Every</span>
                                 <input type="number" id="customDaysCount" class="form-input cadence-input" value="2" min="2" max="365" disabled>
                                 <span class="roboto">days</span>
                             </div>
-                            
                             <div id="durationGroup" class="hidden flex flex-wrap items-center gap-2 text-sm">
                                 <span id="durationLeadInText" class="roboto">for a total of</span>
                                 <input type="number" id="recurrenceDurationCount" class="form-input cadence-input" min="1" max="999" value="1" disabled>
@@ -174,16 +418,18 @@
                             </div>
                         </div>
 
-                        <div id="totalSummaryWrapper" class="mt-3 text-xs text-gray-400 pt-3 border-t border-[#333] flex justify-between items-center">
-                            <div>
-                                <span class="roboto">Total:</span>
-                                <strong id="cadencePreview" class="neon-text ml-1">...</strong>
-                            </div>
-                            
-                            <div class="flex items-center bg-[#1a1a1a] px-3 py-1 rounded border border-[#333]">
-                                <span class="roboto text-xs text-gray-400 mr-2">Cost:</span>
-                                <span id="recurringCostDisplay" class="neon-text font-bold">--</span> 
-                                <span class="text-xs text-gray-500 ml-1">NUMBERS</span>
+                        <div id="totalSummaryWrapper" class="mt-3 pt-3 border-t border-[#333]">
+                            <div class="summary-line-wrapper">
+                                <div class="summary-badge flex items-center gap-2">
+                                    <span class="roboto text-xs text-gray-400 uppercase tracking-tighter">Total:</span>
+                                    <strong id="cadencePreview" class="neon-text text-sm">...</strong>
+                                </div>
+
+                                <div class="cost-badge-container summary-badge">
+                                    <span class="roboto text-xs text-gray-400 mr-2 uppercase">Cost:</span>
+                                    <span id="recurringCostDisplay" class="neon-text font-bold text-sm">--</span> 
+                                    <span class="text-[9px] text-gray-500 ml-1 font-bold">NUMBERS</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -195,69 +441,79 @@
                 </div>
 
                 <div id="highDemandWarningBanner" class="high-demand-warning hidden mt-5 p-4 rounded-lg">
-                    <p class="roboto text-lg font-bold" style="color: var(--primary-neon);">
-                        ⚠️ HIGH-DEMAND CHALLENGE WARNING ⚠️
-                    </p>
+                    <p class="roboto text-lg font-bold" style="color: var(--primary-neon);">⚠️ HIGH-DEMAND CHALLENGE WARNING ⚠️</p>
                     <p id="highDemandWarningText" class="roboto mt-2 text-sm" style="color: rgba(242, 189, 21, 0.7);">
-                        This submission requires [X] sessions per [Period], which far exceeds the normal demand threshold. If activated, it will rapidly monopolize the execution slot for an extended duration.
+                        This submission requires [X] sessions per [Period], which far exceeds the normal demand threshold.
                     </p>
                     <p class="roboto mt-3 text-xs italic" style="color: var(--error-red);">
-                        <strong>REMINDER:</strong> The Game Master (Drummer, 21) has the ultimate authority to remove any challenge deemed inadmissible or too disruptive. Be warned: <strong>Once submitted, you never know what might happen...</strong>
+                        <strong>REMINDER:</strong> Once submitted, you never know what might happen...
                     </p>
                 </div>
 
                 <button type="submit" id="submitButton" class="interactive-button form-button mt-4" disabled>
                     SUBMIT
-                    <span class="info-tooltip-container">
-                        ⓘ
-                        <span class="info-tooltip-text" style="width: 180px; margin-left: -90px;"> 
-                            This is final! Clicking 'SUBMIT' will deduct the calculated NUMBERS cost from your balance.
-                        </span>
+                    <span class="info-tooltip-container">ⓘ
+                        <span class="info-tooltip-text" style="width: 180px; margin-left: -90px; bottom: 125%;">This is final!</span>
                     </span>
                 </button>
                 <p id="statusMessage2" class="roboto text-sm text-center mt-3"></p>
             </div>
 
-            <div id="step3" class="step-container hidden text-center">
-                
-                <div class="starburst-container">
-                    <div class="starburst-glow"></div> 
-                    
-                    <h3 class="dm-sans text-xl font-bold text-white mb-2" style="text-shadow: 0 0 10px rgba(242, 189, 21, 0.5); position: relative; z-index: 1;">
-                        CHALLENGE ACCEPTED!
-                    </h3>
+            <div id="step3" class="step-container hidden animate-fadeIn">
+                <div class="text-center mb-8 pt-2">
+                    <h2 class="dm-sans text-4xl font-black neon-text tracking-[0.2em] uppercase">SUCCESSFUL</h2>
                 </div>
-                
-                <p class="roboto text-base text-white mb-4">
-                    Thank you for engaging, your support is highly appreciated.
-                </p>
 
-                <div id="summaryContent" class="text-left p-3 rounded-lg border border-[#333] bg-[#1a1a1a] text-sm">
+                <div class="flex flex-col space-y-4">
+                    <div class="bg-[#0a0a0a] p-6 rounded-lg border border-[#222] shadow-2xl">
+                        <div class="success-card-content">
+                            
+                            <div class="flex-1 flex flex-col items-center sm:items-start text-center sm:text-left">
+                                <h3 class="dm-sans text-[14px] font-black text-white uppercase tracking-widest leading-none mb-1">What's Next?</h3>
+                                <p class="roboto text-[11px] uppercase tracking-widest font-medium" style="color: var(--subtext-color);">Join the mission</p>
+                            </div>
+                            
+                            <div class="flex-none flex items-center justify-center px-4">
+                                <div class="glow-arrow-container">
+                                    <i class="fa-solid fa-angles-right text-primary-neon text-xl glow-arrow sm:rotate-0 rotate-90"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-1 flex flex-col gap-2 w-full max-w-[280px] sm:max-w-none">
+                                <a href="https://youtube.com/@21xhr/live" target="_blank" class="flex items-center justify-center gap-2 py-2.5 bg-[#f2bd15] text-black rounded-sm font-black text-[10px] uppercase hover:scale-[1.02] transition-transform">
+                                    <i class="fa-solid fa-play text-[9px]"></i> <span id="streamBtnText">WATCH STREAM</span>
+                                </a>
+                                <a href="https://discord.gg/yourlink" target="_blank" class="flex items-center justify-center gap-2 py-2.5 bg-[#5865F2] text-white rounded-sm font-black text-[10px] uppercase hover:scale-[1.02] transition-transform">
+                                    <i class="fa-brands fa-discord text-[10px]"></i> Discord
+                                </a>
+                                <div class="flex gap-1">
+                                    <a href="#" id="shareX" target="_blank" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm hover:border-white transition-all">
+                                        <i class="fa-brands fa-x-twitter text-[11px]"></i>
+                                    </a>
+                                    <a href="#" id="shareFB" target="_blank" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm hover:border-[#1877F2] transition-all">
+                                        <i class="fa-brands fa-facebook-f text-[11px]"></i>
+                                    </a>
+                                    <button type="button" id="copyLink" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm hover:text-primary-neon transition-all">
+                                        <i class="fa-solid fa-link text-[11px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
-                
-                <h4 class="form-heading text-base mt-4">What's Next?</h4>
-                <p class="roboto text-xs text-gray-400 mb-4">
-                    Track this challenge, engage with other Producers, and suggest more.
-                </p>
-                
-                <div id="postSubmissionActions" class="flex justify-center flex-wrap gap-3">
-                    <a href="https://www.twitch.tv/21xhr" target="_blank" aria-label="Go Back to the Stream (Twitch)" class="social-link flex flex-col items-center text-xs text-center">
-                        <i class="fab fa-twitch text-purple-600 text-2xl"></i>
-                        <span class="mt-1 text-gray-400">Go to Stream</span>
-                    </a>
-                    <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Join the Discussion (Discord)" class="social-link flex flex-col items-center text-xs text-center">
-                        <i class="fab fa-discord text-indigo-400 text-2xl"></i>
-                        <span class="mt-1 text-gray-400">Join Discussion</span>
-                    </a>
-                    <a id="shareChallengeButton" href="#" target="_blank" class="social-link flex flex-col items-center text-xs text-center" aria-label="Share Challenge">
-                        <i class="fa-solid fa-share-nodes text-primary-neon text-2xl"></i>
-                        <span class="mt-1 text-gray-400">Share This!</span>
-                    </a>
-                </div>
 
-                <button type="button" id="startNewChallengeButton" class="interactive-button form-button mt-4 py-2 px-4">
-                    Start a New Proposal
-                </button>
+                    <div class="border border-[#1a1a1a] rounded-lg overflow-hidden">
+                        <button type="button" id="toggleDetailsBtn" class="w-full flex justify-between items-center p-3 bg-[#0d0d0d] transition-all group" style="color: var(--subtext-color);">
+                            <span class="roboto text-[10px] uppercase tracking-[0.3em] font-bold">Submission Details</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300" id="chevronIcon"></i>
+                        </button>
+                        <div id="summaryContent" class="hidden bg-[#050505] p-4 border-t border-[#1a1a1a] animate-fadeIn"></div>
+                    </div>
+
+                    <button type="button" id="startNewChallengeButton" class="text-[10px] font-bold uppercase tracking-[0.4em] hover:text-primary-neon transition-all py-4" style="color: var(--subtext-color);">
+                        Submit Another Mission
+                    </button>
+                </div>
             </div>
             
         </form>
@@ -266,31 +522,17 @@
     <div class="fixed-social-links-container py-4 z-50 text-center bg-[#0c0c0c]/90 backdrop-blur-sm flex-shrink-0">
         <h2 class="dm-sans text-xs md:text-sm text-white font-bold mb-2">Follow 21 Everywhere</h2>
         <div class="flex justify-center space-x-6 text-xl md:text-2xl">
-            <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Discord" class="social-link">
-                <i class="fab fa-discord"></i>
-            </a>
-            <a href="https://www.facebook.com/21xhr" target="_blank" aria-label="Facebook" class="social-link">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="https://www.instagram.com/21xhr_" target="_blank" aria-label="Instagram" class="social-link">
-                <i class="fab fa-instagram"></i>
-            </a>
-            <a href="https://www.twitch.tv/21xhr" target="_blank" aria-label="Twitch" class="social-link">
-                <i class="fab fa-twitch"></i>
-            </a>
-            <a href="https://x.com/21xhr" target="_blank" aria-label="X" class="social-link">
-                <i class="fab fa-x-twitter"></i>
-            </a>
-            <a href="https://www.youtube.com/@21xhr" target="_blank" aria-label="YouTube" class="social-link">
-                <i class="fab fa-youtube"></i>
-            </a>
-            <a href="https://drummer-manager-website.vercel.app/donation" target="_blank" aria-label="Make a Donation" class="social-link">
-                <i class="fa-solid fa-mug-hot"></i>
-            </a>
+            <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Discord" class="social-link"><i class="fab fa-discord"></i></a>
+            <a href="https://www.facebook.com/21xhr" target="_blank" aria-label="Facebook" class="social-link"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com/21xhr_" target="_blank" aria-label="Instagram" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.twitch.tv/21xhr" target="_blank" aria-label="Twitch" class="social-link"><i class="fab fa-twitch"></i></a>
+            <a href="https://x.com/21xhr" target="_blank" aria-label="X" class="social-link"><i class="fab fa-x-twitter"></i></a>
+            <a href="https://www.youtube.com/@21xhr" target="_blank" aria-label="YouTube" class="social-link"><i class="fab fa-youtube"></i></a>
+            <a href="https://drummer-manager-website.vercel.app/donation" target="_blank" aria-label="Make a Donation" class="social-link"><i class="fa-solid fa-mug-hot"></i></a>
         </div>
     </div>
-
-
+</body>
+</html>
 <script>
     // --- CONFIG ---
     const SESSION_DURATION_MINUTES = 21;
@@ -396,22 +638,36 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
 
     const renderStep = (step) => {
         currentStep = step;
-        step1.classList.add('hidden');
-        step2.classList.add('hidden');
-        step3.classList.add('hidden');
         
-        if (step === 1) {
-            step1.classList.remove('hidden');
-            identityReminder.classList.add('hidden');
-            // Re-hide identity reminder for step 1
-        } else if (step === 2) {
-            step2.classList.remove('hidden');
-            identityReminder.classList.remove('hidden');
-        } else if (step === 3) {
-            step3.classList.remove('hidden');
-            identityReminder.classList.remove('hidden');
+        // 1. Toggle visibility of the main steps
+        [step1, step2, step3].forEach((el, index) => {
+            if (el) el.classList.toggle('hidden', (index + 1) !== step);
+        });
+        
+        // 2. Manage the Identity Reminder visibility
+        if (identityReminder) {
+            // Only hide on step 1 (verification), show on 2 and 3
+            identityReminder.classList.toggle('hidden', step === 1);
         }
-        window.scrollTo(0, 0); 
+
+        // 3. UI Cleanup when moving back to Step 2
+        if (step === 2 && statusMessage2) {
+            statusMessage2.textContent = ''; 
+        }
+
+        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+    };
+
+    const updateStreamButtonText = () => {
+        const btnText = document.getElementById('streamBtnText');
+        if (!btnText) return; 
+
+        // Use the global boolean 'isStreamLive' set by fetchStreamStatus()
+        if (isStreamLive) {
+            btnText.innerText = "WATCH STREAM";
+        } else {
+            btnText.innerText = "WATCH THE LAST STREAM";
+        }
     };
     
     // --- TOKEN VERIFICATION LOGIC ---
@@ -446,7 +702,7 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
 
         try {
             // Enforce a minimum display time for the "Verifying" message
-            const MIN_VERIFY_DELAY_MS = 2100; 
+            const MIN_VERIFY_DELAY_MS = 100; 
             
             const apiCall = fetch(`${API_BASE_URL}/token/verify`, {
                 method: 'POST',
@@ -558,6 +814,8 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
                 streamStatusText.textContent = 'OFFLINE';
                 baseChallengeCost = BASE_COST_PER_SESSION;
             }
+            // ADD THIS LINE HERE:
+            updateStreamButtonText();
         } catch (error) {
             streamStatusText.textContent = 'ERROR';
             console.error('Error fetching stream stats:', error);
@@ -918,113 +1176,157 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
 
 
     const generateChallengeSummary = (challenge, cost, userStats) => {
-        if (!challenge || !userStats) return `<p class="roboto" style="color: red;">Error: Challenge data or user stats are missing.</p>`;
+        if (!challenge || !userStats) return `<p>Error</p>`;
 
         const isRecurring = challenge.durationType === 'RECURRING';
         
-        const cadenceInfo = isRecurring ? `
-            <p class="roboto" style="margin-top: 8px;">
-                <strong>Cadence:</strong> ${challenge.sessionCadenceText}
-            </p>
-        ` : '';
-
-        const statsInfo = `
-            <div style="margin-top: 15px; padding: 8px; border: 1px dashed var(--primary-neon); background-color: rgba(242, 189, 21, 0.05); border-radius: 4px;">
-                <h4 class="roboto" style="margin-top: 0; font-weight: bold; color: var(--primary-neon); font-size: 0.9rem;">Your Updated Stats:</h4>
-                <p class="roboto" style="margin: 3px 0; font-size: 0.8rem;">
-                    <strong>New Balance:</strong> ${userStats.currentBalance.toLocaleString()} NUMBERS 
-                    </p>
-                <p class="roboto" style="margin: 3px 0; font-size: 0.8rem;">
-                    <strong>Total Challenges Proposed:</strong> ${userStats.totalChallengesSubmitted}
-                </p>
-            </div>
-        `;
-        
-        // Social Sharing Logic
+        // Update the Global Share Link
         const challengeUrl = `https://drummer-manager-website.vercel.app/`; 
+        const shareText = encodeURIComponent(`🥁 Challenge #${challenge.challengeId} logged to @21xhr!\nCost: ${cost.toLocaleString()} NUMBERS\n#DrummerManager`);
+        const twitterIntent = `https://x.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(challengeUrl)}`;
 
-        const shareText = encodeURIComponent(
-            `🥁 Just proposed Challenge #${challenge.challengeId} to @21xhr!\n\n` +
-            `Cost: ${cost.toLocaleString()} NUMBERS\n` +
-            `Help me push it to the top! 🚀\n\n` +
-            `#21 #21xhr #DrummerManager #DMG`
-        );
+        // 1. Update the 'shareX' button (the one in your HTML)
+        const xButton = document.getElementById('shareX');
+        if (xButton) {
+            xButton.href = twitterIntent;
+        }
 
-        const twitterShare = `https://x.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(challengeUrl)}`;
-        
-        shareChallengeButton.href = twitterShare;
+        // 2. Safety check for the 'shareChallengeButton' variable if used elsewhere
+        if (typeof shareChallengeButton !== 'undefined' && shareChallengeButton) {
+            shareChallengeButton.href = twitterIntent;
+        }
 
         return `
-            <h4 class="roboto font-bold text-white mb-2 border-b border-[#333] pb-1">Proposal Details:</h4>
-            <p class="roboto text-sm">
-                <strong>Cost:</strong> ${cost.toLocaleString()} NUMBERS
-            </p>
-            <p class="roboto text-sm">
-                <strong>Challenge ID:</strong> #${challenge.challengeId}
-            </p>
-            <p class="roboto text-sm">
-                <strong>Duration Type:</strong> ${challenge.durationType.replace('_', '-')}
-            </p>
-            <p class="roboto text-sm">
-                <strong>Total Sessions:</strong> ${challenge.totalSessions} sessions (${challenge.totalSessions * SESSION_DURATION_MINUTES} Mins total)
-            </p>
-            ${cadenceInfo}
+            <div class="space-y-4 animate-fadeIn">
+                <div class="flex justify-between border-b border-[#333] pb-2">
+                    <div>
+                        <div class="summary-label text-[9px] uppercase font-bold tracking-widest" style="color: var(--subtext-color)">Challenge ID</div>
+                        <div class="summary-value text-lg font-black text-white">#${challenge.challengeId}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="summary-label text-[9px] uppercase font-bold tracking-widest" style="color: var(--subtext-color)">Cost</div>
+                        <div class="summary-value text-lg font-black text-primary-neon">${cost.toLocaleString()} <span class="text-[9px]">NUMBERS</span></div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-[#111] p-2 rounded border border-[#222]">
+                        <div class="summary-label text-[8px] mb-0.5" style="color: var(--subtext-color)">TYPE</div>
+                        <div class="text-[11px] font-bold text-gray-200 uppercase">${challenge.durationType.replace('_', ' ')}</div>
+                    </div>
+                    <div class="bg-[#111] p-2 rounded border border-[#222]">
+                        <div class="summary-label text-[8px] mb-0.5" style="color: var(--subtext-color)">SESSIONS</div>
+                        <div class="text-[11px] font-bold text-gray-200">${challenge.totalSessions} Total</div>
+                    </div>
+                </div>
 
-            <div style="margin-top: 10px; padding: 8px; border: 1px dashed #555; border-radius: 4px; background-color: #0d0d0d;">
-                <strong>Challenge Text:</strong><br>
-                <div style="color: #aaa; font-size: 0.9rem; text-align: left;">
-                    ${challenge.challengeText}
+                <div class="pt-1">
+                    <div class="summary-label text-[9px] mb-1 font-bold uppercase" style="color: var(--subtext-color)">Submission Details</div>
+                    <div class="summary-scroll-box roboto text-[13px] leading-relaxed italic border-l-2 border-primary-neon pl-3 py-2 bg-[#050505]">
+                        "${challenge.challengeText}"
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-2 border-t border-[#222]">
+                    <div class="summary-label text-[9px] text-white font-bold uppercase">New Balance</div>
+                    <div class="text-sm font-white text-white">${userStats.currentBalance.toLocaleString()} <span class="text-[9px] text-primary-neon">NUMBERS</span></div>
                 </div>
             </div>
-
-            ${statsInfo} 
         `;
     };
 
     const resetForm = () => {
-        // --- Store the token before clearing the global variable ---
-        const tokenForRedirect = submissionToken; 
-
-        // --- Clear internal state ---
-        // Note: The global submissionToken is cleared here, 
-        // but it's okay because we stored its value for the redirect.
-        submissionToken = '';
-        selectedPlatform = '';
-        selectedPlatformId = '';
-        challengeTextCache = ''; 
-        
+        // --- Reset internal UI state instead of hard reload ---
         form.reset();
         
+        if (statusMessage2) {
+            statusMessage2.textContent = '';
+            statusMessage2.className = 'roboto text-sm text-center mt-3'; // Reset to base classes
+        }
+        
+        // Clear the visual editor if it exists
+        if (typeof challengeEditor !== 'undefined' && challengeEditor) {
+            challengeEditor.innerHTML = '';
+        }
+
+        // Clean up classes
         challengeDurationTypeHidden.value = '';
         durationCards.forEach(card => card.classList.remove('selected'));
-        challengeText.value = '';
         challengeTextGroup.classList.add('form-section-disabled');
-        challengeText.placeholder = DEFAULT_PLACEHOLDER;
         timePaceGroup.classList.add('form-section-disabled');
         oneOffGroup.classList.add('hidden');
         cadenceGroup.classList.add('hidden');
         submitButton.disabled = true;
-        
-        // --- Redirect using the stored token ---
-        let newUrl = window.location.origin + window.location.pathname;
 
-        if (tokenForRedirect) {
-            newUrl += `?token=${tokenForRedirect}`;
+        // --- INSTEAD OF window.location.href ---
+        // Just move the user back to the verification step 
+        // This keeps the Live Server connection active!
+        if (typeof renderStep === 'function') {
+            renderStep(1); 
+            // Re-run verification to ensure token is still valid
+            verifyTokenAndStartForm(); 
+        } else {
+            // Fallback only if renderStep is missing
+            window.location.reload();
         }
-        
-        // Reload the page to force token check
-        window.location.href = newUrl;
     };
 
     // --- EVENT LISTENERS ---
 
     fetchStreamStatus();
     verifyTokenAndStartForm();
-
     
     // Step 2: Duration Card Selection (Trigger 1)
+    const playlist = [
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3",
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
+    ];
+
+    // Randomize the starting track on page load
+    let currentTrack = 0;
+
+    const bgMusic = document.getElementById('bgMusic');
+    const muteToggle = document.getElementById('muteToggle');
+    const muteIcon = document.getElementById('muteIcon');
+
+    if (muteToggle && bgMusic) {
+        muteToggle.addEventListener('click', () => {
+            bgMusic.muted = !bgMusic.muted;
+            // Toggle icon and color
+            if (bgMusic.muted) {
+                muteIcon.className = 'fa-solid fa-volume-xmark text-[10px]';
+                muteIcon.style.color = '#666';
+            } else {
+                muteIcon.className = 'fa-solid fa-volume-high text-[10px]';
+                muteIcon.style.color = 'var(--primary-neon)';
+            }
+        });
+    }
+
+    // Handle switching to the next song
+    const playNextSong = () => {
+        currentTrack = (currentTrack + 1) % playlist.length;
+        bgMusic.src = playlist[currentTrack];
+        bgMusic.play().catch(e => console.log("Playback interrupted"));
+    };
+
+    // Listen for when a song ends to play the next one automatically
+    if (bgMusic) {
+        bgMusic.addEventListener('ended', playNextSong);
+    }
+    
     durationCards.forEach(card => {
         card.addEventListener('click', () => {
+            if (bgMusic && bgMusic.paused) {
+                // Only set the source if it hasn't been set yet
+                if (!bgMusic.src) {
+                    bgMusic.src = playlist[currentTrack];
+                }
+                bgMusic.volume = 0.2; 
+                bgMusic.play().catch(e => console.log("Audio blocked"));
+            }
             const type = card.getAttribute('data-duration');
             
             challengeTextCache = challengeText.value;
@@ -1084,23 +1386,21 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
             return; 
         }
         
+        // UI Feedback: Disable button and show loading
         submitButton.disabled = true;
-        statusMessage2.style.color = 'var(--text-color)';
-        statusMessage2.textContent = 'Submitting challenge...';
-
-        const durationType = challengeDurationTypeHidden.value;
-        
-        const totalSessions = parseInt(calculatedTotalSessionsInput.value); 
-        const cost = parseInt(calculatedCostInput.value);
+        const originalBtnText = submitButton.innerHTML;
+        submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SUBMITTING...';
+        statusMessage2.style.color = 'var(--subtext-color)';
+        statusMessage2.textContent = 'Transmitting data...';
 
         const submissionData = {
             token: submissionToken,
             challengeText: challengeText.value,
-            totalSessions,
-            durationType,
-            cost,
-            cadenceUnit: (durationType === 'RECURRING' ? cadenceUnitSelect.value : undefined),
-            sessionCadenceText: (durationType === 'RECURRING' ? sessionCadenceHidden.value : undefined)
+            totalSessions: parseInt(calculatedTotalSessionsInput.value),
+            durationType: challengeDurationTypeHidden.value,
+            cost: parseInt(calculatedCostInput.value),
+            cadenceUnit: (challengeDurationTypeHidden.value === 'RECURRING' ? cadenceUnitSelect.value : undefined),
+            sessionCadenceText: (challengeDurationTypeHidden.value === 'RECURRING' ? sessionCadenceHidden.value : undefined)
         };
 
         try {
@@ -1110,85 +1410,95 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
                 body: JSON.stringify(submissionData)
             });
 
-            // CRITICAL: Ensure response.json() is called *before* the success/error check
             const data = await response.json();
 
             if (response.ok) { 
-                const payload = data.details; 
-                const challengeData = payload.newChallenge;
-                const cost = payload.cost;
-                const userStats = payload.userStats; 
+                const { newChallenge, cost, userStats } = data.details; 
                 
-                summaryContent.innerHTML = generateChallengeSummary(challengeData, cost, userStats);
-                
-                statusMessage2.textContent = '✅ Challenge Submitted!';
-                statusMessage2.style.color = 'var(--success-green)';
-                
-                renderStep(3);
+                // 1. Prepare Step 3 content
+                summaryContent.innerHTML = generateChallengeSummary(newChallenge, cost, userStats);
+                updateStreamButtonText();
+
+                // 2. Setup Copy Button (Surgical: Keep it simple)
+                document.getElementById('copyLink').onclick = function() {
+                    navigator.clipboard.writeText(window.location.origin);
+                    const icon = this.querySelector('i');
+                    icon.className = 'fa-solid fa-check text-primary-neon';
+                    setTimeout(() => { icon.className = 'fa-solid fa-link'; }, 2000);
+                };
+
+                // 3. Transition to Success Screen with a slight delay for "weight"
+                setTimeout(() => {
+                    renderStep(3);
+                    // Reset button for next time
+                    submitButton.innerHTML = originalBtnText;
+                }, 600);
 
             } else {
-                // Handle SERVER-SIDE errors (400, 401, 500) where the server returned JSON
+                // Handle Server Rejection (e.g., Not enough NUMBERS)
                 statusMessage2.style.color = 'var(--error-red)';
-                statusMessage2.textContent = `SUBMISSION FAILED: ${data.message || data.error || 'Unknown server response'}`;
+                statusMessage2.textContent = `CRITICAL: ${data.message || data.error || 'Request Denied'}`;
                 submitButton.disabled = false;
+                submitButton.innerHTML = originalBtnText;
             }
         } catch (error) {
-            // This catch block is for true network failures or JSON parsing errors.
             console.error('Submission Network Error:', error);
             statusMessage2.style.color = 'var(--error-red)';
-            statusMessage2.textContent = `NETWORK ERROR: Could not complete submission.`;
+            statusMessage2.textContent = `COMMUNICATIONS FAILURE: Check your connection.`;
             submitButton.disabled = false;
+            submitButton.innerHTML = originalBtnText;
         }
     });
 
     // --- WYSIWYG EDITOR LOGIC ---
     const updateHiddenChallengeText = () => {
-        // Read the inner HTML from the contenteditable div
         let content = challengeEditor.innerHTML.trim();
-        
-        // 1. IMPORTANT: Check for fully empty content (or just line breaks)
-        // If content is empty or contains only non-visible formatting (like <br>), 
-        // set it to an empty string to trigger the CSS placeholder.
         const plainText = challengeEditor.textContent.trim();
         
         if (plainText.length === 0) {
-            // Also check for common single line-break that contenteditable often leaves
             if (content === '<br>') {
                 content = '';
-                challengeEditor.innerHTML = ''; // Force visual clear in the editor
+                challengeEditor.innerHTML = ''; 
             }
-            
-            // If the user has truly cleared it, reset the content to empty string
             if (content.length === 0) {
                 challengeEditor.innerHTML = '';
             }
         }
-        
-        // 2. Write the (potentially corrected) HTML content to the hidden input
         challengeText.value = content; 
-        
-        // 3. Return the plain text length for validation
         return plainText.length;
     };
     
-    // --- CLEANED: execCommand no longer contains blockquote logic ---
     const execCommand = (command, value = null) => {
-        // --- Standard Browser Command execution for all commands (Bold, Italic) ---
         challengeEditor.focus();
-        
         try {
             document.execCommand(command, false, value);
         } catch (error) {
             console.error(`execCommand failed for ${command}:`, error);
         }
-
         updateDynamicFields(); 
     };
+
+    const toggleBtn = document.getElementById('toggleDetailsBtn');
+    const summaryBox = document.getElementById('summaryContent');
+    const chevron = document.getElementById('chevronIcon');
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            const isHidden = summaryBox.classList.contains('hidden');
+            summaryBox.classList.toggle('hidden');
+            chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+            if (isHidden) {
+                setTimeout(() => {
+                    summaryBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 50);
+            }
+        });
+    }
 
     // Toolbar button listeners
     document.querySelectorAll('.editor-button').forEach(button => {
         button.addEventListener('click', (e) => {
-            e.preventDefault(); // Prevents the contenteditable div from losing focus on some browsers
+            e.preventDefault(); 
             const command = button.getAttribute('data-edit');
             execCommand(command);
         });
@@ -1196,10 +1506,9 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
 
     // Update the hidden input and check validation on content change
     challengeEditor.addEventListener('input', () => {
-        updateHiddenChallengeText(); // Update the hidden field on input
-        updateDynamicFields(); // Trigger validation/cost check
+        updateHiddenChallengeText(); 
+        updateDynamicFields(); 
     });
 
-    
     startNewChallengeButton.addEventListener('click', resetForm);
 </script>

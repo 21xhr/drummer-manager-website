@@ -599,7 +599,7 @@ textarea.form-input {
 
 #challengeEditor:empty:not(:focus)::before {
     content: attr(placeholder);
-    color: var(--subtext-color); /* Placeholder color */
+    color: var(--subtext-color);
     pointer-events: none; /* Allows click to focus the element */
 }
 
@@ -608,10 +608,9 @@ textarea.form-input {
     background-color: var(--background-color) !important; /* Visually indicate disabled */
 }
 
-/* Placeholder fix for contenteditable multiline */
 [contenteditable]:empty::before {
     content: attr(placeholder);
-    color: #888; /* Placeholder color, adjust as needed */
+    color: var(--subtext-color);
     display: block;
     /* CRITICAL: Allows template literal line breaks (\n) to render */
     white-space: pre-wrap; 
