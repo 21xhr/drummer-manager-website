@@ -1,0 +1,390 @@
+/* ==========================================================================
+   1. CORE LAYOUT & STRUCTURE
+   ========================================================================== */
+
+/* Enable horizontal scrolling for extremely narrow screens to prevent border clipping */
+@media (max-width: 500px) {
+    body {
+        overflow-x: auto; 
+    }
+}
+
+#form-wrapper {
+    overflow-x: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-container {
+    background-color: var(--secondary-bg);
+    border: 1px solid var(--subtext-color);
+    transition: all 0.5s ease;
+    animation: neon-pulse-border 4s ease-in-out infinite alternate;
+    border-radius: 1rem;
+    padding: 15px !important; /* Unified padding */
+    box-shadow: 0 0 7px var(--primary-neon);
+    max-width: 600px;
+    width: 100%;
+    margin-top: 1rem !important;
+    margin-bottom: 70px !important; 
+}
+
+@media (min-width: 640px) {
+    .form-container {
+        padding: 2.5rem;
+    }
+}
+
+.step-container {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.step-container.hidden {
+    display: none;
+}
+
+/* ==========================================================================
+   2. FORM ELEMENTS & INPUTS
+   ========================================================================== */
+
+.form-group label {
+    display: block;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.05em;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 5px;
+    box-sizing: border-box;
+    background-color: var(--background-color);
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: var(--text-color);
+    font-family: 'Roboto', sans-serif;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: var(--primary-neon);
+    outline: none;
+    box-shadow: 0 0 5px var(--primary-neon);
+}
+
+textarea.form-input {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-heading {
+    color: var(--primary-neon);
+    font-family: 'DM Sans', sans-serif;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--secondary-bg);
+    padding-bottom: 0.5rem;
+    text-shadow: 0 0 5px rgba(242, 189, 21, 0.5);
+}
+
+#output {
+    border: 1px solid var(--primary-neon);
+    padding: 15px;
+    margin-top: 20px;
+    white-space: pre-wrap;
+    background-color: var(--secondary-bg);
+    color: var(--subtext-color);
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(242, 189, 21, 0.3);
+    overflow-x: auto;
+}
+
+.form-button {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 2rem;
+    padding: 12px 15px;
+    font-size: 1.1rem;
+}
+
+/* Tooltips */
+.info-tooltip-container {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+.info-tooltip-container:hover .info-tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+.info-tooltip-text::after { 
+    display: none !important; 
+}
+
+.high-demand-warning {
+    background-color: var(--secondary-bg);
+    border: 2px solid var(--primary-neon);
+    box-shadow: 0 0 10px rgba(242, 189, 21, 0.5);
+    animation: neon-pulse-border 3s ease-in-out infinite alternate;
+}
+
+.form-input.cadence-input {
+    width: 65px !important; 
+    text-align: right;
+}
+
+#cadenceUnit {
+    width: 150px !important; 
+    padding: 5px 8px !important;
+}
+
+.form-section-disabled {
+    pointer-events: none;
+    opacity: 0.4;
+    filter: grayscale(100%);
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+/* ==========================================================================
+   3. SELECTION COMPONENTS (CARDS & PLATFORMS)
+   ========================================================================== */
+
+.duration-card, .info-tooltip-container {
+    position: relative;
+}
+
+.duration-card {
+    padding: 10px;
+    border: 2px solid var(--disabled-color); 
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #1a1a1a;
+}
+.duration-card:hover:not(.disabled) { border-color: var(--primary-neon); }
+.duration-card.selected:not(.disabled) { border-color: var(--primary-neon); box-shadow: 0 0 7px var(--primary-neon); }
+
+.custom-number-input {
+    display: flex;
+    align-items: center;
+    background-color: var(--secondary-bg); 
+    border: 1px solid #333;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 120px;
+}
+.custom-number-input button {
+    background-color: #333;
+    color: var(--text-color);
+    border: none;
+    padding: 3px 8px;
+    cursor: pointer;
+}
+.custom-number-input input {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    text-align: center; 
+    width: 100%;
+    padding: 3px 0;
+    margin: 0;
+    -webkit-appearance: none; 
+    -moz-appearance: textfield; 
+    appearance: textfield; 
+}
+
+.platform-Twitch { color: var(--platform-twitch); }
+.platform-YouTube { color: var(--platform-youtube); }
+.platform-Kick { color: var(--platform-kick); }
+
+/* ==========================================================================
+   4. WYSIWYG & EDITOR
+   ========================================================================== */
+
+#challengeEditor {
+    cursor: default;
+    position: relative; 
+}
+
+#challengeEditor:empty:not(:focus)::before {
+    content: attr(placeholder);
+    color: var(--subtext-color);
+    pointer-events: none; 
+}
+
+#challengeEditor[disabled] {
+    cursor: not-allowed;
+    background-color: var(--background-color) !important; 
+}
+
+[contenteditable]:empty::before {
+    content: attr(placeholder);
+    color: var(--subtext-color);
+    display: block;
+    white-space: pre-wrap; 
+}
+
+/* ==========================================================================
+   5. SUCCESS STEP (STEP 3) & SUMMARY
+   ========================================================================== */
+
+.glow-arrow {
+    position: relative;
+    z-index: 1;
+}
+
+.glow-arrow::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 25px;
+    height: 25px;
+    background: var(--primary-neon);
+    filter: blur(12px);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0.5;
+    animation: glow-pulse 2s infinite alternate;
+}
+
+#step3 h2 {
+    animation: neonPulse 1.5s ease-in-out infinite alternate;
+    text-shadow: 0 0 5px rgba(242, 189, 21, 0.5);
+}
+
+.summary-line-wrapper {
+    display: flex;
+    flex-wrap: wrap; 
+    align-items: center;
+    justify-content: flex-start; 
+    width: 100%;
+    gap: 8px; 
+}
+
+.summary-badge {
+    display: flex;
+    align-items: center;
+    background-color: #1a1a1a;
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    min-height: 42px;
+    width: fit-content;
+}
+
+@media (min-width: 575px) {
+    .cost-badge-container {
+        margin-left: auto;
+    }
+}
+
+.desc-text-custom {
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+#identityReminder {
+    max-width: 189px;
+}
+
+#reminderUsername {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+#shareChallengeButton, .interactive-button {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+#toggleDetailsBtn {
+    background: linear-gradient(to right, #0a0a0a, #111);
+    border: 1px solid #222;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+#toggleDetailsBtn:hover {
+    border-color: var(--primary-neon);
+}
+
+#summaryContent {
+    max-width: 100%;
+    max-height: 220px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-neon) #0a0a0a;
+    padding-right: 10px;
+    border-radius: 0 0 8px 8px;
+    border-bottom: 1px solid #1a1a1a;
+    margin-bottom: 10px;
+    margin-top: 1px;
+    background-color: var(--background-color);
+}
+
+.summary-scroll-box {
+    max-height: 120px;
+    overflow-y: auto;
+    background-color: #0d0d0d;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #aaa;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+#summaryContent .challenge-text-box {
+    word-break: break-word;
+    white-space: pre-wrap;
+    background: #000;
+    padding: 10px;
+    border-radius: 4px;
+    border-left: 3px solid var(--primary-neon);
+}
+
+.summary-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #666;
+    letter-spacing: 1px;
+}
+
+.summary-value {
+    font-size: 12px;
+    color: #eee;
+    font-weight: bold;
+}
+
+.success-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .success-card-content {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+    .glow-arrow-container {
+        margin-left: -50px; 
+        margin-right: 20px;
+    }
+}

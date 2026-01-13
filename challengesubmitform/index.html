@@ -7,289 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="challengesubmitform.css">
     <link rel="icon" href="data:,">
-<style>
-    /* ==========================================================================
-       1. ANIMATIONS & KEYFRAMES
-       ========================================================================== */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
 
-    @keyframes glow-pulse {
-        from { transform: translate(-50%, -50%) scale(0.8); opacity: 0.6; }
-        to { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
-    }
-
-    @keyframes success-glow {
-        0% { box-shadow: 0 0 5px var(--primary-neon); }
-        100% { box-shadow: 0 0 20px var(--primary-neon); }
-    }
-
-    @keyframes neonPulse {
-        from {
-            text-shadow: 0 0 10px rgba(242, 189, 21, 0.7), 0 0 20px rgba(242, 189, 21, 0.3);
-            transform: scale(1);
-        }
-        to {
-            text-shadow: 0 0 20px rgba(242, 189, 21, 0.9), 0 0 30px rgba(242, 189, 21, 0.6);
-            transform: scale(1.02);
-        }
-    }
-
-    @keyframes pulse-horizontal {
-        0%, 100% { transform: translateX(0); opacity: 0.5; }
-        50% { transform: translateX(6px); opacity: 1; }
-    }
-
-    .animate-fadeIn { animation: fadeIn 0.6s ease-out forwards; }
-    .animate-pulse-horizontal { animation: pulse-horizontal 1.5s ease-in-out infinite; }
-    .starburst-glow { animation: glow-pulse 2s infinite alternate; }
-
-    .glow-arrow {
-        position: relative;
-        z-index: 1;
-    }
-
-    .glow-arrow::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 25px;
-        height: 25px;
-        background: var(--primary-neon);
-        filter: blur(12px);
-        border-radius: 50%;
-        z-index: -1;
-        opacity: 0.5;
-        animation: glow-pulse 2s infinite alternate;
-    }
-
-    /* ==========================================================================
-       2. CORE LAYOUT & STRUCTURE
-       ========================================================================== */
-    html, body {
-        max-width: 100%;
-        overflow-x: hidden;
-        position: relative;
-    }
-
-    #form-wrapper {
-        overflow-x: hidden;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .form-container {
-        padding: 15px !important; 
-        margin-top: 1rem !important;
-        margin-bottom: 70px !important; 
-    }
-
-    .step-container {
-        transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .step-container.hidden {
-        display: none;
-    }
-
-    /* --- TOOLTIP CENTERING FIXED --- */
-    .duration-card, .info-tooltip-container {
-        position: relative;
-    }
-
-    .info-tooltip-text {
-        visibility: hidden;
-        opacity: 0;
-        
-        /* Fixed positioning ignores parents ONLY if center is forced like this */
-        position: fixed !important;
-        top: 50dvh !important;  /* dvh ensures it accounts for mobile browser bars */
-        left: 50dvw !important; /* dvw ensures it accounts for the full viewport width */
-        transform: translate(-50%, -50%) !important;
-        
-        /* Reset any inherited alignment */
-        right: auto !important;
-        bottom: auto !important;
-        margin: 0 !important;
-
-        width: 280px;
-        max-width: 85vw;
-        min-height: fit-content !important;
-        background-color: rgba(0, 0, 0, 0.98) !important;
-        color: #fff !important;
-        text-align: center;
-        padding: 24px;
-        border-radius: 12px;
-        border: 2px solid var(--primary-neon);
-        z-index: 99999;
-        pointer-events: none;
-        box-shadow: 0 0 100px rgba(0,0,0,0.9);
-        font-size: 14px;
-        line-height: 1.6;
-        transition: opacity 0.3s ease;
-    }
-
-    .duration-card:hover .info-tooltip-text,
-    .info-tooltip-container:hover .info-tooltip-text {
-        visibility: visible;
-        opacity: 1;
-    }
-
-    /* Remove the arrow as it no longer points to the button */
-    .info-tooltip-text::after { display: none !important; }
-
-    /* --- RESPONSIVE SUMMARY ROW --- */
-    .summary-line-wrapper {
-        display: flex;
-        flex-wrap: wrap; 
-        align-items: center;
-        justify-content: flex-start; 
-        width: 100%;
-        gap: 8px; 
-    }
-
-    /* Uniform Badge Styling */
-    .summary-badge {
-        display: flex;
-        align-items: center;
-        background-color: #1a1a1a;
-        padding: 4px 12px;
-        border-radius: 4px;
-        border: 1px solid #333;
-        min-height: 42px; /* Set a consistent height */
-        width: fit-content;
-    }
-
-    /* Only push to right on wider screens */
-    @media (min-width: 575px) {
-        .cost-badge-container {
-            margin-left: auto;
-        }
-    }
-
-    /* ==========================================================================
-       3. UI COMPONENTS (Generic)
-       ========================================================================== */
-    .desc-text-custom {
-        font-size: 11px;
-        line-height: 1.35;
-    }
-
-    #identityReminder {
-        max-width: 189px;
-    }
-
-    #reminderUsername {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: block;
-    }
-
-    #shareChallengeButton, .interactive-button {
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* Platform Color Classes */
-    .platform-twitch { color: var(--platform-twitch); }
-    .platform-youtube { color: var(--platform-youtube); }
-    .platform-kick { color: var(--platform-kick); }
-
-    /* ==========================================================================
-       4. SUCCESS STEP (STEP 3) & SUMMARY
-       ========================================================================== */
-    #step3 h2 {
-        animation: neonPulse 1.5s ease-in-out infinite alternate;
-        text-shadow: 0 0 5px rgba(242, 189, 21, 0.5);
-    }
-
-    #toggleDetailsBtn {
-        background: linear-gradient(to right, #0a0a0a, #111);
-        border: 1px solid #222;
-        border-radius: 8px;
-        margin-top: 10px;
-    }
-
-    #toggleDetailsBtn:hover {
-        border-color: var(--primary-neon);
-    }
-
-    #summaryContent {
-        max-width: 100%;
-        max-height: 220px;
-        box-sizing: border-box;
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: var(--primary-neon) #0a0a0a;
-        padding-right: 10px;
-        border-radius: 0 0 8px 8px;
-        border-bottom: 1px solid #1a1a1a;
-        margin-bottom: 10px;
-        margin-top: 1px;
-        background-color: var(--background-color);
-    }
-
-    .summary-scroll-box {
-        max-height: 120px;
-        overflow-y: auto;
-        background-color: #0d0d0d;
-        padding: 10px;
-        border: 1px solid #333;
-        border-radius: 4px;
-        color: #aaa;
-        font-size: 0.85rem;
-        line-height: 1.4;
-    }
-
-    #summaryContent .challenge-text-box {
-        word-break: break-word;
-        white-space: pre-wrap;
-        background: #000;
-        padding: 10px;
-        border-radius: 4px;
-        border-left: 3px solid var(--primary-neon);
-    }
-
-    .summary-label {
-        font-size: 9px;
-        text-transform: uppercase;
-        color: #666;
-        letter-spacing: 1px;
-    }
-
-    .summary-value {
-        font-size: 12px;
-        color: #eee;
-        font-weight: bold;
-    }
-
-    .success-card-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 1.5rem;
-    }
-
-    @media (min-width: 640px) {
-        .success-card-content {
-            flex-direction: row;
-            justify-content: space-between;
-            gap: 0.5rem;
-        }
-        .glow-arrow-container {
-            margin-left: -50px; 
-            margin-right: 20px;
-        }
-    }
-</style>
 </head>
 <body class="dm-sans">
     <audio id="bgMusic" loop>
@@ -576,7 +296,7 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
         return 'https://drummer-manager-api.vercel.app/api/v1';
     };
 
-    let API_BASE_URL = getApiBaseUrl(); // Use 'let' for the override below
+    let API_BASE_URL = getApiBaseUrl(); 
     
 
     // --- DOM REFERENCES ---
@@ -594,15 +314,13 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
     const identityReminder = document.getElementById('identityReminder');
     const reminderUsername = document.getElementById('reminderUsername');
     const reminderPlatform = document.getElementById('reminderPlatform');
-    const startNewChallengeButton = document.getElementById('startNewChallengeButton'); // Renamed for clarity
+    const startNewChallengeButton = document.getElementById('startNewChallengeButton'); 
     
     const durationTypeGroup = document.getElementById('durationTypeGroup');
     const durationCards = formWrapper.querySelectorAll('.duration-card');
 
     const challengeTextGroup = document.getElementById('challengeTextGroup');
-    // challengeEditor is the contenteditable DIV
     const challengeEditor = document.getElementById('challengeEditor'); 
-    // challengeText is now the hidden INPUT holding the final HTML
     const challengeText = document.getElementById('challengeText');
 
     const timePaceGroup = document.getElementById('timePaceGroup');
@@ -1196,6 +914,29 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
             shareChallengeButton.href = twitterIntent;
         }
 
+        // 1. ADD THIS SAFETY LOGIC HERE
+        const durationType = challenge?.durationType || 'ONE_OFF';
+        
+        // Helper 1: Handles the unit name mapping
+        const getUnitName = (unit) => {
+            const map = { 'DAILY': 'day', 'WEEKLY': 'week', 'MONTHLY': 'month' };
+            return map[unit] || 'session';
+        };
+
+        // Helper 2: Adds 's' if count is NOT 1
+        const plural = (count, word) => count === 1 ? word : `${word}s`;
+
+        // Constructing the natural language string
+        const cadenceDetail = durationType === 'RECURRING' 
+            ? `${challenge?.cadenceCount || 1} ${plural(challenge?.cadenceCount, 'session')} ${
+                challenge?.cadenceUnit === 'CUSTOM_DAYS' 
+                ? `every ${challenge?.customDaysCount || 2} days` 
+                : `per ${getUnitName(challenge?.cadenceUnit)}`
+            } for ${challenge?.recurrenceDurationCount || 1} ${
+                plural(challenge?.recurrenceDurationCount, challenge?.timeframeUnitSentence?.replace('s', '') || 'Week')
+            }`
+            : "Single session mission";
+
         return `
             <div class="space-y-4 animate-fadeIn">
                 <div class="flex justify-between border-b border-[#333] pb-2">
@@ -1207,21 +948,27 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
                         <div class="summary-label text-[9px] uppercase font-bold tracking-widest" style="color: var(--subtext-color)">Cost</div>
                         <div class="summary-value text-lg font-black text-primary-neon">${cost.toLocaleString()} <span class="text-[9px]">NUMBERS</span></div>
                     </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-2">
                     <div class="bg-[#111] p-2 rounded border border-[#222]">
                         <div class="summary-label text-[8px] mb-0.5" style="color: var(--subtext-color)">TYPE</div>
-                        <div class="text-[11px] font-bold text-gray-200 uppercase">${challenge.durationType.replace('_', ' ')}</div>
+                        <div class="text-[11px] font-bold text-gray-200 uppercase">${durationType.replace('_', ' ')}</div>
                     </div>
+                </div>
+                
+                <div class="flex justify-between">
                     <div class="bg-[#111] p-2 rounded border border-[#222]">
                         <div class="summary-label text-[8px] mb-0.5" style="color: var(--subtext-color)">SESSIONS</div>
                         <div class="text-[11px] font-bold text-gray-200">${challenge.totalSessions} Total</div>
                     </div>
+                    <div class="bg-[#0d0d0d] p-3 rounded border border-[#1a1a1a]">
+                        <div class="summary-label text-[8px] mb-1" style="color: var(--subtext-color)">TIMELINE & PACING</div>
+                        <div class="text-[11px] text-gray-300 roboto tracking-wide">
+                            <i class="fa-solid fa-calendar-check text-primary-neon mr-1"></i> ${cadenceDetail}
+                        </div>
+                    </div>
                 </div>
 
                 <div class="pt-1">
-                    <div class="summary-label text-[9px] mb-1 font-bold uppercase" style="color: var(--subtext-color)">Submission Details</div>
+                    <div class="summary-label text-[8px] mb-1" style="color: var(--subtext-color)">DESCRIPTION</div>
                     <div class="summary-scroll-box roboto text-[13px] leading-relaxed italic border-l-2 border-primary-neon pl-3 py-2 bg-[#050505]">
                         "${challenge.challengeText}"
                     </div>
@@ -1229,7 +976,7 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
 
                 <div class="flex justify-between items-center pt-2 border-t border-[#222]">
                     <div class="summary-label text-[9px] text-white font-bold uppercase">New Balance</div>
-                    <div class="text-sm font-white text-white">${userStats.currentBalance.toLocaleString()} <span class="text-[9px] text-primary-neon">NUMBERS</span></div>
+                    <div class="text-sm text-white">${userStats.currentBalance.toLocaleString()} <span class="text-[9px] text-primary-neon">NUMBERS</span></div>
                 </div>
             </div>
         `;
@@ -1426,6 +1173,9 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
                     icon.className = 'fa-solid fa-check text-primary-neon';
                     setTimeout(() => { icon.className = 'fa-solid fa-link'; }, 2000);
                 };
+                // Add the "Victory" class to the main wrapper
+                const container = document.querySelector('.form-container');
+                container.classList.add('boosted-neon-pulse-border');
 
                 // 3. Transition to Success Screen with a slight delay for "weight"
                 setTimeout(() => {
@@ -1510,5 +1260,9 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
         updateDynamicFields(); 
     });
 
-    startNewChallengeButton.addEventListener('click', resetForm);
+    startNewChallengeButton.addEventListener('click', () => {
+        // Reset to the standard slow pulse
+        document.querySelector('.form-container').classList.remove('boosted-neon-pulse-border');
+        renderStep(2);
+    });
 </script>
