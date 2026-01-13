@@ -1025,6 +1025,14 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
     
     // Step 2: Duration Card Selection (Trigger 1)
     const playlist = [
+        "../assets/audio/Glass Rivers by 21_2.mp3",
+        "../assets/audio/Glass Rivers by 21.mp3",
+        "../assets/audio/Neon Artery by 21_2.mp3",
+        "../assets/audio/Neon Artery by 21.mp3",
+        "../assets/audio/Rain On The Window by 21_2.mp3",
+        "../assets/audio/Rain On The Window by 21.mp3",
+        "../assets/audio/Rite of the Iron Colossus by 21_2.mp3",
+        "../assets/audio/Rite of the Iron Colossus by 21.mp3",
         "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
         "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3",
         "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
@@ -1032,7 +1040,8 @@ Reminder: Use the section below to define the total 21-min sessions, NOT here.`;
     ];
 
     // Randomize the starting track on page load
-    let currentTrack = 0;
+    let currentTrack = Math.floor(Math.random() * playlist.length);
+    //let currentTrack = 0; // Start from the first track for consistency
 
     const bgMusic = document.getElementById('bgMusic');
     const muteToggle = document.getElementById('muteToggle');
