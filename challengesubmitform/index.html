@@ -61,15 +61,21 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div class="duration-card p-4 flex items-center justify-center border border-[#222] rounded-lg hover:border-primary-neon transition-all" data-duration="ONE_OFF">
                             <h4 class="dm-sans font-black text-lg uppercase tracking-wider mb-0">
-                                One-Off <span class="text-s ml-1 lowercase">ⓘ</span>
+                                One-Off 
+                                <span class="info-tooltip-container">
+                                    <span class="text-s ml-1 lowercase">ⓘ</span>
+                                    <span class="info-tooltip-text">Must be completed within the current stream day...</span>
+                                </span>
                             </h4>
-                            <span class="info-tooltip-text">Must be completed within the current stream day. If still "In Progress" at 21:00 UTC maintenance, the challenge fails.</span>
                         </div>
                         <div class="duration-card p-4 flex items-center justify-center border border-[#222] rounded-lg hover:border-primary-neon transition-all" data-duration="RECURRING">
                             <h4 class="dm-sans font-black text-lg uppercase tracking-wider mb-0">
-                                Recurring <span class="text-s ml-1 lowercase">ⓘ</span>
+                                Recurring 
+                                <span class="info-tooltip-container">
+                                    <span class="text-s ml-1 lowercase">ⓘ</span>
+                                    <span class="info-tooltip-text">Multi-session task scheduled across multiple days...</span>
+                                </span>
                             </h4>
-                            <span class="info-tooltip-text">Multi-session task scheduled across multiple days/weeks. Requires cadence.</span>
                         </div>
                     </div>
                 </div>

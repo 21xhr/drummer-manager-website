@@ -117,12 +117,13 @@ textarea.form-input {
     display: inline-block;
     position: relative;
     cursor: pointer;
+    z-index: 101; /* Ensure it's above the card's hit area */
 }
 
 /* Base tooltip styling */
 .info-tooltip-text {
     position: absolute;
-    bottom: 125%;
+    bottom: 135%;
     left: 50%;
     transform: translateX(-50%);
     background-color: #000;
@@ -133,7 +134,7 @@ textarea.form-input {
     font-size: 10px;
     width: 200px;
     text-align: center;
-    z-index: 100;
+    z-index: 102;
     
     /* Hide by default */
     visibility: hidden;
@@ -142,16 +143,23 @@ textarea.form-input {
     transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
-/* Hide the little arrow tip if you don't want it */
+/* Hide the little arrow tip */
 .info-tooltip-text::after { 
     display: none !important; 
 }
 
-/* Only show when hovering the container OR a duration card */
-.info-tooltip-container:hover .info-tooltip-text,
-.duration-card:hover .info-tooltip-text {
+/* TRIGGER: Only when the icon container itself is hovered */
+/* Prevents the card hover from showing the text */
+.info-tooltip-container:hover .info-tooltip-text {
     visibility: visible;
     opacity: 1;
+}
+
+/* SAFETY: If the card is hovered but NOT the icon, keep it hidden */
+/* This overrides any accidental "leakage" from card-level hover rules */
+.duration-card:hover .info-tooltip-text:not(.info-tooltip-container:hover .info-tooltip-text) {
+    visibility: hidden;
+    opacity: 0;
 }
 
 /* CRITICAL: Ensure tooltips never show if the parent section is disabled */
