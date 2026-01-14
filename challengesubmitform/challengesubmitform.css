@@ -119,13 +119,47 @@ textarea.form-input {
     cursor: pointer;
 }
 
-.info-tooltip-container:hover .info-tooltip-text {
+/* Base tooltip styling */
+.info-tooltip-text {
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #000;
+    color: var(--primary-neon);
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--primary-neon);
+    font-size: 10px;
+    width: 200px;
+    text-align: center;
+    z-index: 100;
+    
+    /* Hide by default */
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none; 
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Hide the little arrow tip if you don't want it */
+.info-tooltip-text::after { 
+    display: none !important; 
+}
+
+/* Only show when hovering the container OR a duration card */
+.info-tooltip-container:hover .info-tooltip-text,
+.duration-card:hover .info-tooltip-text {
     visibility: visible;
     opacity: 1;
 }
 
-.info-tooltip-text::after { 
-    display: none !important; 
+/* CRITICAL: Ensure tooltips never show if the parent section is disabled */
+.form-section-disabled .info-tooltip-text,
+.form-section-disabled .info-tooltip-container:hover .info-tooltip-text {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
 .high-demand-warning {
@@ -155,10 +189,6 @@ textarea.form-input {
 /* ==========================================================================
    3. SELECTION COMPONENTS (CARDS & PLATFORMS)
    ========================================================================== */
-
-.duration-card, .info-tooltip-container {
-    position: relative;
-}
 
 .duration-card {
     padding: 10px;
