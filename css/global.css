@@ -1,0 +1,293 @@
+/*
+------------------------------------------------------------------
+GLOBAL STYLESHEET
+This file is linked to all HTML pages to ensure a unified and consistent design.
+------------------------------------------------------------------
+*/
+
+
+/* ------------------------------------------------------------------
+   GOOGLE FONTS IMPORT
+   ------------------------------------------------------------------ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Roboto:wght@400;700&display=swap');
+
+
+/* ------------------------------------------------------------------
+   CSS VARIABLES
+   ------------------------------------------------------------------ */
+:root {
+    --background-color: #0c0c0c;
+    --primary-neon: rgb(242, 189, 21);
+    --text-color: rgb(242, 242, 242);
+    --secondary-bg: rgb(21, 21, 21);
+    --subtext-color: rgba(242, 242, 242, 0.84); 
+    --disabled-color: #666; 
+    --error-red: #d24242;
+    --success-green: #39FF14;
+    --platform-kick: #00FF00;
+    --platform-twitch: #9146FF;
+    --platform-youtube: #FF0000;
+    
+    /* Harmonized Timings */
+    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+    --anim-speed: 0.3s;
+}
+
+
+/* ------------------------------------------------------------------
+   GLOBAL ANIMATIONS
+   ------------------------------------------------------------------ */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* One master keyframe for all neon text */
+@keyframes neon-text-pulse {
+    from { text-shadow: 0 0 3px var(--primary-neon), 0 0 7px var(--primary-neon), 0 0 21px var(--primary-neon); }
+    to { text-shadow: 0 0 1px var(--primary-neon), 0 0 2px var(--primary-neon), 0 0 7px var(--primary-neon); }
+}
+
+/* One master keyframe for all neon borders/boxes */
+@keyframes neon-border-pulse {
+    0%, 100% { box-shadow: 0 0 7px var(--primary-neon); border-color: rgba(242, 189, 21, 0.3); }
+    50% { box-shadow: 0 0 15px var(--primary-neon); border-color: var(--primary-neon); }
+}
+
+@keyframes pulse-horizontal {
+    0%, 100% { transform: translateX(0); opacity: 0.5; }
+    50% { transform: translateX(6px); opacity: 1; }
+}
+
+.animate-fadeIn { animation: fadeIn 0.6s ease-out forwards; }
+.animate-pulse-horizontal { animation: pulse-horizontal 1.5s ease-in-out infinite; }
+.neon-text { animation: neon-text-pulse 2.5s infinite alternate; color: var(--primary-neon); }
+
+
+/* ------------------------------------------------------------------
+   CORE LAYOUT
+   ------------------------------------------------------------------ */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.8s var(--ease-standard);
+}
+
+/* Main page container styles (Container for FAQ/Leaderboard/Main page) */
+.container {
+    max-width: 810px;
+    width: 100%;
+    text-align: center;
+    background-color: var(--secondary-bg);
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.dm-sans {
+    font-family: 'DM Sans', sans-serif;
+}
+
+.roboto {
+    font-family: 'Roboto', sans-serif;
+}
+
+
+
+/* ------------------------------------------------------------------
+   GLOBAL TEXT & ELEMENTS
+   ------------------------------------------------------------------ */
+.neon-text {
+    color: var(--primary-neon);
+    text-shadow:
+        0 0 3px var(--primary-neon),
+        0 0 7px var(--primary-neon),
+        0 0 21px var(--primary-neon);
+    animation: neon-text-pulse 2.1s infinite alternate;
+}
+
+.custom-list {
+    list-style: none;
+    padding-left: 1rem;
+}
+
+.custom-list li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.custom-list li::before {
+    content: "\25a0";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--primary-neon);
+    text-shadow: 0 0 3px var(--primary-neon), 0 0 5px var(--primary-neon);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Platform Color Classes */
+.platform-twitch { color: var(--platform-twitch); }
+.platform-youtube { color: var(--platform-youtube); }
+.platform-kick { color: var(--platform-kick); }
+
+
+/* ------------------------------------------------------------------
+   GLOBAL BUTTONS & INTERACTIVITY
+   ------------------------------------------------------------------ */
+/* --- MASTER TOOLTIP BASE --- */
+.info-tooltip-text {
+    /* RESET & CORE HIDDEN STATE */
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 99999;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+
+    /* MASTER CENTERED POSITIONING (Restored) */
+    position: fixed !important;
+    top: 50dvh !important;
+    left: 50dvw !important;
+    transform: translate(-50%, -50%) !important;
+    right: auto !important;
+    bottom: auto !important;
+    margin: 0 !important;
+
+    /* FLUID BOX STYLING */
+    width: 280px;
+    max-width: 85vw;
+    min-height: fit-content !important;
+    max-height: 80dvh; /* Safety: never taller than 80% of the screen */
+    overflow-y: auto;  /* Allows scrolling if text is long */
+    background-color: rgba(0, 0, 0, 0.98) !important;
+    color: #fff !important;
+    text-align: center;
+    padding: 24px;
+    border-radius: 12px;
+    border: 2px solid var(--primary-neon);
+    box-shadow: 0 0 100px rgba(0,0,0,0.9);
+
+    /* FLUID TYPOGRAPHY */
+    font-size: clamp(10px, 2.5vw, 14px); /* Fluid scaling based on width */
+    line-height: 1.6;
+}
+
+/* TRIGGER: Only when the icon container itself is hovered */
+.info-tooltip-container:hover .info-tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Interactive button styles (Primary action) */
+.interactive-button {
+    background-color: var(--primary-neon);
+    color: var(--background-color);
+    transition: 
+        background-color 0.2s ease, 
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.1s ease;
+    box-shadow: 0 0 5px rgba(242, 210, 0, 0.1);
+    border: 1px solid var(--primary-neon);
+}
+
+/* CONSOLIDATED HOVER & DISABLED STATES */
+.interactive-button:hover:not(:disabled) {
+    background-color: var(--primary-neon); 
+    color: var(--secondary-bg); 
+    box-shadow: 0 0 10px var(--primary-neon);
+    cursor: pointer;
+    transform: translateY(-2px); 
+}
+
+.interactive-button:active:not(:disabled) {
+    transform: scale(0.98); 
+    box-shadow: 0 0 5px var(--primary-neon);
+}
+
+.interactive-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #555; 
+    border-color: #555;
+    box-shadow: none;
+}
+
+/* Link Button (Main Page Links) */
+.link-button {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    margin: 0.5rem;
+    background-color: var(--primary-neon);
+    color: var(--background-color);
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 21px;
+    transition: all 0.3s ease;
+}
+
+.link-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Social links styles */
+.social-link {
+    color: var(--subtext-color);
+    transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.social-link:hover {
+    color: var(--primary-neon);
+    transform: scale(1.1);
+    text-shadow: 0 0 5px var(--primary-neon);
+}
+
+
+/* ------------------------------------------------------------------
+   MAIN CONTAINERS & LAYOUTS
+   ------------------------------------------------------------------ */
+.fixed-social-links-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background-color: var(--background-color);
+    padding: 10rem 0;
+    z-index: 10;
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------------
+   SPECIFIC COMPONENT STYLES
+   ------------------------------------------------------------------ */
+/* Stream Status Indicators */
+.stream-status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 3px;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+}
+.live { background-color: var(--success-green); box-shadow: 0 0 8px var(--success-green); }
+.offline { background-color: var(--platform-youtube); }

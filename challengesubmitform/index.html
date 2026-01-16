@@ -6,8 +6,8 @@
     <title>Drummer Manager: Propose a Challenge</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="../styles.css">
-    <link rel="stylesheet" href="challengesubmitform.css">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/challengesubmitform.css">
     <link rel="icon" href="data:,">
 
 </head>
@@ -1203,7 +1203,7 @@ Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
                 };
                 // Add the "Victory" class to the main wrapper
                 const container = document.querySelector('.form-container');
-                container.classList.add('boosted-neon-pulse-border');
+                container.classList.add('boosted-neon-border-pulse');
 
                 // 3. Transition to Success Screen with a slight delay for "weight"
                 setTimeout(() => {
@@ -1292,7 +1292,7 @@ Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
     startNewChallengeButton.addEventListener('click', () => {
         // 1. Remove pulse
         const container = document.querySelector('.form-container');
-        if (container) container.classList.remove('boosted-neon-pulse-border');
+        if (container) container.classList.remove('boosted-neon-border-pulse');
         
         // 2. Wipe everything and go back to Step 2
         resetForm();
