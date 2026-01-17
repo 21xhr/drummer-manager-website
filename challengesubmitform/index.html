@@ -34,7 +34,7 @@
                 </div>
                 
                 <div id="identityReminder" class="hidden">
-                    <div class="flex flex-nowrap items-center justify-end space-x-1">
+                    <div class="flex flex-nowrap items-baseline justify-end space-x-1">
                         <span id="reminderUsername" class="roboto text-[11px] text-white font-bold leading-none"></span>
                         <div class="roboto text-[9px] text-gray-500 tracking-tighter flex-shrink-0">
                             on <span id="reminderPlatform" class="font-bold"></span>
@@ -64,7 +64,7 @@
                                 One-Off 
                                 <span class="info-tooltip-container">
                                     <span class="text-s ml-1 lowercase">ⓘ</span>
-                                    <span class="info-tooltip-text">Must be completed within the current stream day...</span>
+                                    <span class="info-tooltip-text">Must be completed within the ONE stream day...</span>
                                 </span>
                             </h4>
                         </div>
@@ -85,7 +85,8 @@
                         class="form-input p-2 rounded-t-lg shadow-sm w-full bg-[#1a1a1a] text-white border border-[#333]" 
                         style="min-height: 100px; max-height: 300px; overflow-y: auto;"
                         contenteditable="true"
-                        placeholder="Describe the task. (Min 10 chars) Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!"
+                        placeholder="Describe the task. (Min 10 chars) 
+                        Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!"
                         required>
                     </div>
                     <input type="hidden" id="challengeText" value="">
@@ -186,17 +187,20 @@
             </div>
 
             <div id="step3" class="step-container hidden animate-fadeIn">
-                <div class="text-center mb-8 pt-2">
+                <div id="step3_header" class="header-container-step3">
                     <h2 class="dm-sans text-4xl font-black neon-text tracking-[0.2em] uppercase">SUCCESSFUL</h2>
+                    <button type="button" id="startNewChallengeButton" title="Submit Another">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
                 </div>
 
                 <div class="flex flex-col space-y-4">
-                    <div class="bg-[#0a0a0a] p-6 rounded-lg border border-[#222] shadow-2xl">
+                    <div class="success-card-main bg-[#0a0a0a] p-6 rounded-lg border border-[#222] shadow-2xl">
                         <div class="success-card-content">
                             
                             <div class="flex-1 flex flex-col items-center sm:items-start text-center sm:text-left">
                                 <h3 class="dm-sans text-[14px] font-black text-white uppercase tracking-widest leading-none mb-1">What's Next?</h3>
-                                <p class="roboto text-[11px] uppercase tracking-widest font-medium" style="color: var(--subtext-color);">Join the mission</p>
+                                <p class="roboto text-[11px] uppercase tracking-widest font-medium">Join the mission</p>
                             </div>
                             
                             <div class="flex-none flex items-center justify-center px-4">
@@ -213,13 +217,13 @@
                                     <i class="fa-brands fa-discord text-[10px]"></i> Discord
                                 </a>
                                 <div class="flex gap-1">
-                                    <a href="#" id="shareX" target="_blank" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm hover:border-white transition-all">
+                                    <a href="#" id="shareX" target="" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm transition-all">
                                         <i class="fa-brands fa-x-twitter text-[11px]"></i>
                                     </a>
-                                    <a href="#" id="shareFB" target="_blank" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm hover:border-[#1877F2] transition-all">
+                                    <a href="#" id="shareFB" target="" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm transition-all">
                                         <i class="fa-brands fa-facebook-f text-[11px]"></i>
                                     </a>
-                                    <button type="button" id="copyLink" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm hover:text-primary-neon transition-all">
+                                    <button type="button" id="copyLink" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm transition-all">
                                         <i class="fa-solid fa-link text-[11px]"></i>
                                     </button>
                                 </div>
@@ -229,16 +233,12 @@
                     </div>
 
                     <div class="border border-[#1a1a1a] rounded-lg overflow-hidden">
-                        <button type="button" id="toggleDetailsBtn" class="w-full flex justify-between items-center p-3 bg-[#0d0d0d] transition-all group" style="color: var(--subtext-color);">
+                        <button type="button" id="toggleDetailsBtn" class="w-full flex justify-between items-center p-3 bg-[#0d0d0d] transition-all group">
                             <span class="roboto text-[10px] uppercase tracking-[0.3em] font-bold">Submission Details</span>
                             <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300" id="chevronIcon"></i>
                         </button>
                         <div id="summaryContent" class="hidden bg-[#050505] p-4 border-t border-[#1a1a1a] animate-fadeIn"></div>
                     </div>
-
-                    <button type="button" id="startNewChallengeButton" class="text-[10px] font-bold uppercase tracking-[0.4em] hover:text-primary-neon transition-all py-4" style="color: var(--subtext-color);">
-                        Submit Another Challenge
-                    </button>
                 </div>
             </div>
             
@@ -274,15 +274,17 @@
     const DEFAULT_PLACEHOLDER = `Describe the task. (Min 10 chars)
 Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
 
-    const RECURRING_PLACEHOLDER = `Describe the task. (Min 10 chars)
-Reminder: Use the section below to define the cadence, NOT here.
+    const RECURRING_PLACEHOLDER = `Describe the task in at least 10 characters.
 
-Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
-    
-    const ONE_OFF_PLACEHOLDER = `Describe the task. (Min 10 chars)
-Reminder: Use the section below to define the total 21-min sessions, NOT here.
+Use the section below to set the cadence.
 
-Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
+Tip: Use a writing assistant to help refine your suggestion.`;
+
+    const ONE_OFF_PLACEHOLDER = `Describe the task in at least 10 characters.
+
+Use the section below to set the total number of 21-minute sessions.
+
+Tip: Use a writing assistant to help refine your suggestion.`;
     
     // Create a new constant for the disabled state to handle line breaks if needed
     const DISABLED_PLACEHOLDER = `Please select a Duration Type above first.`;
@@ -1023,6 +1025,8 @@ Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
         oneOffGroup.classList.add('hidden');
         cadenceGroup.classList.add('hidden');
         submitButton.disabled = true;
+        const container = document.querySelector('.form-container');
+        if (container) container.classList.remove('boosted-neon-border-pulse');
 
         // --- INSTEAD OF window.location.href ---
         // Just move the user back to the verification step 
@@ -1041,6 +1045,8 @@ Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
 
     fetchStreamStatus();
     verifyTokenAndStartForm();
+    handleCopyLink();
+    handleSocialFeedback();
     
     // Step 2: Duration Card Selection (Trigger 1)
     const playlist = [
@@ -1190,29 +1196,22 @@ Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
             if (response.ok) { 
                 const { newChallenge, cost, userStats } = data.details; 
                 
-                // 1. Prepare Step 3 content
                 summaryContent.innerHTML = generateChallengeSummary(newChallenge, cost, userStats);
                 updateStreamButtonText();
 
-                // 2. Setup Copy Button (Surgical: Keep it simple)
-                document.getElementById('copyLink').onclick = function() {
-                    navigator.clipboard.writeText(window.location.origin);
-                    const icon = this.querySelector('i');
-                    icon.className = 'fa-solid fa-check text-primary-neon';
-                    setTimeout(() => { icon.className = 'fa-solid fa-link'; }, 2000);
-                };
-                // Add the "Victory" class to the main wrapper
                 const container = document.querySelector('.form-container');
                 container.classList.add('boosted-neon-border-pulse');
 
-                // 3. Transition to Success Screen with a slight delay for "weight"
                 setTimeout(() => {
                     renderStep(3);
-                    // Reset button for next time
+                    
+                    // Now that Step 3 is visible, attach the listeners
+                    handleSocialFeedback();
+                    handleCopyLink(); 
+                    
                     submitButton.innerHTML = originalBtnText;
                     submitButton.disabled = false;
                 }, 600);
-
             } else {
                 // Handle Server Rejection (e.g., Not enough NUMBERS)
                 statusMessage2.style.color = 'var(--error-red)';
@@ -1274,6 +1273,73 @@ Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
         });
     }
 
+    // Function to handle copying the link with feedback
+    function handleCopyLink() {
+        // Look for the button again to ensure we have the current DOM element
+        const copyBtn = document.getElementById('copyLink');
+        if (!copyBtn) {
+            console.warn("Copy button not found in DOM yet.");
+            return;
+        }
+
+        // Use addEventListener instead of onclick to prevent overwriting issues
+        // Remove old one first to avoid double-firing
+        copyBtn.replaceWith(copyBtn.cloneNode(true)); 
+        const newBtn = document.getElementById('copyLink');
+
+        newBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const textToCopy = window.location.origin; 
+
+            // Reliable Copy Logic
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(textToCopy);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                textArea.style.top = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            }
+
+            // FEEDBACK: Keep the 'copied' class for the grayscale effect
+            this.classList.add('copied');
+
+            // Badge Creation (This is the only thing the user actually sees now!)
+            const badge = document.createElement('span');
+            badge.className = 'copy-badge roboto';
+            badge.innerText = 'Copied!';
+            this.appendChild(badge);
+
+            setTimeout(() => {
+                this.classList.remove('copied');
+                if (badge.parentNode) badge.remove();
+            }, 2100);
+        });
+    }
+
+    function handleSocialFeedback() {
+        ['shareX', 'shareFB'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            btn.onclick = function() {
+                const badge = document.createElement('span');
+                badge.className = 'copy-badge roboto';
+                badge.innerText = 'LFG...';
+                badge.style.background = 'var(--primary-neon)'; // Stays neon yellow
+                this.appendChild(badge);
+                setTimeout(() => { if (badge.parentNode) badge.remove(); }, 2100);
+            };
+        });
+    }
+
     // Toolbar button listeners
     document.querySelectorAll('.editor-button').forEach(button => {
         button.addEventListener('click', (e) => {
@@ -1289,12 +1355,19 @@ Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
         updateDynamicFields(); 
     });
 
-    startNewChallengeButton.addEventListener('click', () => {
-        // 1. Remove pulse
-        const container = document.querySelector('.form-container');
-        if (container) container.classList.remove('boosted-neon-border-pulse');
-        
-        // 2. Wipe everything and go back to Step 2
-        resetForm();
+    startNewChallengeButton.addEventListener('click', function() {
+        const icon = this.querySelector('i');
+
+        icon.classList.add('icon-active-pulse');
+        icon.style.color = "var(--primary-neon)";
+
+        // Wait for the graceful discharge
+        setTimeout(() => {
+            resetForm();
+            // Reset for the next round
+            this.style.pointerEvents = "auto";
+            icon.classList.remove('icon-active-pulse');
+            icon.style.color = "";
+        }, 1200); 
     });
 </script>

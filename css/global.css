@@ -185,7 +185,7 @@ html, body {
     box-shadow: 0 0 100px rgba(0,0,0,0.9);
 
     /* FLUID TYPOGRAPHY */
-    font-size: clamp(10px, 2.5vw, 14px); /* Fluid scaling based on width */
+    font-size: clamp(12px, 2.5vw, 20px); /* Fluid scaling based on width */
     line-height: 1.6;
 }
 

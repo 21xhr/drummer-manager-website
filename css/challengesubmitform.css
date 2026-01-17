@@ -228,9 +228,68 @@ textarea.form-input {
     white-space: pre-wrap; 
 }
 
+
 /* ==========================================================================
    5. SUCCESS STEP (STEP 3) & SUMMARY
    ========================================================================== */
+.header-container-step3 {
+    position: relative;
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem; 
+    padding-top: 0.5rem;
+}
+
+#startNewChallengeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+#startNewChallengeButton i {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+}
+
+#startNewChallengeButton:hover i {
+    color: var(--primary-neon);
+    transform: rotate(221deg); 
+    transition: all 2.1s ease;
+    text-shadow: 0 0 10px var(--primary-neon);
+}
+
+.icon-active-pulse {
+    animation: iconGlow 0.8s ease-out;
+}
+
+@keyframes iconGlow {
+    0% { filter: drop-shadow(0 0 0px var(--primary-neon)); opacity: 1; }
+    50% { filter: drop-shadow(0 0 15px var(--primary-neon)); opacity: 0.5; }
+    100% { filter: drop-shadow(0 0 0px var(--primary-neon)); opacity: 1; }
+}
+
+/* RESPONSIVE ADJUSTMENTS FOR STEP 3 HEADER */
+@media (max-width: 480px) {
+    #step3 .relative {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    #startNewChallengeButton {
+        position: absolute !important; 
+        right: -10px;
+    }
+    
+    #step3 h2 {
+        font-size: 1.5rem;
+
+    }
+}
 
 .glow-arrow {
     position: relative;
@@ -250,7 +309,7 @@ textarea.form-input {
     z-index: -1;
     animation: neon-border-pulse 2s infinite alternate;
     transform: translate(-50%, -50%);
-    pointer-events: none; /* Added to prevent click-blocking */
+    pointer-events: none;
 }
 
 /* BOOSTED PULSE (Step 3 Success) */
@@ -309,21 +368,21 @@ textarea.form-input {
     display: block;
 }
 
-#shareChallengeButton, .interactive-button {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
 #toggleDetailsBtn {
     background: linear-gradient(to right, #0a0a0a, #111);
     border: 1px solid #222;
     border-radius: 8px;
     margin-top: 10px;
+    color: var(--subtext-color);
+    cursor: pointer;
 }
 
 #toggleDetailsBtn:hover {
     border-color: var(--primary-neon);
+}
+
+#toggleDetailsBtn:hover #chevronIcon {
+    color: var(--primary-neon);
 }
 
 #summaryContent {
@@ -375,6 +434,21 @@ textarea.form-input {
     font-weight: bold;
 }
 
+.success-card-main {
+    border: 1px solid rgba(242, 189, 21, 0.2);
+    background: linear-gradient(145deg, #0a0a0a, #111);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: neon-border-pulse 3s ease-in-out infinite alternate;
+}
+
+.success-card-main:hover {
+    border-color: var(--primary-neon);
+    border-width: 1px; 
+    box-shadow: 0 0 30px rgba(242, 189, 21, 0.15);
+    transform: translateY(-1px);
+    animation-duration: 1s; 
+}
+
 .success-card-content {
     display: flex;
     flex-direction: column;
@@ -393,4 +467,72 @@ textarea.form-input {
         margin-left: -50px; 
         margin-right: 20px;
     }
+}
+
+/* SHARE BUTTONS & COPY LINK BUTTON */
+#shareChallengeButton, .interactive-button {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+#shareX, #shareFB, #copyLink {
+    position: relative;
+    overflow: hidden;
+    border-color: #222 !important;
+    transition: all 0.3s ease;
+    box-sizing: border-box; /* Prevents "wiggle" on hover */
+}
+
+#shareX:hover, #shareFB:hover, #copyLink:hover {
+    border-color: var(--primary-neon) !important;
+    background-color: rgba(242, 189, 21, 0.05) !important;
+    box-shadow: 0 0 10px rgba(242, 189, 21, 0.2);
+}
+
+#shareX:hover i, #shareFB:hover i, #copyLink:hover i {
+    color: #fff !important;
+}
+
+#shareX, #shareFB {
+    position: relative;
+}
+
+#copyLink.copied {
+    filter: grayscale(0.8);
+    opacity: 0.7;
+    pointer-events: none; 
+    transition: all 0.3s ease;
+}
+
+#copyLink.copied i {
+    color: #fff !important;
+}
+
+/* The Popup Badge - Centered OVER the icon */
+.copy-badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;  /* Take full width of parent */
+    height: 100%; /* Take full height of parent */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--success-green);
+    color: black;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 999;
+    animation: badgeOverlay 2.1s ease-in-out forwards;
+}
+
+@keyframes badgeOverlay {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { opacity: 0; }
 }
