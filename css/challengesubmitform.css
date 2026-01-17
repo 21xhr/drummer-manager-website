@@ -29,7 +29,20 @@
     max-width: 600px;
     width: 100%;
     margin-top: 1rem !important;
-    margin-bottom: 70px !important; 
+    margin-bottom: 70px !important;
+    transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden; /* Critical: stops content from jumping out during resize */
+    display: block; /* Change from flex to block to prevent squashing */
+    min-height: 200px; /* Gives it a baseline */
+    height: auto; /* Allows height to adjust based on content */
+}
+
+/* A helper class to fade out the form elements specifically */
+.form-content-fade {
+    transition: opacity 0.4s ease, filter 0.4s ease;
+    opacity: 0;
+    filter: blur(8px);
+    pointer-events: none;
 }
 
 @media (min-width: 640px) {
@@ -40,6 +53,8 @@
 
 .step-container {
     transition: opacity 0.3s ease, transform 0.3s ease;
+    width: 100%; /* Ensure steps take full width */
+    flex-shrink: 0; /* Prevent steps from being squashed by flexbox */
 }
 
 .step-container.hidden {
@@ -232,6 +247,69 @@ textarea.form-input {
 /* ==========================================================================
    5. SUCCESS STEP (STEP 3) & SUMMARY
    ========================================================================== */
+
+.button-hero-transition {
+    z-index: 100;
+    pointer-events: none;
+    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 30px var(--primary-neon);
+    background-color: var(--primary-neon) !important;
+    border-color: var(--primary-neon) !important;
+    color: black !important; /* High contrast for the "RECEIVED" state */
+
+    /* THE PILL REDIMENSION */
+    width: 160px !important;    /* Forces it to shrink from 100% */
+    margin-left: auto !important;
+    margin-right: auto !important;
+    border-radius: 50px !important; /* Makes it a pill */
+    padding: 10px 20px !important;
+    white-space: nowrap !important; /* Forces text to stay on one line */
+    display: flex !important;       /* Uses flex to keep icon and text aligned */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;                      /* Spacing between icon and text */
+    
+    /* Ensure it doesn't wrap even for a millisecond */
+    overflow: hidden;
+    transform: translateY(var(--travel-distance, -100px)) scale(1.1);
+}
+
+.button-pop-out {
+    transform: translateY(var(--travel-distance, -100px)) scale(0);
+    opacity: 0;
+    filter: brightness(2) blur(10px);
+    transition: all 0.4s cubic-bezier(0.63, -0.42, 0.21, 21) !important;
+}
+
+#statusMessage2 {
+    min-height: 20px; /* Reserves space so it doesn't 'pop' into existence */
+    display: block;
+    margin-top: 10px;
+}
+
+#step2 {
+    position: relative;
+    min-height: 300px; /* Ensures space for the button to travel to the center */
+}
+
+/* Animation for the step being swapped out */
+.animate-fadeOutExit {
+    animation: fadeOutExit 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeOutExit {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0px);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.96);
+        filter: blur(4px);
+    }
+}
+
 .header-container-step3 {
     position: relative;
     display: flex; 
@@ -242,6 +320,9 @@ textarea.form-input {
 }
 
 #startNewChallengeButton {
+    opacity: 0.21;
+    position: absolute !important; 
+    right: 10px;
     background: none;
     border: none;
     cursor: pointer;
@@ -249,6 +330,10 @@ textarea.form-input {
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+}
+
+#startNewChallengeButton:hover {
+    opacity: 0.79;
 }
 
 #startNewChallengeButton i {
@@ -282,7 +367,7 @@ textarea.form-input {
     
     #startNewChallengeButton {
         position: absolute !important; 
-        right: -10px;
+        right: 10px;
     }
     
     #step3 h2 {
@@ -455,6 +540,7 @@ textarea.form-input {
     align-items: center;
     justify-content: center;
     gap: 1.5rem;
+    width: 100%; /* Ensure content fills the card */
 }
 
 @media (min-width: 640px) {

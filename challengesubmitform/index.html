@@ -176,14 +176,15 @@
                         <strong>REMINDER:</strong> Once submitted, you never know what might happen...
                     </p>
                 </div>
-
-                <button type="submit" id="submitButton" class="interactive-button form-button mt-4" disabled>
-                    SUBMIT
-                    <span class="info-tooltip-container">ⓘ
-                        <span class="info-tooltip-text" style="width: 180px; margin-left: -90px; bottom: 125%;">This is final!</span>
-                    </span>
-                </button>
-                <p id="statusMessage2" class="roboto text-sm text-center mt-3"></p>
+                <div class="submit-row-container">
+                    <button type="submit" id="submitButton" class="interactive-button form-button mt-4" disabled>
+                        SUBMIT
+                        <span class="info-tooltip-container">ⓘ
+                            <span class="info-tooltip-text" style="width: 180px; margin-left: -90px; bottom: 125%;">This is final!</span>
+                        </span>
+                    </button>
+                    <p id="statusMessage2" class="roboto text-sm text-center mt-3"></p>
+                </div>
             </div>
 
             <div id="step3" class="step-container hidden animate-fadeIn">
@@ -1167,12 +1168,17 @@ Tip: Use a writing assistant to help refine your suggestion.`;
             return; 
         }
         
-        // UI Feedback: Disable button and show loading
+        // 0. CAPTURE ORIGINAL STATE
+        const originalBtnText = submitButton.innerHTML; // Fixed: Redefining this for the catch block
+
+        // 1. GHOST THE FORM CONTENT
+        const formFields = document.querySelectorAll('#step2 > div:not(.submit-row-container)'); 
+        formFields.forEach(field => field.classList.add('form-content-fade'));
+
+        // 2. HERO BUTTON STATUS
         submitButton.disabled = true;
-        const originalBtnText = submitButton.innerHTML;
-        submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SUBMITTING...';
-        statusMessage2.style.color = 'var(--subtext-color)';
-        statusMessage2.textContent = 'Transmitting data...';
+        submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> TRANSMITTING...';
+        statusMessage2.textContent = '';
 
         const submissionData = {
             token: submissionToken,
@@ -1185,6 +1191,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         };
 
         try {
+            // FIXED: Added back the POST method, headers, and body
             const response = await fetch(`${API_BASE_URL}/user/submit/web`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1193,38 +1200,75 @@ Tip: Use a writing assistant to help refine your suggestion.`;
 
             const data = await response.json();
 
-            if (response.ok) { 
-                const { newChallenge, cost, userStats } = data.details; 
+            if (response.ok) {
+                // 1. Success Feedback
+                submitButton.innerHTML = '<i class="fa-solid fa-circle-check"></i> RECEIVED';
                 
-                summaryContent.innerHTML = generateChallengeSummary(newChallenge, cost, userStats);
-                updateStreamButtonText();
-
+                // 2. CALCULATE CENTER
                 const container = document.querySelector('.form-container');
-                container.classList.add('boosted-neon-border-pulse');
+                const btnRect = submitButton.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
 
+                // Calculate the distance from the button's current center to the container's center
+                const btnCenterY = btnRect.top + btnRect.height / 2;
+                const containerCenterY = containerRect.top + containerRect.height / 2;
+                const travelDistance = containerCenterY - btnCenterY;
+
+                // Set the CSS variable so the animation knows where to go
+                submitButton.style.setProperty('--travel-distance', `${travelDistance}px`);
+                
+                // 3. START TRANSLATION
+                // Small timeout to ensure the CSS variable is registered
                 setTimeout(() => {
-                    renderStep(3);
+                    submitButton.classList.add('button-hero-transition');
+                }, 10);
+
+                const { newChallenge, cost, userStats } = data.details;
+                summaryContent.innerHTML = generateChallengeSummary(newChallenge, cost, userStats);
+
+                // 4. THE POP & REVEAL (Synchronized)
+                setTimeout(() => {
+                    // Start shrinking the button
+                    submitButton.classList.add('button-pop-out');
                     
-                    // Now that Step 3 is visible, attach the listeners
-                    handleSocialFeedback();
-                    handleCopyLink(); 
-                    
-                    submitButton.innerHTML = originalBtnText;
-                    submitButton.disabled = false;
-                }, 600);
+                    // START STEP 3 ALMOST IMMEDIATELY (Don't wait for button to be 100% gone)
+                    setTimeout(() => {
+                        const step2 = document.getElementById('step2');
+                        if (step2) step2.classList.add('hidden');
+                        
+                        renderStep(3); // Step 3's animate-fadeIn starts NOW
+                        
+                        const container = document.querySelector('.form-container');
+                        container.style.height = 'auto'; 
+
+                        // Cleanup in the background
+                        submitButton.classList.remove('button-hero-transition', 'button-pop-out');
+                        submitButton.style.removeProperty('--travel-distance');
+                        formFields.forEach(field => field.classList.remove('form-content-fade'));
+                        submitButton.style.backgroundColor = ''; 
+                        submitButton.innerHTML = originalBtnText;
+                        submitButton.disabled = false;
+                        
+                        handleSocialFeedback();
+                        handleCopyLink();
+                    }, 150); // Only a 150ms gap feels like a "hand-off" rather than a wait
+                }, 1000); // Spend 1 second in the center instead of 1.5s 
             } else {
-                // Handle Server Rejection (e.g., Not enough NUMBERS)
+                // Server Error (e.g. 400 or 500)
+                formFields.forEach(field => field.classList.remove('form-content-fade'));
                 statusMessage2.style.color = 'var(--error-red)';
-                statusMessage2.textContent = `CRITICAL: ${data.message || data.error || 'Request Denied'}`;
+                statusMessage2.textContent = `Error: ${data.message || 'Request Denied'}`;
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalBtnText;
             }
         } catch (error) {
+            // Network Error
+            formFields.forEach(field => field.classList.remove('form-content-fade'));
             console.error('Submission Network Error:', error);
             statusMessage2.style.color = 'var(--error-red)';
             statusMessage2.textContent = `COMMUNICATIONS FAILURE: Check your connection.`;
             submitButton.disabled = false;
-            submitButton.innerHTML = originalBtnText;
+            submitButton.innerHTML = originalBtnText; // Works now because variable is defined at top
         }
     });
 
