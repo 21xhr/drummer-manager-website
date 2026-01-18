@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drummer Manager Game - FAQ & Links</title>
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for social media icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/faq.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/social-links.js" defer></script>
 </head>
 <body class="p-3 sm:p-8">
     <!-- Main Title -->
@@ -90,19 +89,7 @@
         </div>
     </div>
     
-    <!-- Social Links Section (Always Visible at the Bottom) -->
-    <div class="fixed-social-links-container py-4 z-50 text-center bg-[#0c0c0c]/90 backdrop-blur-sm flex-shrink-0">
-        <h2 class="dm-sans text-xs md:text-sm text-white font-bold mb-2">Follow 21 Everywhere</h2>
-        <div class="flex justify-center space-x-6 text-xl md:text-2xl">
-            <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Discord" class="social-link"><i class="fab fa-discord"></i></a>
-            <a href="https://www.facebook.com/21xhr" target="_blank" aria-label="Facebook" class="social-link"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://www.instagram.com/21xhr_" target="_blank" aria-label="Instagram" class="social-link"><i class="fab fa-instagram"></i></a>
-            <a href="https://www.twitch.tv/21xhr" target="_blank" aria-label="Twitch" class="social-link"><i class="fab fa-twitch"></i></a>
-            <a href="https://x.com/21xhr" target="_blank" aria-label="X" class="social-link"><i class="fab fa-x-twitter"></i></a>
-            <a href="https://www.youtube.com/@21xhr" target="_blank" aria-label="YouTube" class="social-link"><i class="fab fa-youtube"></i></a>
-            <a href="https://drummer-manager-website.vercel.app/donation" target="_blank" aria-label="Make a Donation" class="social-link"><i class="fa-solid fa-mug-hot"></i></a>
-        </div>
-    </div>
+    <social-links></social-links>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

@@ -4,7 +4,7 @@
     border: 2px solid var(--primary-neon);
     border-radius: 21px;
     box-shadow: 0 0 3px var(--primary-neon), 0 0 7px var(--primary-neon),0 0 21px var(--primary-neon), 0 0 42px var(--primary-neon);
-    animation: neon-text-pulse 2s infinite alternate;
+    animation: neon-text-pulsexs 2s infinite alternate;
 }
 
 .iframe-container {

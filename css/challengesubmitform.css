@@ -28,8 +28,6 @@
     box-shadow: 0 0 7px var(--primary-neon);
     max-width: 600px;
     width: 100%;
-    margin-top: 1rem !important;
-    margin-bottom: 70px !important;
     transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden; /* Critical: stops content from jumping out during resize */
     display: block; /* Change from flex to block to prevent squashing */
