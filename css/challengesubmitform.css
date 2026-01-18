@@ -621,47 +621,53 @@ textarea.form-input {
     box-sizing: border-box;
 }
 
+/* ==========================================================================
+   SHARE BUTTONS & COPY LINK REFINED
+   ========================================================================== */
+
+/* 1. Base State for Social/Copy Buttons */
 #shareX, #shareFB, #copyLink {
     position: relative;
-    overflow: hidden;
-    border-color: #222 !important;
-    transition: all 0.89s ease;
-    box-sizing: border-box; /* Prevents "wiggle" on hover */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden !important;
+    border: 1px solid #222;
+    background-color: #111;
+    transition: border-radius 0.89s cubic-bezier(0.4, 0, 0.2, 1), 
+                border-color 0.89s ease,
+                background-color 0.89s ease,
+                box-shadow 0.89s ease;
+    box-sizing: border-box;
 }
 
-#shareX:hover, #shareFB:hover, #copyLink:hover {
-    border-radius: 21px;
+/* 2. Webkit Button Clipping Fix (Specific to #copyLink button) */
+/* #copyLink {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+} */
+
+/* 3. Unified "Active" State (Hover OR Badge Visible) */
+#shareX:hover, #shareFB:hover, #copyLink:hover,
+#shareX:has(.copy-badge), #shareFB:has(.copy-badge), #copyLink:has(.copy-badge) {
+    border-radius: 21px !important;
     border-color: var(--primary-neon) !important;
     background-color: rgba(242, 189, 21, 0.05) !important;
-    box-shadow: 0 0 10px rgba(242, 189, 21, 0.2);
+    box-shadow: 0 0 100px rgba(242, 189, 21, 0.2);
 }
 
-#shareX:hover i, #shareFB:hover i, #copyLink:hover i {
+/* 4. Icon Color Change on Active */
+#shareX:hover i, #shareFB:hover i, #copyLink:hover i,
+#shareX:has(.copy-badge) i, #shareFB:has(.copy-badge) i, #copyLink:has(.copy-badge) i {
     color: #fff !important;
 }
 
-#shareX, #shareFB {
-    position: relative;
-}
-
-#copyLink.copied {
-    filter: grayscale(0.6);
-    opacity: 0.7;
-    pointer-events: none; 
-    transition: all 0.3s ease;
-}
-
-#copyLink.copied i {
-    color: #fff !important;
-}
-
-/* The Popup Badge - Centered OVER the icon */
+/* 5. The Feedback Badge Styling */
 .copy-badge {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: -1px;
+    width: auto;
+    height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -670,10 +676,18 @@ textarea.form-input {
     font-size: 10px;
     font-weight: 900;
     text-transform: uppercase;
-    pointer-events: none;
     white-space: nowrap;
-    z-index: 999;
+    z-index: 5;
+    pointer-events: none;
+    border-radius: 21px !important; 
     animation: badgeOverlay 2.1s ease-in-out forwards;
+}
+
+/* 6. Copied State Persistence (Grayscale) */
+#copyLink.copied {
+    filter: grayscale(0.6);
+    opacity: 0.7;
+    pointer-events: none;
 }
 
 @keyframes badgeOverlay {

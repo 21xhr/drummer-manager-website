@@ -1328,30 +1328,30 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         });
     }
 
-    // Function to handle copying the link with feedback
+    
+    /* ==========================================================================
+    STEP 3: INTERACTIVE HANDLERS
+    ========================================================================== */
+
+    function initializeStep3Handlers() {
+        handleCopyLink();
+        handleSocialFeedback();
+    }
+
     function handleCopyLink() {
-        // Look for the button again to ensure we have the current DOM element
         const copyBtn = document.getElementById('copyLink');
-        if (!copyBtn) {
-            console.warn("Copy button not found in DOM yet.");
-            return;
-        }
+        if (!copyBtn || copyBtn.dataset.initialized === "true") return;
 
-        // Use addEventListener instead of onclick to prevent overwriting issues
-        // Remove old one first to avoid double-firing
-        copyBtn.replaceWith(copyBtn.cloneNode(true)); 
-        const newBtn = document.getElementById('copyLink');
-
-        newBtn.addEventListener('click', function(e) {
+        copyBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
 
             const textToCopy = window.location.origin; 
 
-            // Reliable Copy Logic
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(textToCopy);
             } else {
+                // FULL FALLBACK RESTORED
                 const textArea = document.createElement("textarea");
                 textArea.value = textToCopy;
                 textArea.style.position = "fixed";
@@ -1363,12 +1363,10 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
             }
-
-            // FEEDBACK: Keep the 'copied' class for the grayscale effect
+            
             this.classList.add('copied');
 
-            // Badge Creation (This is the only thing the user actually sees now!)
-            const badge = document.createElement('span');
+            const badge = document.createElement('div');
             badge.className = 'copy-badge roboto';
             badge.innerText = 'Copied!';
             this.appendChild(badge);
@@ -1378,20 +1376,30 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 if (badge.parentNode) badge.remove();
             }, 2100);
         });
+
+        copyBtn.dataset.initialized = "true";
     }
 
     function handleSocialFeedback() {
         ['shareX', 'shareFB'].forEach(id => {
             const btn = document.getElementById(id);
-            if (!btn) return;
-            btn.onclick = function() {
-                const badge = document.createElement('span');
+            if (!btn || btn.dataset.initialized === "true") return;
+
+            btn.onclick = function(e) {
+                // Create badge
+                const badge = document.createElement('div');
                 badge.className = 'copy-badge roboto';
                 badge.innerText = 'LFG...';
-                badge.style.background = 'var(--primary-neon)'; // Stays neon yellow
+                badge.style.background = 'var(--primary-neon)';
                 this.appendChild(badge);
-                setTimeout(() => { if (badge.parentNode) badge.remove(); }, 2100);
+                
+                // Cleanup
+                setTimeout(() => { 
+                    if (badge.parentNode) badge.remove(); 
+                }, 2100);
             };
+
+            btn.dataset.initialized = "true";
         });
     }
 
