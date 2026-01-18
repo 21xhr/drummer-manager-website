@@ -4,34 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>21xHR - Drummer Manager Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/global.css">
 </head>
-<body class="p-3 sm:p-8 flex flex-col items-center justify-center min-h-screen">
-    <div class="container">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 neon-text dm-sans">
+<body class="dm-sans">
+    <div class="container my-auto">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 neon-text dm-sans uppercase tracking-tighter">
             DRUMMER MANAGER
         </h1>
 
-        <p class="text-lg text-gray-400 mb-8 roboto">
-            Welcome to the main page.
+        <p class="text-lg text-gray-400 mb-8 roboto uppercase tracking-widest text-[11px]">
+            Welcome to the mission hub
         </p>
 
         <div class="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
             <a href="/donation" class="link-button">
-                Support the Project
+                Support
             </a>
             
-            <a href="/faq/" class="link-button">
+            <a href="/faq" class="link-button">
                 How to Play
             </a>
 
-            <a href="/faq" class="link-button">
-                Missions
+            <a href="/challengesubmitform" class="link-button">
+                Propose Challenge
             </a>
             
             <a href="https://lumiastream.com/dashboard/bio" target="_blank" class="link-button">
@@ -40,30 +41,16 @@
         </div>
     </div>
     
-    <div class="fixed-social-links-container py-4 z-50 text-center bg-[#0c0c0c]/90 backdrop-blur-sm flex-shrink-0">
-        <h2 class="dm-sans text-xs md:text-sm text-white font-bold mb-2">Follow 21 Everywhere</h2>
+    <div class="fixed-social-links-container py-4 z-50 text-center bg-[#0c0c0c]/90 backdrop-blur-sm">
+        <h2 class="dm-sans text-xs md:text-sm text-white font-bold mb-2 uppercase tracking-widest">Follow 21 Everywhere</h2>
         <div class="flex justify-center space-x-6 text-xl md:text-2xl">
-            <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Discord" class="social-link">
-                <i class="fab fa-discord"></i>
-            </a>
-            <a href="https://www.facebook.com/21xhr" target="_blank" aria-label="Facebook" class="social-link">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="https://www.instagram.com/21xhr_" target="_blank" aria-label="Instagram" class="social-link">
-                <i class="fab fa-instagram"></i>
-            </a>
-            <a href="https://www.twitch.tv/21xhr" target="_blank" aria-label="Twitch" class="social-link">
-                <i class="fab fa-twitch"></i>
-            </a>
-            <a href="https://x.com/21xhr" target="_blank" aria-label="X" class="social-link">
-                <i class="fab fa-x-twitter"></i>
-            </a>
-            <a href="https://www.youtube.com/@21xhr" target="_blank" aria-label="YouTube" class="social-link">
-                <i class="fab fa-youtube"></i>
-            </a>
-            <a href="/donation" target="_blank" aria-label="Make a Donation" class="social-link">
-                <i class="fa-solid fa-mug-hot"></i>
-            </a>
+            <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Discord" class="social-link"><i class="fab fa-discord"></i></a>
+            <a href="https://www.facebook.com/21xhr" target="_blank" aria-label="Facebook" class="social-link"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com/21xhr_" target="_blank" aria-label="Instagram" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.twitch.tv/21xhr" target="_blank" aria-label="Twitch" class="social-link"><i class="fab fa-twitch"></i></a>
+            <a href="https://x.com/21xhr" target="_blank" aria-label="X" class="social-link"><i class="fab fa-x-twitter"></i></a>
+            <a href="https://www.youtube.com/@21xhr" target="_blank" aria-label="YouTube" class="social-link"><i class="fab fa-youtube"></i></a>
+            <a href="/donation" aria-label="Make a Donation" class="social-link"><i class="fa-solid fa-mug-hot"></i></a>
         </div>
     </div>
 </body>

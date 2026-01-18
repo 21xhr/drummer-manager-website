@@ -72,12 +72,12 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     min-height: 100vh;
-    padding: 2rem;
+    padding: 2rem 2rem 100px 2rem; /* Bottom padding for fixed footer */
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     animation: fadeIn 0.8s var(--ease-standard);
+    position: relative;
 }
 
 /* Main page container styles (Container for FAQ/Leaderboard/Main page) */
