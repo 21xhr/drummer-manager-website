@@ -353,7 +353,6 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     const statusMessage2 = document.getElementById('statusMessage2');
     const calculatedCostInput = document.getElementById('calculatedCost');
     const summaryDetailsWrapper = document.getElementById('summaryDetailsWrapper');
-    const shareChallengeButton = document.getElementById('shareChallengeButton');
     const highDemandWarningBanner = document.getElementById('highDemandWarningBanner');
     const highDemandWarningText = document.getElementById('highDemandWarningText');
 
@@ -918,18 +917,13 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         const shareText = encodeURIComponent(`🥁 Challenge #${challenge.challengeId} logged to @21xhr!\nCost: ${cost.toLocaleString()} NUMBERS\n#DrummerManager`);
         const twitterIntent = `https://x.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(challengeUrl)}`;
 
-        // 1. Update the 'shareX' button (the one in your HTML)
+        // Update the 'shareX' button (the one in your HTML)
         const xButton = document.getElementById('shareX');
         if (xButton) {
             xButton.href = twitterIntent;
         }
 
-        // 2. Safety check for the 'shareChallengeButton' variable if used elsewhere
-        if (typeof shareChallengeButton !== 'undefined' && shareChallengeButton) {
-            shareChallengeButton.href = twitterIntent;
-        }
-
-        // 1. ADD THIS SAFETY LOGIC HERE
+        // SAFETY LOGIC: Default to ONE_OFF if durationType is missing
         const durationType = challenge?.durationType || 'ONE_OFF';
         
         // Helper 1: Handles the unit name mapping
