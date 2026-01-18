@@ -82,7 +82,6 @@
     box-sizing: border-box;
     background-color: var(--background-color);
     border: 1px solid #333;
-    border-radius: 21px;
     color: var(--text-color);
     font-family: 'Roboto', sans-serif;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -495,7 +494,7 @@ textarea.form-input {
 #toggleDetailsBtn {
     background: linear-gradient(to right, #0a0a0a, #111);
     border: 1px solid #222;
-    border-radius: 8px;
+    border-radius: 21px;
     margin-top: 10px;
     color: var(--subtext-color);
     cursor: pointer;
@@ -517,8 +516,9 @@ textarea.form-input {
     scrollbar-width: thin;
     scrollbar-color: var(--primary-neon) #0a0a0a;
     padding-right: 10px;
-    border-radius: 0 0 8px 8px;
-    border-bottom: 1px solid #1a1a1a;
+    border-radius: 0 0 21px 21px;
+    border: 1px solid #1a1a1a;
+    border-radius: 21px;
     margin-bottom: 10px;
     margin-top: 1px;
     background-color: var(--background-color);
@@ -527,13 +527,17 @@ textarea.form-input {
 .summary-scroll-box {
     max-height: 120px;
     overflow-y: auto;
-    background-color: #0d0d0d;
-    padding: 10px;
-    border: 1px solid #333;
-    border-radius: 4px;
-    color: #aaa;
-    font-size: 0.85rem;
-    line-height: 1.4;
+    background-color: var(--background-color) !important;
+    padding: 12px;
+    border-radius: 0 21px 21px 0;
+    border: 1px solid #222;
+    border-left: 1px solid var(--primary-neon);
+}
+
+#summaryContent {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-neon) var(--background-color);
+    overflow-y: auto;
 }
 
 #summaryContent .challenge-text-box {
@@ -541,7 +545,7 @@ textarea.form-input {
     white-space: pre-wrap;
     background: #000;
     padding: 10px;
-    border-radius: 4px;
+    border-radius: 21px;
     border-left: 3px solid var(--primary-neon);
 }
 
@@ -550,6 +554,7 @@ textarea.form-input {
     text-transform: uppercase;
     color: #666;
     letter-spacing: 1px;
+    border-radius: 21px;
 }
 
 .summary-value {
@@ -560,6 +565,7 @@ textarea.form-input {
 
 .success-card-main {
     border: 1px solid rgba(242, 189, 21, 0.2);
+    border-radius: 21px;
     background: linear-gradient(145deg, #0a0a0a, #111);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     animation: neon-border-pulse 3s ease-in-out infinite alternate;
@@ -569,8 +575,8 @@ textarea.form-input {
     border-color: var(--primary-neon);
     border-width: 1px; 
     box-shadow: 0 0 30px rgba(242, 189, 21, 0.15);
-    transform: translateY(-1px);
-    animation-duration: 1s; 
+    transform: scale(1.021);
+    animation-duration: 2.1s; 
 }
 
 .success-card-content {
@@ -611,6 +617,7 @@ textarea.form-input {
 
 #shareX:hover, #shareFB:hover, #copyLink:hover {
     border-color: var(--primary-neon) !important;
+    border-radius: 21px;
     background-color: rgba(242, 189, 21, 0.05) !important;
     box-shadow: 0 0 10px rgba(242, 189, 21, 0.2);
 }

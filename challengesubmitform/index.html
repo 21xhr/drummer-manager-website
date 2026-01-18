@@ -237,12 +237,12 @@
                         </div>
                     </div>
 
-                    <div class="border border-[#1a1a1a] rounded-lg overflow-hidden">
+                    <div class="overflow-hidden">
                         <button type="button" id="toggleDetailsBtn" class="w-full flex justify-between items-center p-3 bg-[#0d0d0d] transition-all group">
                             <span class="roboto text-[10px] uppercase tracking-[0.3em] font-bold">Submission Details</span>
                             <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300" id="chevronIcon"></i>
                         </button>
-                        <div id="summaryContent" class="hidden bg-[#050505] p-4 border-t border-[#1a1a1a] animate-fadeIn"></div>
+                        <div id="summaryContent" class="hidden bg-[#050505] p-4 animate-fadeIn"></div>
                     </div>
                 </div>
             </div>
@@ -971,7 +971,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
 
         return `
             <div class="space-y-4 animate-fadeIn">
-                <div class="flex justify-between border-b border-[#333] pb-2">
+                <div class="flex justify-between border-b border-[#333] pb-2 items-center">
                     <div>
                         <div class="summary-label text-[9px] uppercase font-bold tracking-widest" style="color: var(--subtext-color)">Challenge ID</div>
                         <div class="summary-value text-lg font-black text-white">#${challenge.challengeId}</div>
@@ -986,22 +986,23 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                     </div>
                 </div>
                 
-                <div class="flex justify-between">
-                    <div class="bg-[#111] p-2 rounded border border-[#222]">
-                        <div class="summary-label text-[8px] mb-0.5" style="color: var(--subtext-color)">SESSIONS</div>
+                <div class="flex justify-between items-stretch gap-2">
+                    <div class="flex-1 p-3 rounded-lg border border-[#222] flex flex-col justify-center items-center text-center bg-gradient-to-br from-[#0a0a0a] to-[#111]">
+                        <div class="summary-label text-[8px] mb-1" style="color: var(--subtext-color)">SESSIONS</div>
                         <div class="text-[11px] font-bold text-gray-200">${challenge.totalSessions} Total</div>
                     </div>
-                    <div class="bg-[#0d0d0d] p-3 rounded border border-[#1a1a1a]">
+
+                    <div class="flex-[1.5] p-3 rounded-lg border border-[#1a1a1a] flex flex-col justify-center text-right bg-gradient-to-br from-[#0a0a0a] to-[#111]">
                         <div class="summary-label text-[8px] mb-1" style="color: var(--subtext-color)">TIMELINE & PACING</div>
                         <div class="text-[11px] text-gray-300 roboto tracking-wide">
-                            <i class="fa-solid fa-calendar-check text-primary-neon mr-1"></i> ${cadenceDetail}
+                            ${cadenceDetail} <i class="fa-solid fa-calendar-check text-primary-neon ml-1"></i>
                         </div>
                     </div>
                 </div>
 
                 <div class="pt-1">
-                    <div class="summary-label text-[8px] mb-1" style="color: var(--subtext-color)">DESCRIPTION</div>
-                    <div class="summary-scroll-box roboto text-[13px] leading-relaxed italic border-l-2 border-primary-neon pl-3 py-2 bg-[#050505]">
+                    <div class="summary-label text-[8px] mb-1" style="color: var(--subtext-color) border-l-2">DESCRIPTION</div>
+                    <div class="summary-scroll-box roboto text-[13px] leading-relaxed italic border-l-2 border-primary-neon pl-3 py-2 bg-[#000]">
                         "${challenge.challengeText}"
                     </div>
                 </div>
