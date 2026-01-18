@@ -208,27 +208,29 @@
                                 <p class="roboto text-[11px] uppercase tracking-widest font-medium">Join the mission</p>
                             </div>
                             
-                            <div class="flex-none flex items-center justify-center px-4">
+                            <div class="glow-arrow-wrapper">
                                 <div class="glow-arrow-container">
                                     <i class="fa-solid fa-angles-right text-primary-neon text-xl glow-arrow sm:rotate-0 rotate-90"></i>
                                 </div>
                             </div>
                             
                             <div class="flex-1 flex flex-col gap-2 w-full max-w-[280px] sm:max-w-none">
-                                <a href="https://youtube.com/@21xhr/live" target="_blank" class="flex items-center justify-center gap-2 py-2.5 bg-[#f2bd15] text-black rounded-sm font-black text-[10px] uppercase hover:scale-[1.02] transition-transform">
+                                <a href="https://youtube.com/@21xhr/live" target="_blank" id="streamLink" class="flex items-center justify-center gap-2 py-2.5 bg-[#f2bd15] text-black font-black text-[10px] uppercase hover:scale-[1.02] transition-transform">
                                     <i class="fa-solid fa-play text-[9px]"></i> <span id="streamBtnText">WATCH STREAM</span>
                                 </a>
-                                <a href="https://discord.gg/yourlink" target="_blank" class="flex items-center justify-center gap-2 py-2.5 bg-[#5865F2] text-white rounded-sm font-black text-[10px] uppercase hover:scale-[1.02] transition-transform">
+                                
+                                <a href="https://discord.gg/yourlink" target="_blank" id="discordLink" class="flex items-center justify-center gap-2 py-2.5 bg-[#5865F2] text-white font-black text-[10px] uppercase hover:scale-[1.02] transition-transform">
                                     <i class="fa-brands fa-discord text-[10px]"></i> Discord
                                 </a>
+
                                 <div class="flex gap-1">
-                                    <a href="#" id="shareX" target="" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm transition-all">
+                                    <a href="#" id="shareX" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white transition-all">
                                         <i class="fa-brands fa-x-twitter text-[11px]"></i>
                                     </a>
-                                    <a href="#" id="shareFB" target="" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm transition-all">
+                                    <a href="#" id="shareFB" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white transition-all">
                                         <i class="fa-brands fa-facebook-f text-[11px]"></i>
                                     </a>
-                                    <button type="button" id="copyLink" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white rounded-sm transition-all">
+                                    <button type="button" id="copyLink" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white transition-all">
                                         <i class="fa-solid fa-link text-[11px]"></i>
                                     </button>
                                 </div>
