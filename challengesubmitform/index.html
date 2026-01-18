@@ -177,11 +177,11 @@
                         <strong>REMINDER:</strong> Once submitted, you never know what might happen...
                     </p>
                 </div>
-                <div class="submit-row-container">
-                    <button type="submit" id="submitButton" class="interactive-button form-button mt-4" disabled>
+                <div class="form-footer-actions">
+                    <button type="submit" id="submitButton" class="primary-submit-btn form-button mt-4" disabled>
                         <div class="flex flex-col items-center leading-none">
                             <span class="main-btn-text">SUBMIT</span>
-                            <div id="btnSubtext" class="flex items-center gap-2 transition-opacity duration-300 mt-1.5">
+                            <div id="submitWarningText" class="flex items-center gap-2 transition-opacity duration-300 mt-1.5">
                                 <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
                                 <span class="roboto text-[9px] tracking-[0.2em]">THIS IS FINAL</span>
                                 <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
@@ -193,9 +193,9 @@
             </div>
 
             <div id="step3" class="step-container hidden animate-fadeIn">
-                <div id="step3_header" class="header-container-step3">
+                <div id="step3_header" class="success-header-wrapper">
                     <h2 class="dm-sans text-4xl font-black neon-text tracking-[0.2em] uppercase">SUCCESSFUL</h2>
-                    <button type="button" id="startNewChallengeButton" title="Submit Another">
+                    <button type="button" id="resetFormBtn" title="Submit Another">
                         <i class="fa-solid fa-rotate-right"></i>
                     </button>
                 </div>
@@ -209,7 +209,7 @@
                                 <p class="roboto text-[11px] uppercase tracking-widest font-medium">Join the mission</p>
                             </div>
                             
-                            <div class="glow-arrow-wrapper">
+                            <div class="connector-arrow-wrapper">
                                 <div class="glow-arrow-container">
                                     <i class="fa-solid fa-angles-right text-primary-neon text-xl glow-arrow sm:rotate-0 rotate-90"></i>
                                 </div>
@@ -241,11 +241,11 @@
                     </div>
 
                     <div class="overflow-hidden">
-                        <button type="button" id="toggleDetailsBtn" class="w-full flex justify-between items-center p-3 bg-[#0d0d0d] transition-all group">
+                        <button type="button" id="toggleSummaryBtn" class="w-full flex justify-between items-center p-3 bg-[#0d0d0d] transition-all group">
                             <span class="roboto text-[10px] uppercase tracking-[0.3em] font-bold">Submission Details</span>
                             <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300" id="chevronIcon"></i>
                         </button>
-                        <div id="summaryContent" class="hidden bg-[#050505] p-4 animate-fadeIn"></div>
+                        <div id="summaryDetailsWrapper" class="hidden bg-[#050505] p-4 animate-fadeIn"></div>
                     </div>
                 </div>
             </div>
@@ -266,7 +266,7 @@
     let selectedPlatformId = '';
     let isStreamLive = false;
     let baseChallengeCost = BASE_COST_PER_SESSION;
-    let challengeTextCache = ''; // Cache challenge text for UX
+    let challengeTextCache = ''; 
 
     const DEFAULT_PLACEHOLDER = `Describe the task. (Min 10 chars)
 Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
@@ -323,7 +323,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     const identityReminder = document.getElementById('identityReminder');
     const reminderUsername = document.getElementById('reminderUsername');
     const reminderPlatform = document.getElementById('reminderPlatform');
-    const startNewChallengeButton = document.getElementById('startNewChallengeButton'); 
+    const resetFormBtn = document.getElementById('resetFormBtn'); 
     
     const durationTypeGroup = document.getElementById('durationTypeGroup');
     const durationCards = formWrapper.querySelectorAll('.duration-card');
@@ -352,7 +352,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     const submitButton = document.getElementById('submitButton');
     const statusMessage2 = document.getElementById('statusMessage2');
     const calculatedCostInput = document.getElementById('calculatedCost');
-    const summaryContent = document.getElementById('summaryContent');
+    const summaryDetailsWrapper = document.getElementById('summaryDetailsWrapper');
     const shareChallengeButton = document.getElementById('shareChallengeButton');
     const highDemandWarningBanner = document.getElementById('highDemandWarningBanner');
     const highDemandWarningText = document.getElementById('highDemandWarningText');
@@ -658,9 +658,9 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         submitButton.disabled = !(hasChallengeText && hasDurationSelection && hasSessions);
 
         // Manually toggle the subtext visibility based on button state
-        const btnSubtext = document.getElementById('btnSubtext');
-        if (btnSubtext) {
-            btnSubtext.style.opacity = submitButton.disabled ? "0" : "1";
+        const submitWarningText = document.getElementById('submitWarningText');
+        if (submitWarningText) {
+            submitWarningText.style.opacity = submitButton.disabled ? "0" : "1";
         }
 
         // --- Call Warning Checker ---
@@ -965,27 +965,27 @@ Tip: Use a writing assistant to help refine your suggestion.`;
             <div class="space-y-4 animate-fadeIn">
                 <div class="flex justify-between border-b border-[#333] pb-2 items-center">
                     <div>
-                        <div class="summary-label text-[9px] uppercase font-bold tracking-widest" style="color: var(--subtext-color)">Challenge ID</div>
-                        <div class="summary-value text-lg font-black text-white">#${challenge.challengeId}</div>
+                        <div class="summary-label">Challenge ID</div>
+                        <div class="summary-value text-lg">#${challenge.challengeId}</div>
                     </div>
                     <div class="text-center">
-                        <div class="summary-label text-[9px] uppercase font-bold tracking-widest" style="color: var(--subtext-color)">Cost</div>
-                        <div class="summary-value text-lg font-black text-primary-neon">${cost.toLocaleString()} <span class="text-[9px]">NUMBERS</span></div>
+                        <div class="summary-label">Cost</div>
+                        <div class="summary-value text-lg text-primary-neon">${cost.toLocaleString()} <span class="text-[9px]">NUMBERS</span></div>
                     </div>
                     <div class="text-right">
-                        <div class="summary-label text-[8px] mb-0.5" style="color: var(--subtext-color)">TYPE</div>
+                        <div class="summary-label mb-0.5">TYPE</div>
                         <div class="text-[11px] font-bold text-gray-200 uppercase">${durationType.replace('_', ' ')}</div>
                     </div>
                 </div>
                 
                 <div class="flex justify-between items-stretch gap-2">
-                    <div class="flex-1 p-3 rounded-lg border border-[#222] flex flex-col justify-center items-center text-center bg-gradient-to-br from-[#0a0a0a] to-[#111]">
-                        <div class="summary-label text-[8px] mb-1" style="color: var(--subtext-color)">SESSIONS</div>
+                    <div class="flex-1 p-3 rounded-lg border border-[#222] flex flex-col justify-center items-start text-left bg-gradient-to-br from-[#0a0a0a] to-[#111]">
+                        <div class="summary-label mb-1">SESSIONS</div>
                         <div class="text-[11px] font-bold text-gray-200">${challenge.totalSessions} Total</div>
                     </div>
 
                     <div class="flex-[1.5] p-3 rounded-lg border border-[#1a1a1a] flex flex-col justify-center text-right bg-gradient-to-br from-[#0a0a0a] to-[#111]">
-                        <div class="summary-label text-[8px] mb-1" style="color: var(--subtext-color)">TIMELINE & PACING</div>
+                        <div class="summary-label mb-1">TIMELINE & PACING</div>
                         <div class="text-[11px] text-gray-300 roboto tracking-wide">
                             ${cadenceDetail} <i class="fa-solid fa-calendar-check text-primary-neon ml-1"></i>
                         </div>
@@ -993,15 +993,15 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 </div>
 
                 <div class="pt-1">
-                    <div class="summary-label text-[8px] mb-1" style="color: var(--subtext-color) border-l-2">DESCRIPTION</div>
-                    <div class="summary-scroll-box roboto text-[13px] leading-relaxed italic border-l-2 border-primary-neon pl-3 py-2 bg-[#000]">
+                    <div class="summary-label mb-1">DESCRIPTION</div>
+                    <div class="challenge-description-area roboto italic">
                         "${challenge.challengeText}"
                     </div>
                 </div>
 
                 <div class="flex justify-between items-center pt-2 border-t border-[#222]">
-                    <div class="summary-label text-[9px] text-white font-bold uppercase">New Balance</div>
-                    <div class="text-sm text-white">${userStats.currentBalance.toLocaleString()} <span class="text-[9px] text-primary-neon">NUMBERS</span></div>
+                    <div class="summary-label">New Balance</div>
+                    <div class="summary-value text-sm text-white">${userStats.currentBalance.toLocaleString()} <span class="text-[9px] text-primary-neon">NUMBERS</span></div>
                 </div>
             </div>
         `;
@@ -1175,7 +1175,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         const originalBtnText = submitButton.innerHTML;
 
         // 1. GHOST THE FORM CONTENT
-        const formFields = document.querySelectorAll('#step2 > div:not(.submit-row-container)'); 
+        const formFields = document.querySelectorAll('#step2 > div:not(.form-footer-actions)'); 
         formFields.forEach(field => field.classList.add('form-content-fade'));
 
         // 2. HERO BUTTON STATUS
@@ -1222,11 +1222,11 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 // 3. START TRANSLATION
                 // Small timeout to ensure the CSS variable is registered
                 setTimeout(() => {
-                    submitButton.classList.add('button-hero-transition');
+                    submitButton.classList.add('btn-success-morph');
                 }, 10);
 
                 const { newChallenge, cost, userStats } = data.details;
-                summaryContent.innerHTML = generateChallengeSummary(newChallenge, cost, userStats);
+                summaryDetailsWrapper.innerHTML = generateChallengeSummary(newChallenge, cost, userStats);
 
                 // 4. THE POP & REVEAL (Synchronized)
                 setTimeout(() => {
@@ -1244,7 +1244,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                         container.style.height = 'auto'; 
 
                         // Cleanup in the background
-                        submitButton.classList.remove('button-hero-transition', 'button-pop-out');
+                        submitButton.classList.remove('btn-success-morph', 'button-pop-out');
                         submitButton.style.removeProperty('--travel-distance');
                         formFields.forEach(field => field.classList.remove('form-content-fade'));
                         submitButton.style.backgroundColor = ''; 
@@ -1301,8 +1301,8 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         updateDynamicFields(); 
     };
 
-    const toggleBtn = document.getElementById('toggleDetailsBtn');
-    const summaryBox = document.getElementById('summaryContent');
+    const toggleBtn = document.getElementById('toggleSummaryBtn');
+    const summaryBox = document.getElementById('summaryDetailsWrapper');
     const chevron = document.getElementById('chevronIcon');
 
     if (toggleBtn) {
@@ -1408,7 +1408,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         updateDynamicFields(); 
     });
 
-    startNewChallengeButton.addEventListener('click', function() {
+    resetFormBtn.addEventListener('click', function() {
         const icon = this.querySelector('i');
 
         icon.classList.add('icon-active-pulse');

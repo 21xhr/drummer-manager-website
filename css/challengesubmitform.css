@@ -262,7 +262,7 @@ textarea.form-input {
     font-weight: 900;
 }
 
-#btnSubtext {
+#submitWarningText {
     color: rgba(0, 0, 0);
     text-shadow: none;
     font-weight: 700;
@@ -272,7 +272,7 @@ textarea.form-input {
 }
 
 /* Ensure the button doesn't jump in height when subtext appears */
-.interactive-button {
+.primary-submit-btn {
     border-radius: 21px;
     min-height: auto;
     display: flex;
@@ -280,7 +280,7 @@ textarea.form-input {
     justify-content: center;
 }
 
-.button-hero-transition {
+.btn-success-morph {
     z-index: 100;
     pointer-events: none;
     transition: all 2.1s cubic-bezier(0.42, 1, 0.21, 1.21);
@@ -346,7 +346,7 @@ textarea.form-input {
 /* ==========================================================================
    6. SUCCESS STEP (STEP 3) & SUMMARY
    ========================================================================== */
-.header-container-step3 {
+.success-header-wrapper {
     position: relative;
     display: flex; 
     align-items: center;
@@ -355,7 +355,7 @@ textarea.form-input {
     padding-top: 0.5rem;
 }
 
-#startNewChallengeButton {
+#resetFormBtn {
     opacity: 0.21;
     position: absolute !important; 
     right: 10px;
@@ -368,16 +368,16 @@ textarea.form-input {
     transition: all 0.3s ease;
 }
 
-#startNewChallengeButton:hover {
+#resetFormBtn:hover {
     opacity: 0.79;
 }
 
-#startNewChallengeButton i {
+#resetFormBtn i {
     transition: all 0.3s ease;
     filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
 }
 
-#startNewChallengeButton:hover i {
+#resetFormBtn:hover i {
     color: var(--primary-neon);
     transform: rotate(221deg); 
     transition: all 2.1s ease;
@@ -401,7 +401,7 @@ textarea.form-input {
         gap: 1rem;
     }
     
-    #startNewChallengeButton {
+    #resetFormBtn {
         position: absolute !important; 
         right: 10px;
     }
@@ -413,7 +413,7 @@ textarea.form-input {
 }
 
 /* GLOWING ARROW BETWEEN SUMMARY CARDS */
-.glow-arrow-wrapper {
+.connector-arrow-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -498,78 +498,6 @@ textarea.form-input {
     display: block;
 }
 
-#toggleDetailsBtn {
-    background: linear-gradient(to right, #0a0a0a, #111);
-    border: 1px solid #222;
-    border-radius: 21px;
-    margin-top: 10px;
-    color: var(--subtext-color);
-    cursor: pointer;
-}
-
-#toggleDetailsBtn:hover {
-    border-color: var(--primary-neon);
-}
-
-#toggleDetailsBtn:hover #chevronIcon {
-    color: var(--primary-neon);
-}
-
-#summaryContent {
-    max-width: 100%;
-    max-height: 220px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary-neon) #0a0a0a;
-    padding-right: 10px;
-    border-radius: 0 0 21px 21px;
-    border: 1px solid #1a1a1a;
-    border-radius: 21px;
-    margin-bottom: 10px;
-    margin-top: 1px;
-    background-color: var(--background-color);
-}
-
-.summary-scroll-box {
-    max-height: 120px;
-    overflow-y: auto;
-    background-color: var(--background-color) !important;
-    padding: 12px;
-    border-radius: 0 21px 21px 0;
-    border: 1px solid #222;
-    border-left: 1px solid var(--primary-neon);
-}
-
-#summaryContent {
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary-neon) var(--background-color);
-    overflow-y: auto;
-}
-
-#summaryContent .challenge-text-box {
-    word-break: break-word;
-    white-space: pre-wrap;
-    background: #000;
-    padding: 10px;
-    border-radius: 21px;
-    border-left: 3px solid var(--primary-neon);
-}
-
-.summary-label {
-    font-size: 9px;
-    text-transform: uppercase;
-    color: #666;
-    letter-spacing: 1px;
-    border-radius: 21px;
-}
-
-.summary-value {
-    font-size: 12px;
-    color: #eee;
-    font-weight: bold;
-}
-
 .success-card-main {
     border: 1px solid rgba(242, 189, 21, 0.2);
     border-radius: 21px;
@@ -607,23 +535,95 @@ textarea.form-input {
     }
 }
 
+
+/* ==========================================================================
+    SUBMISSION DETAILS AREA
+    ========================================================================== */
+
+#toggleSummaryBtn {
+    background: linear-gradient(to right, #0a0a0a, #111);
+    border: 1px solid #222;
+    border-radius: 21px;
+    margin-top: 10px;
+    color: var(--subtext-color);
+    cursor: pointer;
+}
+
+#toggleSummaryBtn:hover {
+    border-color: var(--primary-neon);
+}
+
+#toggleSummaryBtn:hover #chevronIcon {
+    color: var(--primary-neon);
+}
+
+#summaryDetailsWrapper {
+    max-width: 100%;
+    max-height: 220px;
+    margin-top: 1px;
+    margin-bottom: 10px;
+    padding: 1rem;
+    background-color: var(--background-color);
+    border: 1px solid #1a1a1a;
+    border-radius: 21px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-neon) var(--background-color);
+    box-sizing: border-box;
+}
+
+.summary-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: var(--subtext-color);
+    letter-spacing: 1px;
+    border-radius: 21px;
+}
+
+.summary-value {
+    font-size: 12px;
+    color: #eee;
+    font-weight: bold;
+}
+
+.challenge-description-area {
+    word-break: break-word;
+    white-space: pre-wrap;
+    background-color: var(--background-color);
+    padding: 12px;
+    border: 1px solid #222;
+    border-left: 3px solid var(--primary-neon);
+    border-radius: 0 21px 21px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #eee;
+}
+
+
+
+
+/* ==========================================================================
+   SHARE BUTTONS & COPY LINK ADJUSTMENTS
+   ========================================================================== */
 #streamLink, #discordLink {
     border-radius: 21px !important;
 }
 
-
-/* SHARE BUTTONS & COPY LINK BUTTON */
-#shareChallengeButton, .interactive-button {
+#shareChallengeButton, .primary-submit-btn {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
 }
 
+
+
+
+
 /* ==========================================================================
-   SHARE BUTTONS & COPY LINK REFINED
+   SHARE BUTTONS & COPY LINK
    ========================================================================== */
 
-/* 1. Base State for Social/Copy Buttons */
+/* Base State for Social/Copy Buttons */
 #shareX, #shareFB, #copyLink {
     position: relative;
     display: flex;
@@ -639,13 +639,7 @@ textarea.form-input {
     box-sizing: border-box;
 }
 
-/* 2. Webkit Button Clipping Fix (Specific to #copyLink button) */
-/* #copyLink {
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
-    mask-image: radial-gradient(white, black);
-} */
-
-/* 3. Unified "Active" State (Hover OR Badge Visible) */
+/* Unified "Active" State (Hover OR Badge Visible) */
 #shareX:hover, #shareFB:hover, #copyLink:hover,
 #shareX:has(.copy-badge), #shareFB:has(.copy-badge), #copyLink:has(.copy-badge) {
     border-radius: 21px !important;
@@ -654,13 +648,13 @@ textarea.form-input {
     box-shadow: 0 0 100px rgba(242, 189, 21, 0.2);
 }
 
-/* 4. Icon Color Change on Active */
+/* Icon Color Change on Active */
 #shareX:hover i, #shareFB:hover i, #copyLink:hover i,
 #shareX:has(.copy-badge) i, #shareFB:has(.copy-badge) i, #copyLink:has(.copy-badge) i {
     color: #fff !important;
 }
 
-/* 5. The Feedback Badge Styling */
+/* The Feedback Badge Styling */
 .copy-badge {
     position: absolute;
     inset: -1px;
@@ -681,7 +675,7 @@ textarea.form-input {
     animation: badgeOverlay 2.1s ease-in-out forwards;
 }
 
-/* 6. Copied State Persistence (Grayscale) */
+/* Copied State Persistence (Grayscale) */
 #copyLink.copied {
     filter: grayscale(0.6);
     opacity: 0.7;
