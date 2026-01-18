@@ -273,11 +273,10 @@ textarea.form-input {
 
 /* Ensure the button doesn't jump in height when subtext appears */
 .primary-submit-btn {
-    border-radius: 21px;
-    min-height: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 100%;
+    padding: 15px;
+    min-height: 55px;
+    font-weight: 900;
 }
 
 .btn-success-morph {

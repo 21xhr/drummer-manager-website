@@ -196,39 +196,41 @@ html, body {
 }
 
 /* Interactive button styles (Primary action) */
-.interactive-button {
+.primary-submit-btn {
     background-color: var(--primary-neon);
     color: var(--background-color);
+    font-family: 'DM Sans', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: 
         background-color 0.2s ease, 
-        border-color 0.2s ease,
         box-shadow 0.2s ease,
         transform 0.1s ease;
     box-shadow: 0 0 5px rgba(242, 210, 0, 0.1);
     border: 1px solid var(--primary-neon);
-}
-
-/* CONSOLIDATED HOVER & DISABLED STATES */
-.interactive-button:hover:not(:disabled) {
-    background-color: var(--primary-neon); 
-    color: var(--secondary-bg); 
-    box-shadow: 0 0 10px var(--primary-neon);
+    border-radius: 21px;
     cursor: pointer;
-    transform: translateY(-2px); 
+    text-decoration: none; /* Crucial for the <a> tags in FAQ */
 }
 
-.interactive-button:active:not(:disabled) {
-    transform: scale(0.98); 
-    box-shadow: 0 0 5px var(--primary-neon);
+.primary-submit-btn:hover:not(:disabled) {
+    box-shadow: 0 0 15px var(--primary-neon);
+    transform: translateY(-2px);
 }
 
-.interactive-button:disabled {
+.primary-submit-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     background-color: #555; 
     border-color: #555;
-    box-shadow: none;
 }
+
+.primary-submit-btn:active:not(:disabled) {
+    transform: scale(0.98); 
+    box-shadow: 0 0 5px var(--primary-neon);
+}
+
 
 /* Link Button (Main Page Links) */
 .link-button {
