@@ -178,10 +178,14 @@
                 </div>
                 <div class="submit-row-container">
                     <button type="submit" id="submitButton" class="interactive-button form-button mt-4" disabled>
-                        SUBMIT
-                        <span class="info-tooltip-container">ⓘ
-                            <span class="info-tooltip-text" style="width: 180px; margin-left: -90px; bottom: 125%;">This is final!</span>
-                        </span>
+                        <div class="flex flex-col items-center leading-none">
+                            <span class="main-btn-text">SUBMIT</span>
+                            <div id="btnSubtext" class="flex items-center gap-2 transition-opacity duration-300 mt-1.5">
+                                <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
+                                <span class="roboto text-[9px] tracking-[0.2em]">THIS IS FINAL</span>
+                                <i class="fa-solid fa-triangle-exclamation text-[8px]"></i>
+                            </div>
+                        </div>
                     </button>
                     <p id="statusMessage2" class="roboto text-sm text-center mt-3"></p>
                 </div>
@@ -660,6 +664,12 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         }
         
         submitButton.disabled = !(hasChallengeText && hasDurationSelection && hasSessions);
+
+        // Manually toggle the subtext visibility based on button state
+        const btnSubtext = document.getElementById('btnSubtext');
+        if (btnSubtext) {
+            btnSubtext.style.opacity = submitButton.disabled ? "0" : "1";
+        }
 
         // --- Call Warning Checker ---
         checkHighDemandWarning();
@@ -1169,7 +1179,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         }
         
         // 0. CAPTURE ORIGINAL STATE
-        const originalBtnText = submitButton.innerHTML; // Fixed: Redefining this for the catch block
+        const originalBtnText = submitButton.innerHTML;
 
         // 1. GHOST THE FORM CONTENT
         const formFields = document.querySelectorAll('#step2 > div:not(.submit-row-container)'); 
@@ -1191,7 +1201,6 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         };
 
         try {
-            // FIXED: Added back the POST method, headers, and body
             const response = await fetch(`${API_BASE_URL}/user/submit/web`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1252,7 +1261,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                         handleSocialFeedback();
                         handleCopyLink();
                     }, 150); // Only a 150ms gap feels like a "hand-off" rather than a wait
-                }, 1000); // Spend 1 second in the center instead of 1.5s 
+                }, 2100); // Time spent the center instead of the container 
             } else {
                 // Server Error (e.g. 400 or 500)
                 formFields.forEach(field => field.classList.remove('form-content-fade'));
@@ -1262,13 +1271,12 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 submitButton.innerHTML = originalBtnText;
             }
         } catch (error) {
-            // Network Error
             formFields.forEach(field => field.classList.remove('form-content-fade'));
             console.error('Submission Network Error:', error);
             statusMessage2.style.color = 'var(--error-red)';
             statusMessage2.textContent = `COMMUNICATIONS FAILURE: Check your connection.`;
             submitButton.disabled = false;
-            submitButton.innerHTML = originalBtnText; // Works now because variable is defined at top
+            submitButton.innerHTML = originalBtnText;
         }
     });
 

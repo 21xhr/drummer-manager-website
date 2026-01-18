@@ -23,7 +23,7 @@
     border: 1px solid var(--subtext-color);
     transition: all 0.5s ease;
     animation: neon-border-pulse 4s ease-in-out infinite alternate;
-    border-radius: 1rem;
+    border-radius: 21px;
     padding: 15px !important; /* Unified padding */
     box-shadow: 0 0 7px var(--primary-neon);
     max-width: 600px;
@@ -82,7 +82,7 @@
     box-sizing: border-box;
     background-color: var(--background-color);
     border: 1px solid #333;
-    border-radius: 4px;
+    border-radius: 21px;
     color: var(--text-color);
     font-family: 'Roboto', sans-serif;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -116,7 +116,7 @@ textarea.form-input {
     white-space: pre-wrap;
     background-color: var(--secondary-bg);
     color: var(--subtext-color);
-    border-radius: 8px;
+    border-radius: 21px;
     box-shadow: 0 0 5px rgba(242, 189, 21, 0.3);
     overflow-x: auto;
 }
@@ -136,6 +136,18 @@ textarea.form-input {
     position: relative;
     cursor: pointer;
     z-index: 101; /* Ensure it's above the card's hit area */
+}
+
+.info-tooltip-container:hover .info-tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* For Mobile: Hide the tooltip entirely to avoid 'ghost taps' */
+@media (max-width: 768px) {
+    .info-tooltip-container {
+        display: none;
+    }
 }
 
 /* Specific safety for cards */
@@ -175,7 +187,7 @@ textarea.form-input {
 .duration-card {
     padding: 10px;
     border: 2px solid var(--disabled-color); 
-    border-radius: 8px;
+    border-radius: 21px;
     cursor: pointer;
     transition: all 0.2s ease;
     background-color: #1a1a1a;
@@ -245,13 +257,36 @@ textarea.form-input {
 
 
 /* ==========================================================================
-   5. SUCCESS STEP (STEP 3) & SUMMARY
+   5. SUBMIT BUTTON & INTERACTIONS
    ========================================================================== */
+
+.main-btn-text {
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+
+#btnSubtext {
+    color: rgba(0, 0, 0);
+    text-shadow: none;
+    font-weight: 700;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out; 
+    opacity: 0; 
+}
+
+/* Ensure the button doesn't jump in height when subtext appears */
+.interactive-button {
+    border-radius: 21px;
+    min-height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 .button-hero-transition {
     z-index: 100;
     pointer-events: none;
-    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 2.1s cubic-bezier(0.42, 1, 0.21, 1.21);
     box-shadow: 0 0 30px var(--primary-neon);
     background-color: var(--primary-neon) !important;
     border-color: var(--primary-neon) !important;
@@ -261,7 +296,7 @@ textarea.form-input {
     width: 160px !important;    /* Forces it to shrink from 100% */
     margin-left: auto !important;
     margin-right: auto !important;
-    border-radius: 50px !important; /* Makes it a pill */
+    border-radius: 21px !important; /* Makes it a pill */
     padding: 10px 20px !important;
     white-space: nowrap !important; /* Forces text to stay on one line */
     display: flex !important;       /* Uses flex to keep icon and text aligned */
@@ -270,7 +305,7 @@ textarea.form-input {
     gap: 8px;                      /* Spacing between icon and text */
     
     /* Ensure it doesn't wrap even for a millisecond */
-    overflow: hidden;
+    overflow: hidden !important;
     transform: translateY(var(--travel-distance, -100px)) scale(1.1);
 }
 
@@ -278,7 +313,7 @@ textarea.form-input {
     transform: translateY(var(--travel-distance, -100px)) scale(0);
     opacity: 0;
     filter: brightness(2) blur(10px);
-    transition: all 0.4s cubic-bezier(0.63, -0.42, 0.21, 21) !important;
+    transition: all 0.21s cubic-bezier(0.63, -0.42, 0.21, 21) !important;
 }
 
 #statusMessage2 {
@@ -310,6 +345,10 @@ textarea.form-input {
     }
 }
 
+
+/* ==========================================================================
+   6. SUCCESS STEP (STEP 3) & SUMMARY
+   ========================================================================== */
 .header-container-step3 {
     position: relative;
     display: flex; 
@@ -390,7 +429,7 @@ textarea.form-input {
     height: 21px;
     background: var(--primary-neon);
     filter: blur(7px);
-    border-radius: 42%;
+    border-radius: 21%;
     z-index: -1;
     animation: neon-border-pulse 2s infinite alternate;
     transform: translate(-50%, -50%);
@@ -425,7 +464,7 @@ textarea.form-input {
     align-items: center;
     background-color: #1a1a1a;
     padding: 4px 12px;
-    border-radius: 4px;
+    border-radius: 21px;
     border: 1px solid #333;
     min-height: 42px;
     width: fit-content;
