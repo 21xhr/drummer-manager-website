@@ -283,30 +283,89 @@ textarea.form-input {
     line-height: 1.2;
 }
 
+/* ==========================================================================
+   5. SUBMIT BUTTON & INTERACTIONS (21s GHOST GLITCH)
+   ========================================================================== */
+
 #submitWarningText {
+    --glitch-duration: 21s; /* The Master Controller */
+    
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     color: var(--error-red);
-    font-weight: 700;
+    font-weight: 900;
     font-family: 'Roboto', sans-serif;
-    font-size: 9px;
-    letter-spacing: 0.2em;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
     pointer-events: none;
-    animation: fadeInSlide 0.3s ease forwards;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.2);
+    animation: horror-shake-21 var(--glitch-duration) infinite;
 }
 
-#submitWarningText.is-hidden {
-    display: none;
+#submitWarningText span::before,
+#submitWarningText span::after {
+    content: 'THIS IS FINAL';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    opacity: 0; 
+}
+
+#submitWarningText span::before {
+    color: #ff0000;
+    z-index: -1;
+    animation: glitch-blood-21 var(--glitch-duration) infinite;
+}
+
+#submitWarningText span::after {
+    color: #00ffff;
+    z-index: -2;
+    mix-blend-mode: screen;
+    animation: glitch-cyan-21 var(--glitch-duration) infinite;
 }
 
 #submitWarningText i {
     font-size: 8px;
+    animation: icon-horror-21 var(--glitch-duration) infinite;
 }
 
-@keyframes fadeInSlide {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
+/* 21s Keyframes: 0% to 95% is TOTAL SILENCE */
+
+@keyframes horror-shake-21 {
+    0%, 95% { transform: translate(0, 0); }
+    96% { transform: translate(-1px, 1px); }
+    97% { transform: translate(1px, -1px); }
+    98% { transform: translate(-1px, -1px); }
+    99% { transform: translate(1px, 1px); }
+    100% { transform: translate(0, 0); }
+}
+
+@keyframes glitch-blood-21 {
+    0%, 94% { opacity: 0; transform: translate(0); }
+    95% { opacity: 0.8; transform: translate(-3px, 1px); }
+    97% { opacity: 0.4; transform: translate(3px, -1px); }
+    99% { opacity: 0.8; transform: translate(-1px, 2px); }
+    100% { opacity: 0; transform: translate(0); }
+}
+
+@keyframes glitch-cyan-21 {
+    0%, 94% { opacity: 0; transform: translate(0); }
+    96% { opacity: 0.7; transform: translate(3px, -1px); }
+    98% { opacity: 0.3; transform: translate(-2px, 2px); }
+    99% { opacity: 0.7; transform: translate(2px, 1px); }
+    100% { opacity: 0; transform: translate(0); }
+}
+
+@keyframes icon-horror-21 {
+    0%, 94% { opacity: 1; filter: blur(0); transform: translateX(0); }
+    95% { opacity: 0.2; filter: blur(1px); transform: translateX(-2px); }
+    97% { opacity: 0.8; filter: blur(0); transform: translateX(2px); }
+    99% { opacity: 0.1; filter: blur(2px); }
+    100% { opacity: 1; filter: blur(0); }
 }
 
 .btn-success-morph {
