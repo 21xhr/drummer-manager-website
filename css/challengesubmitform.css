@@ -24,15 +24,15 @@
     transition: all 0.5s ease;
     animation: neon-border-pulse 4s ease-in-out infinite alternate;
     border-radius: 21px;
-    padding: 15px !important; /* Unified padding */
+    padding: 15px !important;
     box-shadow: 0 0 7px var(--primary-neon);
     max-width: 600px;
     width: 100%;
     transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden; /* Critical: stops content from jumping out during resize */
-    display: block; /* Change from flex to block to prevent squashing */
-    min-height: 200px; /* Gives it a baseline */
-    height: auto; /* Allows height to adjust based on content */
+    overflow: hidden;
+    display: block;
+    min-height: 200px;
+    height: auto; 
 }
 
 /* A helper class to fade out the form elements specifically */
@@ -51,12 +51,17 @@
 
 .step-container {
     transition: opacity 0.3s ease, transform 0.3s ease;
-    width: 100%; /* Ensure steps take full width */
-    flex-shrink: 0; /* Prevent steps from being squashed by flexbox */
+    width: 100%;
+    flex-shrink: 0;
 }
 
 .step-container.hidden {
     display: none;
+}
+
+#step2 {
+    position: relative;
+    min-height: 300px; /* Ensures space for the button to travel to the center */
 }
 
 /* ==========================================================================
@@ -118,21 +123,12 @@ textarea.form-input {
     overflow-x: auto;
 }
 
-.form-button {
-    display: block;
-    width: 100%;
-    text-align: center;
-    margin-top: 2rem;
-    padding: 12px 15px;
-    font-size: 1.1rem;
-}
-
 /* Tooltips */
 .info-tooltip-container {
     display: inline-block;
     position: relative;
     cursor: pointer;
-    z-index: 101; /* Ensure it's above the card's hit area */
+    z-index: 101; 
 }
 
 .info-tooltip-container:hover .info-tooltip-text {
@@ -256,27 +252,61 @@ textarea.form-input {
 /* ==========================================================================
    5. SUBMIT BUTTON & INTERACTIONS
    ========================================================================== */
+.form-footer-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.primary-submit-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: auto;
+    min-width: 180px;
+    max-width: 280px;
+    padding: 10px 30px;
+    min-height: 48px;
+    gap: 2px;
+    margin-top: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
 .main-btn-text {
     font-size: 1.1rem;
     font-weight: 900;
+    line-height: 1.2;
 }
 
 #submitWarningText {
-    color: rgba(0, 0, 0);
-    text-shadow: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--error-red);
     font-weight: 700;
+    font-family: 'Roboto', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.2em;
     pointer-events: none;
-    transition: opacity 0.3s ease-in-out; 
-    opacity: 0; 
+    animation: fadeInSlide 0.3s ease forwards;
 }
 
-/* Ensure the button doesn't jump in height when subtext appears */
-.primary-submit-btn {
-    width: 100%;
-    padding: 15px;
-    min-height: 55px;
-    font-weight: 900;
+#submitWarningText.is-hidden {
+    display: none;
+}
+
+#submitWarningText i {
+    font-size: 8px;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .btn-success-morph {
@@ -286,30 +316,23 @@ textarea.form-input {
     box-shadow: 0 0 30px var(--primary-neon);
     background-color: var(--primary-neon) !important;
     border-color: var(--primary-neon) !important;
-    color: black !important; /* High contrast for the "RECEIVED" state */
+    color: black !important; 
 
     /* THE PILL REDIMENSION */
     width: 160px !important;    /* Forces it to shrink from 100% */
     margin-left: auto !important;
     margin-right: auto !important;
-    border-radius: 21px !important; /* Makes it a pill */
+    border-radius: 21px !important;
     padding: 10px 20px !important;
-    white-space: nowrap !important; /* Forces text to stay on one line */
-    display: flex !important;       /* Uses flex to keep icon and text aligned */
+    white-space: nowrap !important;
+    display: flex !important;
     align-items: center;
     justify-content: center;
-    gap: 8px;                      /* Spacing between icon and text */
+    gap: 8px;
     
     /* Ensure it doesn't wrap even for a millisecond */
     overflow: hidden !important;
     transform: translateY(var(--travel-distance, -100px)) scale(1.1);
-}
-
-.button-pop-out {
-    transform: translateY(var(--travel-distance, -100px)) scale(0);
-    opacity: 0;
-    filter: brightness(2) blur(10px);
-    transition: all 0.21s cubic-bezier(0.63, -0.42, 0.21, 21) !important;
 }
 
 #statusMessage2 {
@@ -318,9 +341,11 @@ textarea.form-input {
     margin-top: 10px;
 }
 
-#step2 {
-    position: relative;
-    min-height: 300px; /* Ensures space for the button to travel to the center */
+.button-pop-out {
+    transform: translateY(var(--travel-distance, -100px)) scale(0);
+    opacity: 0;
+    filter: brightness(2) blur(10px);
+    transition: all 0.21s cubic-bezier(0.63, -0.42, 0.21, 21) !important;
 }
 
 /* Animation for the step being swapped out */
