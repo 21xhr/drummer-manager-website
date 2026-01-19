@@ -209,7 +209,7 @@
                             
                             <div class="connector-arrow-wrapper">
                                 <div class="glow-arrow-container">
-                                    <i class="fa-solid fa-angles-right text-primary-neon text-xl glow-arrow sm:rotate-0 rotate-90"></i>
+                                    <i class="fa-solid fa-angles-right text-xl glow-arrow sm:rotate-0 rotate-90"></i>
                                 </div>
                             </div>
                             
@@ -1403,17 +1403,22 @@ Tip: Use a writing assistant to help refine your suggestion.`;
 
     resetFormBtn.addEventListener('click', function() {
         const icon = this.querySelector('i');
+        
+        this.style.pointerEvents = "none";
+        
+        icon.classList.add('icon-active-pop');
+        icon.classList.add('strobe-effect');
+        icon.style.color = "var(--error-red)"; // Flash red first
+        setTimeout(() => { 
+            icon.style.color = "var(--primary-neon)"; 
+        }, 100);
 
-        icon.classList.add('icon-active-pulse');
-        icon.style.color = "var(--primary-neon)";
-
-        // Wait for the graceful discharge
         setTimeout(() => {
             resetForm();
-            // Reset for the next round
+            
             this.style.pointerEvents = "auto";
-            icon.classList.remove('icon-active-pulse');
-            icon.style.color = "";
-        }, 1200); 
+            icon.classList.remove('icon-active-pop');
+            icon.classList.remove('strobe-effect');
+        }, 2100);
     });
 </script>

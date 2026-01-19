@@ -51,7 +51,7 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
 /* One master keyframe for all neon borders/boxes */
 @keyframes neon-border-pulse {
     0%, 100% { box-shadow: 0 0 7px var(--primary-neon); border-color: rgba(242, 189, 21, 0.3); }
-    50% { box-shadow: 0 0 15px var(--primary-neon); border-color: var(--primary-neon); }
+    50% { box-shadow: 0 0 21px var(--primary-neon); border-color: var(--primary-neon); }
 }
 
 @keyframes pulse-horizontal {

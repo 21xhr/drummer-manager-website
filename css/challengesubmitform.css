@@ -111,17 +111,6 @@ textarea.form-input {
     text-shadow: 0 0 5px rgba(242, 189, 21, 0.5);
 }
 
-#output {
-    border: 1px solid var(--primary-neon);
-    padding: 15px;
-    margin-top: 20px;
-    white-space: pre-wrap;
-    background-color: var(--secondary-bg);
-    color: var(--subtext-color);
-    border-radius: 21px;
-    box-shadow: 0 0 5px rgba(242, 189, 21, 0.3);
-    overflow-x: auto;
-}
 
 /* Tooltips */
 .info-tooltip-container {
@@ -188,35 +177,6 @@ textarea.form-input {
 .duration-card:hover:not(.disabled) { border-color: var(--primary-neon); }
 .duration-card.selected:not(.disabled) { border-color: var(--primary-neon); box-shadow: 0 0 7px var(--primary-neon); }
 
-.custom-number-input {
-    display: flex;
-    align-items: center;
-    background-color: var(--secondary-bg); 
-    border: 1px solid #333;
-    border-radius: 4px;
-    overflow: hidden;
-    width: 120px;
-}
-.custom-number-input button {
-    background-color: #333;
-    color: var(--text-color);
-    border: none;
-    padding: 3px 8px;
-    cursor: pointer;
-}
-.custom-number-input input {
-    background: none;
-    border: none;
-    color: var(--text-color);
-    text-align: center; 
-    width: 100%;
-    padding: 3px 0;
-    margin: 0;
-    -webkit-appearance: none; 
-    -moz-appearance: textfield; 
-    appearance: textfield; 
-}
-
 .platform-Twitch { color: var(--platform-twitch); }
 .platform-YouTube { color: var(--platform-youtube); }
 .platform-Kick { color: var(--platform-kick); }
@@ -266,7 +226,6 @@ textarea.form-input {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     width: auto;
     min-width: 180px;
     max-width: 280px;
@@ -303,6 +262,10 @@ textarea.form-input {
     pointer-events: none;
     text-shadow: 0 0 5px rgba(255, 0, 0, 0.2);
     animation: horror-shake-21 var(--glitch-duration) infinite;
+}
+
+#submitWarningText.is-hidden {
+    display: none !important;
 }
 
 #submitWarningText span::before,
@@ -368,10 +331,16 @@ textarea.form-input {
     100% { opacity: 1; filter: blur(0); }
 }
 
+/* ==========================================================================
+   6. SUBMIT BUTTON MORPH ANIMATION
+   ========================================================================== */
 .btn-success-morph {
     z-index: 100;
     pointer-events: none;
-    transition: all 2.1s cubic-bezier(0.42, 1, 0.21, 1.21);
+    transition: 
+        transform 2.1s cubic-bezier(0.42, -0.42, 0.21, 2.21),
+        background-color 0.3s ease,
+        width 0.5s ease;
     box-shadow: 0 0 30px var(--primary-neon);
     background-color: var(--primary-neon) !important;
     border-color: var(--primary-neon) !important;
@@ -395,7 +364,7 @@ textarea.form-input {
 }
 
 #statusMessage2 {
-    min-height: 20px; /* Reserves space so it doesn't 'pop' into existence */
+    min-height: 20px;
     display: block;
     margin-top: 10px;
 }
@@ -427,7 +396,7 @@ textarea.form-input {
 
 
 /* ==========================================================================
-   6. SUCCESS STEP (STEP 3) & SUMMARY
+   7. SUCCESS STEP (STEP 3) & SUMMARY
    ========================================================================== */
 .success-header-wrapper {
     position: relative;
@@ -439,7 +408,7 @@ textarea.form-input {
 }
 
 #resetFormBtn {
-    opacity: 0.21;
+    opacity: 0.89;
     position: absolute !important; 
     right: 10px;
     background: none;
@@ -467,14 +436,24 @@ textarea.form-input {
     text-shadow: 0 0 10px var(--primary-neon);
 }
 
-.icon-active-pulse {
-    animation: iconGlow 0.8s ease-out;
+/* Icon Pop Animation */
+.icon-active-pop {
+    transition: all 2.1s cubic-bezier(0.021, 0.021, 0.21, 63) !important;
+    transform: scale(1.021);
+    color: var(--primary-neon) !important;
+    text-shadow: 0 0 20px var(--primary-neon);
+    filter: brightness(2) contrast(2);
+    opacity: 1 !important;
 }
 
-@keyframes iconGlow {
-    0% { filter: drop-shadow(0 0 0px var(--primary-neon)); opacity: 1; }
-    50% { filter: drop-shadow(0 0 15px var(--primary-neon)); opacity: 0.5; }
-    100% { filter: drop-shadow(0 0 0px var(--primary-neon)); opacity: 1; }
+@keyframes strobe {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(3) blur(1px); }
+    100% { filter: brightness(1); }
+}
+
+.strobe-effect {
+    animation: strobe 0.21s steps(2) infinite;
 }
 
 /* RESPONSIVE ADJUSTMENTS FOR STEP 3 HEADER */
@@ -493,36 +472,6 @@ textarea.form-input {
         font-size: 1.5rem;
 
     }
-}
-
-/* GLOWING ARROW BETWEEN SUMMARY CARDS */
-.connector-arrow-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 1rem;
-    flex: none;
-}
-
-.glow-arrow {
-    position: relative;
-    z-index: 1;
-}
-
-.glow-arrow::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 21px;
-    height: 21px;
-    background: var(--primary-neon);
-    filter: blur(7px);
-    border-radius: 21%;
-    z-index: -1;
-    animation: neon-border-pulse 2s infinite alternate;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
 }
 
 /* BOOSTED PULSE (Step 3 Success) */
@@ -616,6 +565,42 @@ textarea.form-input {
         margin-left: -50px; 
         margin-right: 20px;
     }
+}
+
+/* GLOWING ARROW BETWEEN SUMMARY CARDS */
+.connector-arrow-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    flex: none;
+}
+
+.glow-arrow {
+    position: relative;
+    z-index: 1;
+}
+
+.glow-arrow::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 21px;
+    height: 21px;
+    background: var(--primary-neon);
+    filter: blur(10px); 
+    border-radius: 50%;
+    z-index: -1;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: neon-border-pulse 3s ease-in-out infinite alternate;
+}
+
+/* --- SYNC THE HOVER FREQUENCY --- */
+.success-card-main:hover .glow-arrow::after {
+    animation-duration: 2.1s; 
+    opacity: 1;
 }
 
 
