@@ -1231,7 +1231,9 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                         const step2 = document.getElementById('step2');
                         if (step2) step2.classList.add('hidden');
                         
-                        renderStep(3); // Step 3's animate-fadeIn starts NOW
+                        renderStep(3);
+
+                        lockResetButton();
                         
                         const container = document.querySelector('.form-container');
                         container.style.height = 'auto'; 
@@ -1319,6 +1321,33 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     function initializeStep3Handlers() {
         handleCopyLink();
         handleSocialFeedback();
+    }
+
+    /**
+    * Locks the Reset button for a safety window (2.1s)
+    * Prevents accidental double-clicks and throttles overstimulated players.
+    */
+    function lockResetButton() {
+        const resetBtn = document.getElementById('resetFormBtn');
+        if (!resetBtn) return;
+
+        // 1. Kill the power
+        resetBtn.disabled = true;
+        resetBtn.classList.add('btn-locked');
+
+        // 2. Wait 2.1s
+        setTimeout(() => {
+            resetBtn.disabled = false;
+            resetBtn.classList.remove('btn-locked');
+            
+            // 3. Trigger the mechanical flicker
+            resetBtn.classList.add('power-on-flicker');
+            
+            // Cleanup class after animation ends
+            setTimeout(() => {
+                resetBtn.classList.remove('power-on-flicker');
+            }, 500);
+        }, 21000); 
     }
 
     function handleCopyLink() {

@@ -456,6 +456,28 @@ textarea.form-input {
     animation: strobe 0.21s steps(2) infinite;
 }
 
+.btn-locked {
+    pointer-events: none !important;
+    opacity: 0.15;
+    filter: grayscale(1) brightness(0.5);
+    transition: none;
+}
+
+/* The "Boot Sequence" Flicker */
+.power-on-flicker {
+    animation: power-on 0.21s steps(4);
+}
+
+@keyframes power-on {
+    0% { opacity: 0.2; filter: grayscale(1) brightness(0.5); text-shadow: none; }
+    20% { opacity: 1; filter: grayscale(0) brightness(1); text-shadow: 0 0 10px var(--primary-neon); }
+    40% { opacity: 0.3; }
+    60% { opacity: 0.8; }
+    80% { opacity: 0.5; }
+    100% { opacity: 1; filter: grayscale(0) brightness(1); }
+}
+
+
 /* RESPONSIVE ADJUSTMENTS FOR STEP 3 HEADER */
 @media (max-width: 480px) {
     #step3 .relative {
@@ -671,18 +693,11 @@ textarea.form-input {
 
 
 /* ==========================================================================
-   SHARE BUTTONS & COPY LINK ADJUSTMENTS
+   SHARE BUTTONS & COPY LINK
    ========================================================================== */
 #streamLink, #discordLink {
     border-radius: 21px !important;
 }
-
-
-
-
-/* ==========================================================================
-   SHARE BUTTONS & COPY LINK
-   ========================================================================== */
 
 /* Base State for Social/Copy Buttons */
 #shareX, #shareFB, #copyLink {
