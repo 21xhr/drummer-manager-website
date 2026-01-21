@@ -257,13 +257,12 @@
 <script>
     // --- CONFIG ---
     const SESSION_DURATION_MINUTES = 21;
-    const BASE_COST_PER_SESSION = 210;
-    const LIVE_DISCOUNT_FACTOR = 0.79;
     let submissionToken = '';
+    let dailySubmissionCount = 0; 
+    let dynamicBaseCost = 210;
     let selectedPlatform = '';
     let selectedPlatformId = '';
     let isStreamLive = false;
-    let baseChallengeCost = BASE_COST_PER_SESSION;
     let challengeTextCache = ''; 
 
     const DEFAULT_PLACEHOLDER = `Describe the task. (Min 10 chars)
@@ -448,6 +447,9 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 selectedPlatformId = data.username; 
                 selectedPlatform = data.platformName;
 
+                dailySubmissionCount = data.dailySubmissionCount || 0;
+                dynamicBaseCost = data.serverCalculatedBaseCost || 210;
+
                 reminderUsername.textContent = selectedPlatformId;
                 reminderPlatform.textContent = selectedPlatform;
                 
@@ -519,7 +521,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         }
     };
 
-    // --- STREAM STATUS & COST LOGIC ---
+    // --- STREAM STATUS ---
     const fetchStreamStatus = async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/stream/stats`);
@@ -531,19 +533,15 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 streamStatusIndicator.classList.remove('offline');
                 streamStatusIndicator.classList.add('live');
                 streamStatusText.textContent = 'LIVE (21% Discount)';
-                baseChallengeCost = Math.ceil(BASE_COST_PER_SESSION * LIVE_DISCOUNT_FACTOR);
             } else {
                 streamStatusIndicator.classList.remove('live');
                 streamStatusIndicator.classList.add('offline');
                 streamStatusText.textContent = 'OFFLINE';
-                baseChallengeCost = BASE_COST_PER_SESSION;
             }
-            // ADD THIS LINE HERE:
             updateStreamButtonText();
         } catch (error) {
             streamStatusText.textContent = 'ERROR';
             console.error('Error fetching stream stats:', error);
-            baseChallengeCost = BASE_COST_PER_SESSION; 
         }
         calculateTotalSessions();
     };
@@ -792,9 +790,9 @@ Tip: Use a writing assistant to help refine your suggestion.`;
             text = "Select a Duration Type to continue.";
             calculatedTotal = 0;
         }
-        
+
         const totalMinutes = calculatedTotal * SESSION_DURATION_MINUTES;
-        const finalCost = baseChallengeCost;
+        const finalCost = dynamicBaseCost;
 
         calculatedTotalSessionsInput.value = calculatedTotal;
         sessionCadenceHidden.value = text;
@@ -1044,6 +1042,42 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     verifyTokenAndStartForm();
     handleCopyLink();
     handleSocialFeedback();
+
+    // --- AUTO-REFRESH LOGIC (Silent Sync) ---
+    // Polls the server every 21 seconds to keep price and stream status accurate
+    setInterval(async () => {
+        // Only poll if we have a token and the user is actually on the form (Step 2)
+        const step2 = document.getElementById('step2');
+        const isVisible = step2 && !step2.classList.contains('hidden');
+
+        if (submissionToken && isVisible) {
+            try {
+                // 1. Silent re-verification to get the latest flat fee from the DB
+                const response = await fetch(`${API_BASE_URL}/token/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: submissionToken })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // 2. Update the flat cost and count
+                    dynamicBaseCost = data.serverCalculatedBaseCost || 210;
+                    dailySubmissionCount = data.dailySubmissionCount || 0;
+                    
+                    // 3. Trigger a visual refresh of the price displays
+                    calculateTotalSessions();
+                }
+            } catch (e) {
+                console.error("Silent price sync failed:", e);
+            }
+        }
+        
+        // Also keep the Live/Offline badge in the header updated
+        if (typeof fetchStreamStatus === 'function') {
+            fetchStreamStatus();
+        }
+    }, 21000); 
     
     // Step 2: Duration Card Selection (Trigger 1)
     const playlist = [
