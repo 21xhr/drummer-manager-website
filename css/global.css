@@ -18,6 +18,7 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
 :root {
     --background-color: #0c0c0c;
     --primary-neon: rgb(242, 189, 21);
+    --primary-neon-rgb: 242, 189, 21;
     --text-color: rgb(242, 242, 242);
     --secondary-bg: rgb(21, 21, 21);
     --subtext-color: rgba(242, 242, 242, 0.84); 

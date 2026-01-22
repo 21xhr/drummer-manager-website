@@ -209,7 +209,7 @@
                             
                             <div class="connector-arrow-wrapper">
                                 <div class="glow-arrow-container">
-                                    <i class="fa-solid fa-angles-right text-xl glow-arrow sm:rotate-0 rotate-90"></i>
+                                    <i class="scan-effect fa-solid fa-angles-right text-xl glow-arrow sm:rotate-0 rotate-90"></i>
                                 </div>
                             </div>
                             
@@ -223,7 +223,7 @@
                                 </a>
 
                                 <div class="flex gap-1">
-                                    <a href="#" id="shareX" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white transition-all">
+                                    <a href="#" id="shareX" target="_blank" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white transition-all">
                                         <i class="fa-brands fa-x-twitter text-[11px]"></i>
                                     </a>
                                     <a href="#" id="shareFB" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white transition-all">
@@ -356,6 +356,16 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     // Reference to the 'every X days' option element for UI toggle
     const customDaysOption = document.querySelector('#cadenceUnit option[value="CUSTOM_DAYS"]');
 
+    /* --- AUDIO OBJECTS --- */
+    const pulseSfx = new Audio('../assets/audio/flashbang-sfx-6.mp3'); 
+    const successChime = new Audio('../assets/audio/Futuristic_digital_success_notification_chime3.mp3');
+    // Helper to play SFX without interrupting bgMusic
+    const playSFX = (audioObj, volume = 0.21) => {
+        audioObj.volume = volume;
+        audioObj.currentTime = 0; // Reset to start
+        audioObj.play().catch(e => console.log("SFX blocked or missing"));
+    };
+
     // --- STEP MANAGEMENT ---
     let currentStep = 1;
 
@@ -476,7 +486,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                     statusMessage1.textContent = ''; 
                     // Call the update function immediately after transitioning to Step 2
                     updateDynamicFields();
-                }, 2100); 
+                }, 100); 
 
             } else if (response.status === 401 || response.status === 400) {
                 // TOKEN EXPIRED/INVALID FAILURE
@@ -957,7 +967,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 <div class="flex justify-between border-b border-[#333] pb-2 items-center">
                     <div>
                         <div class="summary-label">Challenge ID</div>
-                        <div class="summary-value text-lg">#${challenge.challengeId}</div>
+                        <div class="summary-value text-lg scan-effect">#${challenge.challengeId}</div>
                     </div>
                     <div class="text-center">
                         <div class="summary-label">Cost</div>
@@ -1250,6 +1260,10 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 // Small timeout to ensure the CSS variable is registered
                 setTimeout(() => {
                     submitButton.classList.add('btn-success-morph');
+                    // Trigger pulse sound roughly halfway through the morph/travel duration
+                    setTimeout(() => {
+                        playSFX(pulseSfx, 0.42);
+                    }, 21); // Adjust this timing to match your CSS transition duration
                 }, 10);
 
                 const { newChallenge, cost, userStats } = data.details;
@@ -1266,6 +1280,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                         if (step2) step2.classList.add('hidden');
                         
                         renderStep(3);
+                        playSFX(successChime, 0.21);
 
                         lockResetButton();
                         
@@ -1282,7 +1297,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                         
                         handleSocialFeedback();
                         handleCopyLink();
-                    }, 150); // Only a 150ms gap feels like a "hand-off" rather than a wait
+                    }, 21); // Only a 150ms gap feels like a "hand-off" rather than a wait
                 }, 2100); // Time spent the center instead of the container 
             } else {
                 // Server Error (e.g. 400 or 500)

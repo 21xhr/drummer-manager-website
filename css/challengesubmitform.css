@@ -671,6 +671,8 @@ textarea.form-input {
 }
 
 .summary-value {
+    position: relative;
+    overflow: hidden;
     font-size: 12px;
     color: #eee;
     font-weight: bold;
@@ -689,6 +691,41 @@ textarea.form-input {
     color: #eee;
 }
 
+
+
+/* The Scanning Effect */
+.summary-value.scan-effect {
+    position: relative;
+    display: inline-block; /* Crucial: ensures it has a width for the scan to cross */
+    overflow: hidden;      /* Keeps the sweep inside the text bounds */
+    z-index: 1;            /* Layers it correctly */
+    padding: 0 4px;        /* Gives the light a bit of room on the edges */
+}
+
+.scan-effect::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        to right, 
+        transparent, 
+        rgba(var(--primary-neon-rgb), 0.8), /* Maximize visibility for testing */
+        transparent
+    );
+    transform: skewX(-25deg); /* Professional 'scanner' look */
+    animation: scanSweep 2s infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+@keyframes scanSweep {
+    0% { left: -100%; }
+    40% { left: 150%; } /* Finishes sweep quickly */
+    100% { left: 150%; } /* Stays off-screen for a 'pause' effect */
+}
 
 
 
