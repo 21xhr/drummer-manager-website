@@ -209,7 +209,7 @@
                             
                             <div class="connector-arrow-wrapper">
                                 <div class="glow-arrow-container">
-                                    <i class="scan-effect fa-solid fa-angles-right text-xl glow-arrow sm:rotate-0 rotate-90"></i>
+                                    <i class="fa-solid fa-angles-right text-xl glow-arrow sm:rotate-0 rotate-90"></i>
                                 </div>
                             </div>
                             
@@ -919,16 +919,20 @@ Tip: Use a writing assistant to help refine your suggestion.`;
 
         const isRecurring = challenge.durationType === 'RECURRING';
         
-        // Update the Global Share Link
+        /* --- SOCIAL SHARE LINK UPDATE LOGIC --- */
         const challengeUrl = `https://drummer-manager-website.vercel.app/`; 
-        const shareText = encodeURIComponent(`🥁 Challenge #${challenge.challengeId} logged to @21xhr!\nCost: ${cost.toLocaleString()} NUMBERS\n#DrummerManager`);
-        const twitterIntent = `https://x.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(challengeUrl)}`;
+        const shareText = encodeURIComponent(
+            `🥁 DROPPED Challenge #${challenge.challengeId} to @21xhr!\n\n` +
+            `Powering this with ${cost.toLocaleString()} NUMBERS. ⚡\n` +
+            `Produce with me, enter the manager deck and take control:\n\n` +
+            `#DMG #TwentyOne`
+        );
 
-        // Update the 'shareX' button (the one in your HTML)
         const xButton = document.getElementById('shareX');
         if (xButton) {
-            xButton.href = twitterIntent;
+            xButton.href = `https://x.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(challengeUrl)}`;
         }
+
 
         // SAFETY LOGIC: Default to ONE_OFF if durationType is missing
         const durationType = challenge?.durationType || 'ONE_OFF';
@@ -967,7 +971,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 <div class="flex justify-between border-b border-[#333] pb-2 items-center">
                     <div>
                         <div class="summary-label">Challenge ID</div>
-                        <div class="summary-value text-lg scan-effect">#${challenge.challengeId}</div>
+                        <div class="summary-value text-lg">#${challenge.challengeId}</div>
                     </div>
                     <div class="text-center">
                         <div class="summary-label">Cost</div>
