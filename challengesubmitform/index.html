@@ -435,7 +435,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
 
         try {
             // Enforce a minimum display time for the "Verifying" message
-            const MIN_VERIFY_DELAY_MS = 100; 
+            const MIN_VERIFY_DELAY_MS = 2100; 
             
             const apiCall = fetch(`${API_BASE_URL}/token/verify`, {
                 method: 'POST',
@@ -463,31 +463,27 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 reminderUsername.textContent = selectedPlatformId;
                 reminderPlatform.textContent = selectedPlatform;
                 
-                // Apply platform styling to username and platform name
                 reminderUsername.className = '';
                 reminderPlatform.className = '';
-                
                 const platformClass = `platform-${selectedPlatform.toLowerCase()}`;
-                
                 reminderUsername.classList.add(platformClass);
                 reminderPlatform.classList.add(platformClass);
 
-                statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
+                statusIcon.classList.remove('fa-spinner', 'fa-spin');
                 statusIcon.classList.add('fa-circle-check', 'text-success-green');
-                statusMessage1.style.color = 'var(--success-green)';
                 
-
-                // 2. Success message is displayed with a Delay
-                statusMessage1.textContent = `Identity Verified! Submitting as ${selectedPlatformId} on ${selectedPlatform}. Key expires soon.`;
-
-                // Delay for user to read the success message before transition
-                setTimeout(() => {
-                    renderStep(2); // 3. Enter challenge submission (Step 2)
-                    statusMessage1.textContent = ''; 
-                    // Call the update function immediately after transitioning to Step 2
+                // Inject the container
+                statusMessage1.innerHTML = `<div class="typewriter-container"><div id="typewriter"></div></div>`;
+                
+                const target = document.getElementById('typewriter');
+                const fullText = `> ACCESS GRANTED: ${selectedPlatformId} @ ${selectedPlatform}`;
+                
+                // Execute
+                typeWriter(target, fullText, 0, () => {
+                    renderStep(2);
+                    statusMessage1.innerHTML = ''; // Clear for next time
                     updateDynamicFields();
-                }, 100); 
-
+                });
             } else if (response.status === 401 || response.status === 400) {
                 // TOKEN EXPIRED/INVALID FAILURE
                 const apiMessage = data.message || 'The secure link you used is no longer valid. Please get a new token.';
@@ -558,6 +554,41 @@ Tip: Use a writing assistant to help refine your suggestion.`;
 
     // --- HELPER FUNCTIONS ---
     
+    // --- HUMANIZED TYPEWRITER LOGIC ---
+    const typeWriter = (element, text, n, callback) => {
+        if (n < text.length) {
+            // 1. Logic: Identify Typo Spot (around the '@' symbol)
+            const typoIndex = text.indexOf('@') - 1; 
+            const hasTypoOccurred = element.getAttribute('data-typo') === 'true';
+
+            // 2. Human Timing: Base speed + random variance
+            let delay = Math.floor(Math.random() * 63) + 42; 
+            if (text.charAt(n) === ' ' || text.charAt(n) === ':') delay += 210;
+
+            // 3. The "Human Error": Type a wrong character at the typoIndex
+            if (n === typoIndex && !hasTypoOccurred) {
+                element.innerHTML = text.substring(0, n) + "q"; // Common pinky-finger slip
+                element.setAttribute('data-typo', 'true');
+                
+                setTimeout(() => {
+                    // Backspace the slip-up
+                    element.innerHTML = text.substring(0, n);
+                    // Pause for "frustration" then resume
+                    setTimeout(() => typeWriter(element, text, n, callback), 420); 
+                }, 210);
+                return;
+            }
+
+            // 4. Progress
+            element.innerHTML = text.substring(0, n + 1);
+            n++;
+            setTimeout(() => typeWriter(element, text, n, callback), delay);
+        } else if (callback) {
+            // 5. Done: Slight delay before the callback to let the user read
+            setTimeout(callback, 420);
+        }
+    };
+
     const updateDynamicFields = () => {
         // CRITICAL: Read text length from the contenteditable div's plain text
         const textLength = challengeEditor.textContent.trim().length;
@@ -920,7 +951,8 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         const isRecurring = challenge.durationType === 'RECURRING';
         
         /* --- SOCIAL SHARE LINK UPDATE LOGIC --- */
-        const challengeUrl = `https://drummer-manager-website.vercel.app/`; 
+        const challengeUrl = `https://drummer-manager-website.vercel.app/challenge/${challenge.challengeId}`;
+        
         const shareText = encodeURIComponent(
             `🥁 DROPPED Challenge #${challenge.challengeId} to @21xhr!\n\n` +
             `Powering this with ${cost.toLocaleString()} NUMBERS. ⚡\n` +

@@ -1,10 +1,40 @@
 /* ==========================================================================
    STYLES FOR CHALLENGE SUBMISSION FORM
    ========================================================================== */
+
+/* ------------------------------------------------------------------
+   REUSABLE GLOBAL STYLES
+   ------------------------------------------------------------------ */
+/* Typewriter Effect for Verification */
+.typewriter-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-height: 1.5rem; /* Prevents layout jump when text appears */
+}
+
+#typewriter {
+    font-family: 'Courier New', Courier, monospace;
+    display: inline-block;
+    color: var(--primary-neon);
+    font-size: 0.9rem;
+    white-space: nowrap;
+    border-right: 3px solid var(--primary-neon);
+    /* Faster blink for a high-energy terminal feel */
+    animation: blink-caret 0.5s step-end infinite;
+    min-width: 1ch; 
+    vertical-align: bottom;
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: var(--primary-neon) }
+}
+
+
 /* ==========================================================================
    1. CORE LAYOUT & STRUCTURE
    ========================================================================== */
-
 /* Enable horizontal scrolling for extremely narrow screens to prevent border clipping */
 @media (max-width: 500px) {
     body {
@@ -64,10 +94,11 @@
     min-height: 300px; /* Ensures space for the button to travel to the center */
 }
 
+
+
 /* ==========================================================================
    2. FORM ELEMENTS & INPUTS
    ========================================================================== */
-
 .form-group label {
     display: block;
     margin-top: 1.5rem;
@@ -162,10 +193,11 @@ textarea.form-input {
     transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
+
+
 /* ==========================================================================
    3. SELECTION COMPONENTS (CARDS & PLATFORMS)
    ========================================================================== */
-
 .duration-card {
     padding: 10px;
     border: 2px solid var(--disabled-color); 
@@ -181,10 +213,11 @@ textarea.form-input {
 .platform-YouTube { color: var(--platform-youtube); }
 .platform-Kick { color: var(--platform-kick); }
 
+
+
 /* ==========================================================================
    4. WYSIWYG & EDITOR
    ========================================================================== */
-
 #challengeEditor {
     cursor: default;
     position: relative; 
@@ -245,7 +278,6 @@ textarea.form-input {
 /* ==========================================================================
    5. SUBMIT BUTTON & INTERACTIONS (21s GHOST GLITCH)
    ========================================================================== */
-
 #submitWarningText {
     --glitch-duration: 21s; /* The Master Controller */
     
@@ -752,7 +784,6 @@ textarea.form-input {
     animation: badgeOverlay 2.1s ease-in-out forwards;
 }
 
-/* Copied State Persistence (Grayscale) */
 #copyLink.copied {
     filter: grayscale(0.6);
     opacity: 0.7;
