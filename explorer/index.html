@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drummer Manager Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/explorer.css">
+</head>
+<body class="dm-sans">
+    <header class="explorer-header flex justify-between items-stretch mb-6 p-4">
+        <div class="flex flex-col justify-center space-y-3">
+            <div class="dm-sans text-3xl font-extrabold neon-text leading-[0.8]">DRUMMER</div>
+            <div class="roboto font-normal text-lg text-white tracking-[0.25em] leading-[0.8]">MANAGER</div>
+        </div>
+        
+        <div class="flex flex-col justify-between items-end text-right"> 
+            <div class="flex items-center space-x-2">
+                <span id="streamStatusText" class="roboto text-[10px] uppercase text-gray-400 tracking-tighter">OFFLINE</span>
+                <div id="streamStatusIndicator" class="stream-status-indicator offline"></div>
+            </div>
+            <div id="identityReminder" class="hidden">
+                <span id="reminderUsername" class="roboto text-[11px] font-bold"></span>
+                <span class="text-[9px] text-gray-500"> on </span>
+                <span id="reminderPlatform" class="roboto text-[9px] font-bold"></span>
+            </div>
+        </div>
+    </header>
+
+    <div id="lockScreen" class="lock-overlay hidden">
+        <div class="terminal-card text-center">
+            <i class="fa-solid fa-lock text-4xl mb-4 neon-text"></i>
+            <h2 class="neon-text">DATABASE ENCRYPTED</h2>
+            <p>Access requires a valid session token via <strong>!challengeexplorer</strong> in chat.</p>
+        </div>
+    </div>
+
+<div class="explorer-wrapper">
+    <aside class="explorer-sidebar filters-pane">
+        <h3 class="neon-text terminal-header">SYSTEM FILTERS</h3>
+        
+        <div class="filter-group">
+            <label class="label-accent">CHALLENGE STATUS</label>
+            <div id="statusFilters" class="checkbox-list">
+                </div>
+        </div>
+
+        <div class="filter-group">
+            <label class="label-accent">DAYS SINCE ACTIVATION</label>
+            <input type="range" id="activationSlider" min="0" max="21" value="21" class="neon-range">
+            <div class="range-labels">
+                <span>0d</span>
+                <span id="sliderValue">21d</span>
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label class="label-accent">MINIMUM PUSHES</label>
+            <input type="number" id="minPushFilter" placeholder="0" class="neon-input">
+        </div>
+
+        <div class="filter-group">
+            <label class="label-accent">PROPERTIES</label>
+            <label class="checkbox-container">
+                <input type="checkbox" id="filterDigged"> HAS BEEN DIGGED OUT
+            </label>
+        </div>
+    </aside>
+
+    <main class="explorer-main list-pane">
+        <div class="list-controls">
+            <div class="search-bar-wrapper">
+                <span class="terminal-prefix">></span>
+                <input type="text" id="globalSearch" placeholder="SEARCH SYSTEM DATABASE (ID, USER, TEXT)..." autocomplete="off">
+            </div>
+            <div class="sync-status">
+                <span class="sync-dot"></span>
+                <span id="syncTimer">SYNCING IN 21s</span>
+            </div>
+        </div>
+
+        <div id="challengeList" class="dossier-list">
+            <div class="list-header">
+                <span>ID</span>
+                <span>STATUS</span>
+                <span>PROPOSER</span>
+                <span>TASK SNIPPET</span>
+                <span>PUSHES</span>
+            </div>
+            <div id="listEntries">
+                </div>
+        </div>
+    </main>
+
+    <aside class="explorer-sidebar detail-pane" id="detailPane">
+        <div id="emptyDetail" class="terminal-placeholder">
+            <p class="blink">[_]</p>
+            <p>AWAITING DATA HYDRATION...</p>
+            <small>Select an entry to view full protocol</small>
+        </div>
+        <div id="detailContent" class="hidden">
+            </div>
+    </aside>
+</div>
+</body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorer | Drummer Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/explorer.css">
+</head>
+<body class="dm-sans">
+
+    <div id="lockScreen" class="lock-overlay">
+        <div class="terminal-card">
+            <i id="lockIcon" class="fa-solid fa-lock text-4xl mb-4 neon-text"></i>
+            <h2 class="neon-text mb-2">SYSTEM ENCRYPTED</h2>
+            <div id="lockMessage" class="roboto text-sm text-gray-400">
+                Awaiting secure link verification...
+            </div>
+        </div>
+    </div>
+
+    <header class="explorer-header">
+        <div class="flex flex-col">
+            <div class="dm-sans text-2xl font-extrabold neon-text leading-none">DRUMMER</div>
+            <div class="roboto font-normal text-sm text-white tracking-[0.3em] leading-none mt-1">MANAGER</div>
+        </div>
+        
+        <div class="flex flex-col items-end"> 
+            <div class="flex items-center space-x-2">
+                <span id="streamStatusText" class="roboto text-[10px] uppercase text-gray-500">OFFLINE</span>
+                <div id="streamStatusIndicator" class="stream-status-indicator offline"></div>
+            </div>
+            <div id="identityReminder" class="hidden mt-1">
+                <span id="reminderUsername" class="roboto text-[11px] font-bold"></span>
+                <span class="text-[9px] text-gray-500"> on </span>
+                <span id="reminderPlatform" class="roboto text-[9px] font-bold"></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="explorer-wrapper">
+        <aside class="explorer-sidebar filters-pane">
+            <h3 class="neon-text text-sm mb-4">SYSTEM FILTERS</h3>
+            
+            <div class="filter-group mb-6">
+                <label class="label-accent text-xs block mb-2">CHALLENGE STATUS</label>
+                <div id="statusFilters" class="space-y-2">
+                    </div>
+            </div>
+
+            <div class="filter-group mb-6">
+                <label class="label-accent text-xs block mb-2">ACTIVATION RANGE</label>
+                <input type="range" id="activationSlider" min="0" max="21" value="21" class="w-full">
+                <div class="flex justify-between text-[10px] mt-1 text-gray-500">
+                    <span>0 DAYS</span>
+                    <span id="sliderValue">21 DAYS</span>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label class="label-accent text-xs block mb-2">PUSH THRESHOLD</label>
+                <input type="number" id="minPushFilter" placeholder="Min Pushes" class="primary-submit-btn w-full !bg-black !text-white !border-gray-700 !rounded-md !text-left">
+            </div>
+        </aside>
+
+        <main class="explorer-main list-pane">
+            <div class="list-controls">
+                <div class="search-bar-wrapper">
+                    <span class="neon-text mr-2">></span>
+                    <input type="text" id="globalSearch" placeholder="SEARCH SYSTEM DATABASE (ID, USER, TASK)..." autocomplete="off">
+                </div>
+                <div class="sync-status flex items-center text-[10px] text-gray-500">
+                    <span class="sync-dot"></span>
+                    <span id="syncTimer">SYNCING</span>
+                </div>
+            </div>
+
+            <div id="challengeList">
+                <div class="list-header">
+                    <span>ID</span>
+                    <span>STATUS</span>
+                    <span>PROPOSER</span>
+                    <span>TASK</span>
+                    <span>PUSHES</span>
+                </div>
+                <div id="listEntries">
+                    </div>
+            </div>
+        </main>
+
+        <aside class="explorer-sidebar detail-pane" id="detailPane">
+            <div id="emptyDetail" class="h-full flex flex-col items-center justify-center text-center opacity-30">
+                <i class="fa-solid fa-microchip text-4xl mb-4"></i>
+                <p class="text-xs roboto">AWAITING HYDRATION</p>
+            </div>
+            <div id="detailContent" class="hidden">
+                </div>
+        </aside>
+    </div>
+    <social-links></social-links>
+    <script>
+        // --- CONFIG ---
+        let allChallenges = [];
+        let submissionToken = '';
+
+        const getApiBaseUrl = () => {
+            const hostname = window.location.hostname;
+            if (['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)) return 'http://127.0.0.1:3000/api/v1';
+            return 'https://drummer-manager-api.vercel.app/api/v1';
+        };
+        const API_BASE_URL = getApiBaseUrl();
+
+        // --- AUTH & INITIALIZATION ---
+        window.onload = () => {
+            fetchStreamStatus();
+            verifyExplorerAccess();
+        };
+
+        const verifyExplorerAccess = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const lockIcon = document.getElementById('lockIcon');
+            const lockMessage = document.getElementById('lockMessage');
+
+            if (!token) {
+                lockIcon.className = "fa-solid fa-lock-outline text-red-500 text-4xl mb-4";
+                lockMessage.innerHTML = "ACCESS DENIED<br>Use !challengeexplorer in chat.";
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/token/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('lockScreen').classList.add('hidden');
+                    document.getElementById('identityReminder').classList.remove('hidden');
+                    document.getElementById('reminderUsername').textContent = data.username;
+                    document.getElementById('reminderPlatform').textContent = data.platformName;
+                    
+                    loadInitialData();
+                } else {
+                    lockMessage.textContent = data.message || "Invalid Token.";
+                }
+            } catch (err) {
+                lockMessage.textContent = "Connection Error.";
+            }
+        };
+
+        // --- DATA OPERATIONS ---
+        async function loadInitialData() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/challenges`);
+                allChallenges = await res.json();
+                renderList(allChallenges);
+            } catch (err) { console.error("Fetch error", err); }
+        }
+
+        function renderList(challenges) {
+            const container = document.getElementById('listEntries');
+            container.innerHTML = '';
+            challenges.forEach(c => {
+                const row = document.createElement('div');
+                row.className = 'entry-row animate-fadeIn';
+                const text = typeof c.challengeText === 'string' ? c.challengeText : JSON.stringify(c.challengeText);
+                
+                row.innerHTML = `
+                    <span class="neon-text">#${c.challengeId}</span>
+                    <span class="status-badge status-${c.status.toLowerCase()} text-[9px]">${c.status}</span>
+                    <span class="font-bold">${c.proposer.username}</span>
+                    <span class="text-dim text-xs">${text.substring(0, 60)}...</span>
+                    <span class="neon-text text-center">${c.totalPush}</span>
+                `;
+                row.onclick = () => hydrateDetail(c);
+                container.appendChild(row);
+            });
+        }
+
+        function hydrateDetail(c) {
+            document.getElementById('emptyDetail').classList.add('hidden');
+            const content = document.getElementById('detailContent');
+            content.classList.remove('hidden');
+
+            const shareLink = `${window.location.origin}/explorer?id=${c.challengeId}`;
+
+            content.innerHTML = `
+                <div class="protocol-header">
+                    <h3 class="neon-text text-lg">TECHNICAL PROTOCOL</h3>
+                    <div class="text-[10px] text-gray-500 roboto">ID: ${c.challengeId} | SEQUENCE: ${new Date(c.timestampSubmitted).getTime()}</div>
+                </div>
+                
+                <div class="protocol-data-grid">
+                    <div class="protocol-field"><label>Proposer</label><span>${c.proposer.username}</span></div>
+                    <div class="protocol-field"><label>Status</label><span>${c.status}</span></div>
+                    <div class="protocol-field"><label>Cadence</label><span>${c.sessionCadenceText || 'ONE-OFF'}</span></div>
+                    <div class="protocol-field"><label>Pushes</label><span>${c.totalPush}</span></div>
+                </div>
+
+                <div class="protocol-text-box roboto text-sm">
+                    ${c.challengeText}
+                </div>
+
+                <div class="protocol-field mb-4"><label>Failure Reason</label><span class="text-red-400 text-xs">${c.failureReason || 'NONE'}</span></div>
+
+                <button onclick="copyToClipboard('${shareLink}')" class="primary-submit-btn share-btn">
+                    <i class="fa-solid fa-share-nodes mr-2"></i> COPY DEEP LINK
+                </button>
+            `;
+        }
+
+        // --- FILTER ENGINE ---
+        const applyFilters = () => {
+            const search = document.getElementById('globalSearch').value.toLowerCase();
+            const days = parseInt(document.getElementById('activationSlider').value);
+            const minPush = parseInt(document.getElementById('minPushFilter').value) || 0;
+
+            const filtered = allChallenges.filter(c => {
+                const textMatch = c.proposer.username.toLowerCase().includes(search) || 
+                                 c.challengeId.toString().includes(search) ||
+                                 JSON.stringify(c.challengeText).toLowerCase().includes(search);
+                const pushMatch = c.totalPush >= minPush;
+                const dateMatch = (c.streamDaysSinceActivation || 0) <= days;
+                return textMatch && pushMatch && dateMatch;
+            });
+            renderList(filtered);
+        };
+
+        // --- HELPERS ---
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            alert("Protocol Link Copied to Clipboard");
+        }
+
+        const fetchStreamStatus = async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/stream/stats`);
+                const data = await res.json();
+                const indicator = document.getElementById('streamStatusIndicator');
+                const text = document.getElementById('streamStatusText');
+                indicator.className = `stream-status-indicator ${data.isStreamLive ? 'live' : 'offline'}`;
+                text.textContent = data.isStreamLive ? 'LIVE' : 'OFFLINE';
+            } catch (err) {}
+        };
+
+        document.getElementById('globalSearch').addEventListener('input', applyFilters);
+        document.getElementById('activationSlider').addEventListener('input', (e) => {
+            document.getElementById('sliderValue').textContent = e.target.value + ' DAYS';
+            applyFilters();
+        });
+        document.getElementById('minPushFilter').addEventListener('input', applyFilters);
+
+    </script>
+</body>
+</html>

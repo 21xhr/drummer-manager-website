@@ -1,0 +1,188 @@
+/* --- EXPLORER SPECIFIC STYLES --- */
+
+:root {
+    --pane-bg: rgba(21, 21, 21, 0.95);
+    --border-dim: rgba(242, 189, 21, 0.2);
+}
+
+body {
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden; /* We scroll the individual panes, not the body */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header Adjustments */
+.explorer-header {
+    height: 80px;
+    padding: 0 2rem;
+    border-bottom: 1px solid var(--border-dim);
+    background: var(--background-color);
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.explorer-wrapper {
+    display: grid;
+    /* ID | Status | User | Task | Push */
+    grid-template-columns: 300px 1fr 400px;
+    gap: 10px;
+    flex-grow: 1;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.explorer-sidebar {
+    background: var(--pane-bg);
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.list-pane {
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+}
+
+/* Control Bar */
+.list-controls {
+    background: var(--secondary-bg);
+    padding: 15px;
+    border: 1px solid var(--border-dim);
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-bar-wrapper {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
+#globalSearch {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 8px;
+    width: 100%;
+    outline: none;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* List/Table Styling */
+#challengeList {
+    flex-grow: 1;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border-dim);
+    border-top: none;
+}
+
+.list-header {
+    display: grid;
+    grid-template-columns: 70px 110px 130px 1fr 80px;
+    gap: 15px;
+    padding: 12px 20px;
+    background: rgba(242, 189, 21, 0.1);
+    color: var(--primary-neon);
+    font-weight: bold;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+}
+
+.entry-row {
+    display: grid;
+    grid-template-columns: 70px 110px 130px 1fr 80px;
+    gap: 15px;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: all 0.2s var(--ease-standard);
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+}
+
+.entry-row:hover {
+    background: rgba(242, 189, 21, 0.05);
+    padding-left: 25px; /* Slight indent effect */
+}
+
+/* Protocol Detail View Styling */
+.protocol-header {
+    border-bottom: 2px solid var(--primary-neon);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+
+.protocol-data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-family: 'Roboto', sans-serif;
+    margin-bottom: 20px;
+}
+
+.protocol-field {
+    background: rgba(255,255,255,0.03);
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.protocol-field label {
+    display: block;
+    font-size: 10px;
+    color: var(--subtext-color);
+    text-transform: uppercase;
+}
+
+.protocol-field span {
+    font-weight: bold;
+    color: white;
+}
+
+.protocol-text-box {
+    background: #000;
+    border: 1px dashed var(--border-dim);
+    padding: 15px;
+    border-radius: 4px;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.share-btn {
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Lock Screen Overlay */
+.lock-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(15px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.terminal-card {
+    background: var(--secondary-bg);
+    padding: 40px;
+    border: 2px solid var(--primary-neon);
+    border-radius: 12px;
+    max-width: 400px;
+    text-align: center;
+}
