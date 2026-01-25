@@ -211,161 +211,198 @@
         </aside>
     </div>
     <social-links></social-links>
-    <script>
-        // --- CONFIG ---
-        let allChallenges = [];
-        let submissionToken = '';
+<script>
+    // --- CONFIG ---
+    let allChallenges = [];
+    let submissionToken = '';
+    let lastSyncTimestamp = new Date().toISOString();
 
-        const getApiBaseUrl = () => {
-            const hostname = window.location.hostname;
-            if (['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)) return 'http://127.0.0.1:3000/api/v1';
-            return 'https://drummer-manager-api.vercel.app/api/v1';
-        };
-        const API_BASE_URL = getApiBaseUrl();
+    const getApiBaseUrl = () => {
+        const hostname = window.location.hostname;
+        if (['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)) return 'http://127.0.0.1:3000/api/v1';
+        return 'https://drummer-manager-api.vercel.app/api/v1';
+    };
+    const API_BASE_URL = getApiBaseUrl();
 
-        // --- AUTH & INITIALIZATION ---
-        window.onload = () => {
-            fetchStreamStatus();
-            verifyExplorerAccess();
-        };
+    // --- AUTH & INITIALIZATION ---
+    window.onload = () => {
+        fetchStreamStatus();
+        verifyExplorerAccess();
+    };
 
-        const verifyExplorerAccess = async () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            const lockIcon = document.getElementById('lockIcon');
-            const lockMessage = document.getElementById('lockMessage');
+    const verifyExplorerAccess = async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const lockIcon = document.getElementById('lockIcon');
+        const lockMessage = document.getElementById('lockMessage');
 
-            if (!token) {
-                lockIcon.className = "fa-solid fa-lock-outline text-red-500 text-4xl mb-4";
-                lockMessage.innerHTML = "ACCESS DENIED<br>Use !challengeexplorer in chat.";
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/token/verify`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token })
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    document.getElementById('lockScreen').classList.add('hidden');
-                    document.getElementById('identityReminder').classList.remove('hidden');
-                    document.getElementById('reminderUsername').textContent = data.username;
-                    document.getElementById('reminderPlatform').textContent = data.platformName;
-                    
-                    loadInitialData();
-                } else {
-                    lockMessage.textContent = data.message || "Invalid Token.";
-                }
-            } catch (err) {
-                lockMessage.textContent = "Connection Error.";
-            }
-        };
-
-        // --- DATA OPERATIONS ---
-        async function loadInitialData() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/challenges`);
-                allChallenges = await res.json();
-                renderList(allChallenges);
-            } catch (err) { console.error("Fetch error", err); }
+        if (!token) {
+            lockIcon.className = "fa-solid fa-lock-outline text-red-500 text-4xl mb-4";
+            lockMessage.innerHTML = "ACCESS DENIED<br>Use !challengeexplorer in chat.";
+            return;
         }
 
-        function renderList(challenges) {
-            const container = document.getElementById('listEntries');
-            container.innerHTML = '';
-            challenges.forEach(c => {
-                const row = document.createElement('div');
-                row.className = 'entry-row animate-fadeIn';
-                const text = typeof c.challengeText === 'string' ? c.challengeText : JSON.stringify(c.challengeText);
-                
-                row.innerHTML = `
-                    <span class="neon-text">#${c.challengeId}</span>
-                    <span class="status-badge status-${c.status.toLowerCase()} text-[9px]">${c.status}</span>
-                    <span class="font-bold">${c.proposer.username}</span>
-                    <span class="text-dim text-xs">${text.substring(0, 60)}...</span>
-                    <span class="neon-text text-center">${c.totalPush}</span>
-                `;
-                row.onclick = () => hydrateDetail(c);
-                container.appendChild(row);
+        try {
+            const response = await fetch(`${API_BASE_URL}/token/verify-explorer`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token })
             });
-        }
+            const data = await response.json();
 
-        function hydrateDetail(c) {
-            document.getElementById('emptyDetail').classList.add('hidden');
-            const content = document.getElementById('detailContent');
-            content.classList.remove('hidden');
-
-            const shareLink = `${window.location.origin}/explorer?id=${c.challengeId}`;
-
-            content.innerHTML = `
-                <div class="protocol-header">
-                    <h3 class="neon-text text-lg">TECHNICAL PROTOCOL</h3>
-                    <div class="text-[10px] text-gray-500 roboto">ID: ${c.challengeId} | SEQUENCE: ${new Date(c.timestampSubmitted).getTime()}</div>
-                </div>
+            if (response.ok) {
+                document.getElementById('lockScreen').classList.add('hidden');
+                document.getElementById('identityReminder').classList.remove('hidden');
+                document.getElementById('reminderUsername').textContent = data.username;
+                document.getElementById('reminderPlatform').textContent = data.platformName;
                 
-                <div class="protocol-data-grid">
-                    <div class="protocol-field"><label>Proposer</label><span>${c.proposer.username}</span></div>
-                    <div class="protocol-field"><label>Status</label><span>${c.status}</span></div>
-                    <div class="protocol-field"><label>Cadence</label><span>${c.sessionCadenceText || 'ONE-OFF'}</span></div>
-                    <div class="protocol-field"><label>Pushes</label><span>${c.totalPush}</span></div>
-                </div>
+                loadInitialData();
+                startPolling(); // Begin polling after successful auth
+            } else {
+                lockMessage.textContent = data.message || "Invalid Token.";
+            }
+        } catch (err) {
+            lockMessage.textContent = "Connection Error.";
+        }
+    };
 
-                <div class="protocol-text-box roboto text-sm">
-                    ${c.challengeText}
-                </div>
+    // --- DATA OPERATIONS --- 
+    // Fetch initial data load
+    async function loadInitialData() {
+        try {
+            const res = await fetch(`${API_BASE_URL}/challenges`);
+            allChallenges = await res.json();
+            renderList(allChallenges);
+        } catch (err) { console.error("Fetch error", err); }
+    }
 
-                <div class="protocol-field mb-4"><label>Failure Reason</label><span class="text-red-400 text-xs">${c.failureReason || 'NONE'}</span></div>
-
-                <button onclick="copyToClipboard('${shareLink}')" class="primary-submit-btn share-btn">
-                    <i class="fa-solid fa-share-nodes mr-2"></i> COPY DEEP LINK
-                </button>
+    /* Render the list of challenges */
+    function renderList(challenges) {
+        const container = document.getElementById('listEntries');
+        container.innerHTML = '';
+        challenges.forEach(c => {
+            const row = document.createElement('div');
+            row.className = 'entry-row animate-fadeIn';
+            const text = typeof c.challengeText === 'string' ? c.challengeText : JSON.stringify(c.challengeText);
+            
+            row.innerHTML = `
+                <span class="neon-text">#${c.challengeId}</span>
+                <span class="status-badge status-${c.status.toLowerCase()} text-[9px]">${c.status}</span>
+                <span class="font-bold">${c.proposer.accounts[0]?.username || 'Unknown'}</span>
+                <span class="text-dim text-xs">${text.substring(0, 60)}...</span>
+                <span class="neon-text text-center">${c.totalPush}</span>
             `;
-        }
-
-        // --- FILTER ENGINE ---
-        const applyFilters = () => {
-            const search = document.getElementById('globalSearch').value.toLowerCase();
-            const days = parseInt(document.getElementById('activationSlider').value);
-            const minPush = parseInt(document.getElementById('minPushFilter').value) || 0;
-
-            const filtered = allChallenges.filter(c => {
-                const textMatch = c.proposer.username.toLowerCase().includes(search) || 
-                                 c.challengeId.toString().includes(search) ||
-                                 JSON.stringify(c.challengeText).toLowerCase().includes(search);
-                const pushMatch = c.totalPush >= minPush;
-                const dateMatch = (c.streamDaysSinceActivation || 0) <= days;
-                return textMatch && pushMatch && dateMatch;
-            });
-            renderList(filtered);
-        };
-
-        // --- HELPERS ---
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text);
-            alert("Protocol Link Copied to Clipboard");
-        }
-
-        const fetchStreamStatus = async () => {
-            try {
-                const res = await fetch(`${API_BASE_URL}/stream/stats`);
-                const data = await res.json();
-                const indicator = document.getElementById('streamStatusIndicator');
-                const text = document.getElementById('streamStatusText');
-                indicator.className = `stream-status-indicator ${data.isStreamLive ? 'live' : 'offline'}`;
-                text.textContent = data.isStreamLive ? 'LIVE' : 'OFFLINE';
-            } catch (err) {}
-        };
-
-        document.getElementById('globalSearch').addEventListener('input', applyFilters);
-        document.getElementById('activationSlider').addEventListener('input', (e) => {
-            document.getElementById('sliderValue').textContent = e.target.value + ' DAYS';
-            applyFilters();
+            row.onclick = () => hydrateDetail(c);
+            container.appendChild(row);
         });
-        document.getElementById('minPushFilter').addEventListener('input', applyFilters);
+    }
 
-    </script>
+    // Polling for updates every 21 seconds
+    async function startPolling() {
+        setInterval(async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/challenges/delta?since=${lastSyncTimestamp}`);
+                if (!response.ok) return;
+                
+                const updates = await response.json();
+                if (updates.length > 0) {
+                    updates.forEach(updatedChallenge => {
+                        const index = allChallenges.findIndex(c => c.challengeId === updatedChallenge.challengeId);
+                        if (index !== -1) {
+                            allChallenges[index] = updatedChallenge;
+                        } else {
+                            allChallenges.unshift(updatedChallenge);
+                        }
+                    });
+                    renderList(allChallenges);
+                    lastSyncTimestamp = new Date().toISOString();
+                    
+                    const syncTimer = document.getElementById('syncTimer');
+                    syncTimer.textContent = "DATABASE UPDATED";
+                    syncTimer.style.color = "var(--primary-neon)";
+                    setTimeout(() => {
+                        syncTimer.textContent = "SYNCING";
+                        syncTimer.style.color = "";
+                    }, 2000);
+                }
+            } catch (err) { console.warn("Poll failed", err); }
+        }, 21000);
+    }
+
+    // Hydrate detail pane with challenge data
+    function hydrateDetail(c) {
+        document.getElementById('emptyDetail').classList.add('hidden');
+        const content = document.getElementById('detailContent');
+        content.classList.remove('hidden');
+
+        const shareLink = `${window.location.origin}/explorer?id=${c.challengeId}`;
+
+        content.innerHTML = `
+            <div class="protocol-header">
+                <h3 class="neon-text text-lg">TECHNICAL PROTOCOL</h3>
+                <div class="text-[10px] text-gray-500 roboto">ID: ${c.challengeId} | SEQUENCE: ${new Date(c.timestampSubmitted).getTime()}</div>
+            </div>
+            
+            <div class="protocol-data-grid">
+                <div class="protocol-field"><label>Proposer</label><span>${c.proposer.username}</span></div>
+                <div class="protocol-field"><label>Status</label><span>${c.status}</span></div>
+                <div class="protocol-field"><label>Cadence</label><span>${c.sessionCadenceText || 'ONE-OFF'}</span></div>
+                <div class="protocol-field"><label>Pushes</label><span>${c.totalPush}</span></div>
+            </div>
+
+            <div class="protocol-text-box roboto text-sm">
+                ${c.challengeText}
+            </div>
+
+            <div class="protocol-field mb-4"><label>Failure Reason</label><span class="text-red-400 text-xs">${c.failureReason || 'NONE'}</span></div>
+
+            <button onclick="copyToClipboard('${shareLink}')" class="primary-submit-btn share-btn">
+                <i class="fa-solid fa-share-nodes mr-2"></i> COPY DEEP LINK
+            </button>
+        `;
+    }
+
+    // Apply filters to the challenge list
+    const applyFilters = () => {
+        const search = document.getElementById('globalSearch').value.toLowerCase();
+        const days = parseInt(document.getElementById('activationSlider').value);
+        const minPush = parseInt(document.getElementById('minPushFilter').value) || 0;
+
+        const filtered = allChallenges.filter(c => {
+            const textMatch = c.proposer.username.toLowerCase().includes(search) || 
+                                c.challengeId.toString().includes(search) ||
+                                JSON.stringify(c.challengeText).toLowerCase().includes(search);
+            const pushMatch = c.totalPush >= minPush;
+            const dateMatch = (c.streamDaysSinceActivation || 0) <= days;
+            return textMatch && pushMatch && dateMatch;
+        });
+        renderList(filtered);
+    };
+
+    // --- HELPERS ---
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text);
+        alert("Protocol Link Copied to Clipboard");
+    }
+
+    const fetchStreamStatus = async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/stream/stats`);
+            const data = await res.json();
+            const indicator = document.getElementById('streamStatusIndicator');
+            const text = document.getElementById('streamStatusText');
+            indicator.className = `stream-status-indicator ${data.isStreamLive ? 'live' : 'offline'}`;
+            text.textContent = data.isStreamLive ? 'LIVE' : 'OFFLINE';
+        } catch (err) {}
+    };
+
+    document.getElementById('globalSearch').addEventListener('input', applyFilters);
+    document.getElementById('activationSlider').addEventListener('input', (e) => {
+        document.getElementById('sliderValue').textContent = e.target.value + ' DAYS';
+        applyFilters();
+    });
+    document.getElementById('minPushFilter').addEventListener('input', applyFilters);
+
+</script>
 </body>
 </html>

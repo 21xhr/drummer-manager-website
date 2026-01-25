@@ -437,7 +437,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
             // Enforce a minimum display time for the "Verifying" message
             const MIN_VERIFY_DELAY_MS = 2100; 
             
-            const apiCall = fetch(`${API_BASE_URL}/token/verify`, {
+            const apiCall = fetch(`${API_BASE_URL}/token/verify-challengesubmitform`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: submissionToken })
@@ -1099,7 +1099,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         if (submissionToken && isVisible) {
             try {
                 // 1. Silent re-verification to get the latest flat fee from the DB
-                const response = await fetch(`${API_BASE_URL}/token/verify`, {
+                const response = await fetch(`${API_BASE_URL}/token/verify-challengesubmitform`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: submissionToken })
