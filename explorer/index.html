@@ -3,245 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drummer Manager Explorer</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/explorer.css">
-</head>
-<body class="dm-sans">
-    <header class="explorer-header flex justify-between items-stretch mb-6 p-4">
-        <div class="flex flex-col justify-center space-y-3">
-            <div class="dm-sans text-3xl font-extrabold neon-text leading-[0.8]">DRUMMER</div>
-            <div class="roboto font-normal text-lg text-white tracking-[0.25em] leading-[0.8]">MANAGER</div>
-        </div>
-        
-        <div class="flex flex-col justify-between items-end text-right"> 
-            <div class="flex items-center space-x-2">
-                <span id="streamStatusText" class="roboto text-[10px] uppercase text-gray-400 tracking-tighter">OFFLINE</span>
-                <div id="streamStatusIndicator" class="stream-status-indicator offline"></div>
-            </div>
-            <div id="identityReminder" class="hidden">
-                <span id="reminderUsername" class="roboto text-[11px] font-bold"></span>
-                <span class="text-[9px] text-gray-500"> on </span>
-                <span id="reminderPlatform" class="roboto text-[9px] font-bold"></span>
-            </div>
-        </div>
-    </header>
-
-    <div id="lockScreen" class="lock-overlay hidden">
-        <div class="terminal-card text-center">
-            <i class="fa-solid fa-lock text-4xl mb-4 neon-text"></i>
-            <h2 class="neon-text">DATABASE ENCRYPTED</h2>
-            <p>Access requires a valid session token via <strong>!challengeexplorer</strong> in chat.</p>
-        </div>
-    </div>
-
-<div class="explorer-wrapper">
-    <aside class="explorer-sidebar filters-pane">
-        <h3 class="neon-text terminal-header">SYSTEM FILTERS</h3>
-        
-        <div class="filter-group">
-            <label class="label-accent">CHALLENGE STATUS</label>
-            <div id="statusFilters" class="checkbox-list">
-                </div>
-        </div>
-
-        <div class="filter-group">
-            <label class="label-accent">DAYS SINCE ACTIVATION</label>
-            <input type="range" id="activationSlider" min="0" max="21" value="21" class="neon-range">
-            <div class="range-labels">
-                <span>0d</span>
-                <span id="sliderValue">21d</span>
-            </div>
-        </div>
-
-        <div class="filter-group">
-            <label class="label-accent">MINIMUM PUSHES</label>
-            <input type="number" id="minPushFilter" placeholder="0" class="neon-input">
-        </div>
-
-        <div class="filter-group">
-            <label class="label-accent">PROPERTIES</label>
-            <label class="checkbox-container">
-                <input type="checkbox" id="filterDigged"> HAS BEEN DIGGED OUT
-            </label>
-        </div>
-    </aside>
-
-    <main class="explorer-main list-pane">
-        <div class="list-controls">
-            <div class="search-bar-wrapper">
-                <span class="terminal-prefix">></span>
-                <input type="text" id="globalSearch" placeholder="SEARCH SYSTEM DATABASE (ID, USER, TEXT)..." autocomplete="off">
-            </div>
-            <div class="sync-status">
-                <span class="sync-dot"></span>
-                <span id="syncTimer">SYNCING IN 21s</span>
-            </div>
-        </div>
-
-        <div id="challengeList" class="dossier-list">
-            <div class="list-header">
-                <span>ID</span>
-                <span>STATUS</span>
-                <span>PROPOSER</span>
-                <span>TASK SNIPPET</span>
-                <span>PUSHES</span>
-            </div>
-            <div id="listEntries">
-                </div>
-        </div>
-    </main>
-
-    <aside class="explorer-sidebar detail-pane" id="detailPane">
-        <div id="emptyDetail" class="terminal-placeholder">
-            <p class="blink">[_]</p>
-            <p>AWAITING DATA HYDRATION...</p>
-            <small>Select an entry to view full protocol</small>
-        </div>
-        <div id="detailContent" class="hidden">
-            </div>
-    </aside>
-</div>
-</body>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
+    
     <title>Explorer | Drummer Manager</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/explorer.css">
+
+    <script src="/js/social-links.js" defer></script>
 </head>
-<body class="dm-sans">
+<body>
 
     <div id="lockScreen" class="lock-overlay">
-        <div class="terminal-card">
-            <i id="lockIcon" class="fa-solid fa-lock text-4xl mb-4 neon-text"></i>
-            <h2 class="neon-text mb-2">SYSTEM ENCRYPTED</h2>
-            <div id="lockMessage" class="roboto text-sm text-gray-400">
-                Awaiting secure link verification...
+        <div class="form-container terminal-card">
+            <i id="statusIcon" class="fa-solid fa-spinner fa-spin status-icon-main neon-text"></i>
+            <h2 class="neon-text">SYSTEM ENCRYPTED</h2>
+            <div id="statusMessage1" class="roboto status-msg-text">
+                Verifying secure link...
             </div>
         </div>
     </div>
 
-    <header class="explorer-header">
-        <div class="flex flex-col">
-            <div class="dm-sans text-2xl font-extrabold neon-text leading-none">DRUMMER</div>
-            <div class="roboto font-normal text-sm text-white tracking-[0.3em] leading-none mt-1">MANAGER</div>
-        </div>
-        
-        <div class="flex flex-col items-end"> 
-            <div class="flex items-center space-x-2">
-                <span id="streamStatusText" class="roboto text-[10px] uppercase text-gray-500">OFFLINE</span>
-                <div id="streamStatusIndicator" class="stream-status-indicator offline"></div>
+    <div class="explorer-app-container">
+        <header class="explorer-header">
+            <div class="brand-group">
+                <div class="brand-title neon-text">DRUMMER</div>
+                <div class="brand-subtitle roboto">MANAGER</div>
             </div>
-            <div id="identityReminder" class="hidden mt-1">
-                <span id="reminderUsername" class="roboto text-[11px] font-bold"></span>
-                <span class="text-[9px] text-gray-500"> on </span>
-                <span id="reminderPlatform" class="roboto text-[9px] font-bold"></span>
-            </div>
-        </div>
-    </header>
-
-    <div class="explorer-wrapper">
-        <aside class="explorer-sidebar filters-pane">
-            <h3 class="neon-text text-sm mb-4">SYSTEM FILTERS</h3>
             
-            <div class="filter-group mb-6">
-                <label class="label-accent text-xs block mb-2">CHALLENGE STATUS</label>
-                <div id="statusFilters" class="space-y-2">
+            <div class="header-status-column"> 
+                <div class="status-indicator-row">
+                    <button type="button" id="muteToggle" class="mute-btn">
+                        <i id="muteIcon" class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <span id="streamStatusText" class="roboto stream-text">OFFLINE</span>
+                    <div id="streamStatusIndicator" class="stream-status-indicator offline"></div>
+                </div>
+                
+                <div id="identityReminder" class="hidden">
+                    <div class="identity-flex">
+                        <span id="reminderUsername" class="roboto user-label"></span>
+                        <div id="platformContainer" class="roboto platform-label">
+                            on <span id="reminderPlatform" class="font-bold"></span>
+                        </div>
                     </div>
-            </div>
-
-            <div class="filter-group mb-6">
-                <label class="label-accent text-xs block mb-2">ACTIVATION RANGE</label>
-                <input type="range" id="activationSlider" min="0" max="21" value="21" class="w-full">
-                <div class="flex justify-between text-[10px] mt-1 text-gray-500">
-                    <span>0 DAYS</span>
-                    <span id="sliderValue">21 DAYS</span>
                 </div>
             </div>
+        </header>
 
-            <div class="filter-group">
-                <label class="label-accent text-xs block mb-2">PUSH THRESHOLD</label>
-                <input type="number" id="minPushFilter" placeholder="Min Pushes" class="primary-submit-btn w-full !bg-black !text-white !border-gray-700 !rounded-md !text-left">
-            </div>
-        </aside>
-
-        <main class="explorer-main list-pane">
-            <div class="list-controls">
-                <div class="search-bar-wrapper">
-                    <span class="neon-text mr-2">></span>
-                    <input type="text" id="globalSearch" placeholder="SEARCH SYSTEM DATABASE (ID, USER, TASK)..." autocomplete="off">
-                </div>
-                <div class="sync-status flex items-center text-[10px] text-gray-500">
-                    <span class="sync-dot"></span>
-                    <span id="syncTimer">SYNCING</span>
-                </div>
-            </div>
-
-            <div id="challengeList">
-                <div class="list-header">
-                    <span>ID</span>
-                    <span>STATUS</span>
-                    <span>PROPOSER</span>
-                    <span>TASK</span>
-                    <span>PUSHES</span>
-                </div>
-                <div id="listEntries">
+        <div class="explorer-content-grid">
+            <aside class="explorer-sidebar" id="filterPane">
+                <button class="pane-toggle" onclick="togglePane('filterPane')"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="pane-content">
+                    <h3 class="neon-text filter-pane-title">SYSTEM FILTERS</h3>
+                    
+                    <div class="filter-group">
+                        <label class="label-accent">DAYS ACTIVE</label>
+                        <div class="range-wrapper">
+                            <div class="dual-range-container">
+                                <div class="range-track"></div>
+                                <div id="rangeHighlight" class="range-highlight"></div>
+                                <input type="range" id="minDays" min="0" max="21" value="0" class="range-input">
+                                <input type="range" id="maxDays" min="0" max="21" value="21" class="range-input">
+                            </div>
+                            <div class="range-inputs-row">
+                                <input type="number" id="minDaysInput" value="0" min="0" max="21" class="small-num-input">
+                                <span class="range-to-label roboto">TO</span>
+                                <input type="number" id="maxDaysInput" value="21" min="0" max="21" class="small-num-input">
+                            </div>
+                        </div>
                     </div>
-            </div>
-        </main>
 
-        <aside class="explorer-sidebar detail-pane" id="detailPane">
-            <div id="emptyDetail" class="h-full flex flex-col items-center justify-center text-center opacity-30">
-                <i class="fa-solid fa-microchip text-4xl mb-4"></i>
-                <p class="text-xs roboto">AWAITING HYDRATION</p>
-            </div>
-            <div id="detailContent" class="hidden">
+                    <div class="filter-group">
+                        <label class="label-accent">CHALLENGE STATUS</label>
+                        <div id="statusFilters" class="status-filter-stack">
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'PENDING')">PENDING</div>
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'ACTIVE')">ACTIVE</div>
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'IN_PROGRESS')">IN_PROGRESS</div>
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'COMPLETED')">COMPLETED</div>
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'FAILED')">FAILED</div>
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'ARCHIVED')">ARCHIVED</div>
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'AUCTIONED')">AUCTIONED</div>
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'REMOVED')">REMOVED</div>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="label-accent">PUSH THRESHOLD</label>
+                        <input type="number" id="minPushFilter" placeholder="MIN" class="filter-input-round push-filter-input">
+                    </div>
                 </div>
-        </aside>
+            </aside>
+
+            <main class="explorer-main">
+                <div class="list-controls">
+                    <div class="search-bar-wrapper">
+                        <span class="neon-text search-prompt">></span>
+                        <input type="text" id="globalSearch" class="filter-input-round" placeholder="SEARCH DATABASE...">
+                    </div>
+                    <div id="syncTimer" class="sync-status">SYNCING</div>
+                </div>
+
+                <div id="challengeList">
+                    <div class="list-header">
+                        <span>ID</span>
+                        <span>STATUS</span>
+                        <span>PROPOSER</span>
+                        <span>DESCRIPTION</span>
+                        <span>PUSHES</span>
+                    </div>
+                    <div id="listEntries"></div>
+                </div>
+            </main>
+
+            <aside class="explorer-sidebar collapsed" id="detailPane">
+                <button class="pane-toggle" onclick="togglePane('detailPane')"><i class="fa-solid fa-chevron-right"></i></button>
+                <div class="pane-content">
+                    <div id="detailContent" class="hidden"></div>
+                </div>
+            </aside>
+        </div>
     </div>
+
     <social-links></social-links>
+</body>
 <script>
-    // --- CONFIG ---
     let allChallenges = [];
-    let submissionToken = '';
     let lastSyncTimestamp = new Date().toISOString();
+    // Tracking active status filters based on Prisma schema
+    let activeStatusFilters = ['PENDING', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'ARCHIVED', 'AUCTIONED', 'REMOVED'];
+
+    const IS_DEV = true; 
+    const TYPE_PAUSE = IS_DEV ? 10 : 420;
 
     const getApiBaseUrl = () => {
         const hostname = window.location.hostname;
-        if (['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)) return 'http://127.0.0.1:3000/api/v1';
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+            return 'http://127.0.0.1:3000/api/v1'; 
+        }
+        if (hostname.startsWith('192.168.')) {
+            return `http://${hostname}:3000/api/v1`; 
+        }
         return 'https://drummer-manager-api.vercel.app/api/v1';
     };
     const API_BASE_URL = getApiBaseUrl();
 
-    // --- AUTH & INITIALIZATION ---
-    window.onload = () => {
-        fetchStreamStatus();
-        verifyExplorerAccess();
-    };
+    const minDaysRange = document.getElementById('minDays');
+    const maxDaysRange = document.getElementById('maxDays');
+    const minDaysInput = document.getElementById('minDaysInput');
+    const maxDaysInput = document.getElementById('maxDaysInput');
+    const rangeHighlight = document.getElementById('rangeHighlight');
 
-    const verifyExplorerAccess = async () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        const lockIcon = document.getElementById('lockIcon');
-        const lockMessage = document.getElementById('lockMessage');
+    function syncRange() {
+        let minVal = parseInt(minDaysRange.value);
+        let maxVal = parseInt(maxDaysRange.value);
 
-        if (!token) {
-            lockIcon.className = "fa-solid fa-lock-outline text-red-500 text-4xl mb-4";
-            lockMessage.innerHTML = "ACCESS DENIED<br>Use !challengeexplorer in chat.";
-            return;
+        if (minVal > maxVal) {
+            let temp = minVal;
+            minVal = maxVal;
+            maxVal = temp;
         }
 
+        minDaysInput.value = minVal;
+        maxDaysInput.value = maxVal;
+
+        const left = (minVal / 21) * 100;
+        const right = 100 - (maxVal / 21) * 100;
+        rangeHighlight.style.left = left + "%";
+        rangeHighlight.style.right = right + "%";
+        
+        applyFilters();
+    }
+
+    // Toggle logic for the Status Filter stack
+    function toggleStatusFilter(element, status) {
+        element.classList.toggle('active');
+        if (activeStatusFilters.includes(status)) {
+            activeStatusFilters = activeStatusFilters.filter(s => s !== status);
+        } else {
+            activeStatusFilters.push(status);
+        }
+        applyFilters();
+    }
+
+    [minDaysRange, maxDaysRange].forEach(el => el.addEventListener('input', syncRange));
+    [minDaysInput, maxDaysInput].forEach(el => el.addEventListener('change', (e) => {
+        if(e.target.id === 'minDaysInput') minDaysRange.value = e.target.value;
+        else maxDaysRange.value = e.target.value;
+        syncRange();
+    }));
+
+    const typeWriter = (element, text, n, callback) => {
+        if (n < text.length) {
+            const typoIndex = text.indexOf('@') - 1; 
+            const hasTypoOccurred = element.getAttribute('data-typo') === 'true';
+
+            let delay = IS_DEV ? 1 : (Math.floor(Math.random() * 63) + 42); 
+            if (text.charAt(n) === ' ' || text.charAt(n) === ':') delay = IS_DEV ? 5 : 210;
+
+            if (n === typoIndex && !hasTypoOccurred) {
+                element.innerHTML = text.substring(0, n) + "q"; 
+                element.setAttribute('data-typo', 'true');
+                setTimeout(() => {
+                    element.innerHTML = text.substring(0, n);
+                    setTimeout(() => typeWriter(element, text, n, callback), TYPE_PAUSE); 
+                }, IS_DEV ? 5 : 210);
+                return;
+            }
+
+            element.innerHTML = text.substring(0, n + 1);
+            n++;
+            setTimeout(() => typeWriter(element, text, n, callback), delay);
+        } else if (callback) {
+            setTimeout(callback, TYPE_PAUSE);
+        }
+    };
+
+    window.onload = () => {
+        // Collapse filter pane by default on mobile devices
+        if (window.innerWidth <= 768) {
+            document.getElementById('filterPane').classList.add('collapsed');
+        }
+        fetchStreamStatus();
+        syncRange();
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('token');
+        const savedToken = localStorage.getItem('explorer_token');
+        const tokenToVerify = urlToken || savedToken;
+
+        if (tokenToVerify) {
+            verifyExplorerAccess(tokenToVerify);
+        } else {
+            showLockScreen("ACCESS DENIED<br><span style='font-size:11px'>Use !challengeexplorer in chat.</span>");
+        }
+    };
+
+    function showLockScreen(msg) {
+        document.getElementById('lockScreen').classList.remove('hidden');
+        document.getElementById('statusMessage1').innerHTML = msg;
+        document.getElementById('statusIcon').className = "fa-solid fa-lock status-icon-main neon-text";
+    }
+
+    const verifyExplorerAccess = async (token) => {
+        const statusIcon = document.getElementById('statusIcon');
+        const statusMessage1 = document.getElementById('statusMessage1');
+        
         try {
             const response = await fetch(`${API_BASE_URL}/token/verify-explorer`, {
                 method: 'POST',
@@ -251,45 +263,64 @@
             const data = await response.json();
 
             if (response.ok) {
-                document.getElementById('lockScreen').classList.add('hidden');
-                document.getElementById('identityReminder').classList.remove('hidden');
-                document.getElementById('reminderUsername').textContent = data.username;
-                document.getElementById('reminderPlatform').textContent = data.platformName;
+                const userSpan = document.getElementById('reminderUsername');
+                const platSpan = document.getElementById('reminderPlatform');
+                const platContainer = document.getElementById('platformContainer');
                 
-                loadInitialData();
-                startPolling(); // Begin polling after successful auth
+                userSpan.textContent = data.username;
+                platSpan.textContent = data.platformName;
+                
+                const platClass = `platform-${data.platformName.toLowerCase()}`;
+                userSpan.className = `roboto user-label ${platClass}`;
+                platContainer.className = `roboto platform-label ${platClass}`;
+
+                statusIcon.classList.remove('fa-spinner', 'fa-spin');
+                statusIcon.classList.add('fa-circle-check', 'text-success-green');
+                
+                statusMessage1.innerHTML = `<div class="typewriter-container"><div id="typewriter" class="typewriter-cursor"></div></div>`;
+                
+                typeWriter(document.getElementById('typewriter'), `> ACCESS GRANTED: ${data.username} @ ${data.platformName}`, 0, () => {
+                    document.getElementById('lockScreen').classList.add('hidden');
+                    document.getElementById('identityReminder').classList.remove('hidden');
+                    localStorage.setItem('explorer_token', token);
+                    loadInitialData();
+                    startPolling();
+                });
             } else {
-                lockMessage.textContent = data.message || "Invalid Token.";
+                statusIcon.classList.remove('fa-spinner', 'fa-spin');
+                statusIcon.classList.add('fa-lock', 'text-red-500');
+                statusMessage1.innerHTML = `ACCESS DENIED<br><span style='font-size:11px'>${data.message || 'Invalid Token'}</span>`;
             }
         } catch (err) {
-            lockMessage.textContent = "Connection Error.";
+            statusIcon.classList.remove('fa-spinner', 'fa-spin');
+            statusIcon.classList.add('fa-triangle-exclamation', 'text-red-500');
+            statusMessage1.innerHTML = "CONNECTION ERROR<br>System offline.";
         }
     };
 
-    // --- DATA OPERATIONS --- 
-    // Fetch initial data load
     async function loadInitialData() {
         try {
-            const res = await fetch(`${API_BASE_URL}/challenges`);
+            const res = await fetch(`${API_BASE_URL}/challenge`); 
+            if (!res.ok) throw new Error("Database offline");
             allChallenges = await res.json();
             renderList(allChallenges);
         } catch (err) { console.error("Fetch error", err); }
     }
 
-    /* Render the list of challenges */
     function renderList(challenges) {
         const container = document.getElementById('listEntries');
         container.innerHTML = '';
         challenges.forEach(c => {
             const row = document.createElement('div');
             row.className = 'entry-row animate-fadeIn';
-            const text = typeof c.challengeText === 'string' ? c.challengeText : JSON.stringify(c.challengeText);
+            const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
+            const textPreview = typeof c.challengeText === 'string' ? c.challengeText : 'Challenge Data';
             
             row.innerHTML = `
-                <span class="neon-text">#${c.challengeId}</span>
-                <span class="status-badge status-${c.status.toLowerCase()} text-[9px]">${c.status}</span>
-                <span class="font-bold">${c.proposer.accounts[0]?.username || 'Unknown'}</span>
-                <span class="text-dim text-xs">${text.substring(0, 60)}...</span>
+                <span class="neon-text">${c.challengeId}</span>
+                <span class="status-badge status-${c.status.toLowerCase()}">${c.status}</span>
+                <span class="font-bold">${proposerName}</span>
+                <span class="text-dim text-xs">${textPreview.substring(0, 50)}...</span>
                 <span class="neon-text text-center">${c.totalPush}</span>
             `;
             row.onclick = () => hydrateDetail(c);
@@ -297,24 +328,20 @@
         });
     }
 
-    // Polling for updates every 21 seconds
     async function startPolling() {
         setInterval(async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/challenges/delta?since=${lastSyncTimestamp}`);
+                const response = await fetch(`${API_BASE_URL}/challenge/delta?since=${lastSyncTimestamp}`);
                 if (!response.ok) return;
                 
                 const updates = await response.json();
                 if (updates.length > 0) {
                     updates.forEach(updatedChallenge => {
                         const index = allChallenges.findIndex(c => c.challengeId === updatedChallenge.challengeId);
-                        if (index !== -1) {
-                            allChallenges[index] = updatedChallenge;
-                        } else {
-                            allChallenges.unshift(updatedChallenge);
-                        }
+                        if (index !== -1) { allChallenges[index] = updatedChallenge; } 
+                        else { allChallenges.unshift(updatedChallenge); }
                     });
-                    renderList(allChallenges);
+                    applyFilters(); 
                     lastSyncTimestamp = new Date().toISOString();
                     
                     const syncTimer = document.getElementById('syncTimer');
@@ -329,60 +356,76 @@
         }, 21000);
     }
 
-    // Hydrate detail pane with challenge data
     function hydrateDetail(c) {
-        document.getElementById('emptyDetail').classList.add('hidden');
+        const detailPane = document.getElementById('detailPane');
+        detailPane.classList.remove('collapsed');
+        
         const content = document.getElementById('detailContent');
         content.classList.remove('hidden');
-
-        const shareLink = `${window.location.origin}/explorer?id=${c.challengeId}`;
+        
+        const shareLink = `${window.location.origin}/explorer/index.html?id=${c.challengeId}`;
+        const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
 
         content.innerHTML = `
-            <div class="protocol-header">
-                <h3 class="neon-text text-lg">TECHNICAL PROTOCOL</h3>
-                <div class="text-[10px] text-gray-500 roboto">ID: ${c.challengeId} | SEQUENCE: ${new Date(c.timestampSubmitted).getTime()}</div>
+            <div class="details-header">
+                <h3 class="neon-text details-title">CHALLENGE DETAILS</h3>
+                <div class="details-id-sub roboto">ID: ${c.challengeId} | SEQ: ${new Date(c.timestampSubmitted).getTime()}</div>
             </div>
-            
-            <div class="protocol-data-grid">
-                <div class="protocol-field"><label>Proposer</label><span>${c.proposer.username}</span></div>
-                <div class="protocol-field"><label>Status</label><span>${c.status}</span></div>
-                <div class="protocol-field"><label>Cadence</label><span>${c.sessionCadenceText || 'ONE-OFF'}</span></div>
-                <div class="protocol-field"><label>Pushes</label><span>${c.totalPush}</span></div>
+            <div class="challenge-data-grid">
+                <div class="challenge-field"><label>Proposer</label><span>${proposerName}</span></div>
+                <div class="challenge-field"><label>Status</label><span>${c.status}</span></div>
+                <div class="challenge-field"><label>Cadence</label><span>${c.sessionCadenceText || 'ONE-OFF'}</span></div>
+                <div class="challenge-field"><label>Pushes</label><span>${c.totalPush}</span></div>
             </div>
-
-            <div class="protocol-text-box roboto text-sm">
-                ${c.challengeText}
+            <div class="challenge-text-box roboto">${c.challengeText}</div>
+            <div class="challenge-field challenge-failure-field">
+                <label>Failure Reason</label>
+                <span class="failure-reason-val">${c.failureReason || 'NONE'}</span>
             </div>
-
-            <div class="protocol-field mb-4"><label>Failure Reason</label><span class="text-red-400 text-xs">${c.failureReason || 'NONE'}</span></div>
-
             <button onclick="copyToClipboard('${shareLink}')" class="primary-submit-btn share-btn">
-                <i class="fa-solid fa-share-nodes mr-2"></i> COPY DEEP LINK
+                <i class="fa-solid fa-share-nodes"></i> COPY DEEP LINK
             </button>
         `;
+
+        // UX Focus: Precise scroll calculation
+        // Simple but timed scroll: ensures the pane has layout space before scrolling
+        setTimeout(() => {
+            const detailPane = document.getElementById('detailPane');
+            detailPane.scrollIntoView({ 
+                behavior: 'smooth', 
+                inline: 'start', // Brings the left edge of the pane to the start of view
+                block: 'nearest' 
+            });
+        }, 100);
     }
 
-    // Apply filters to the challenge list
     const applyFilters = () => {
         const search = document.getElementById('globalSearch').value.toLowerCase();
-        const days = parseInt(document.getElementById('activationSlider').value);
         const minPush = parseInt(document.getElementById('minPushFilter').value) || 0;
+        const minD = parseInt(minDaysRange.value);
+        const maxD = parseInt(maxDaysRange.value);
 
         const filtered = allChallenges.filter(c => {
-            const textMatch = c.proposer.username.toLowerCase().includes(search) || 
+            const days = c.streamDaysSinceActivation || 0;
+            const dateMatch = days >= minD && days <= maxD;
+            
+            const statusMatch = activeStatusFilters.includes(c.status.toUpperCase());
+            
+            const proposerName = (c.proposer?.accounts?.[0]?.username || c.proposer?.username || '').toLowerCase();
+            const textMatch = proposerName.includes(search) || 
                                 c.challengeId.toString().includes(search) ||
-                                JSON.stringify(c.challengeText).toLowerCase().includes(search);
+                                String(c.challengeText).toLowerCase().includes(search);
+            
             const pushMatch = c.totalPush >= minPush;
-            const dateMatch = (c.streamDaysSinceActivation || 0) <= days;
-            return textMatch && pushMatch && dateMatch;
+            
+            return dateMatch && statusMatch && textMatch && pushMatch;
         });
         renderList(filtered);
     };
 
-    // --- HELPERS ---
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text);
-        alert("Protocol Link Copied to Clipboard");
+        alert("Challenge Link Copied to Clipboard");
     }
 
     const fetchStreamStatus = async () => {
@@ -396,13 +439,20 @@
         } catch (err) {}
     };
 
-    document.getElementById('globalSearch').addEventListener('input', applyFilters);
-    document.getElementById('activationSlider').addEventListener('input', (e) => {
-        document.getElementById('sliderValue').textContent = e.target.value + ' DAYS';
-        applyFilters();
-    });
-    document.getElementById('minPushFilter').addEventListener('input', applyFilters);
+    function togglePane(id) { 
+        const pane = document.getElementById(id);
+        pane.classList.toggle('collapsed');
 
+        if (id === 'detailPane' && pane.classList.contains('collapsed')) {
+            const mainList = document.querySelector('.explorer-main');
+            mainList.scrollIntoView({ 
+                behavior: 'smooth', 
+                inline: 'start' 
+            });
+        }
+    }
+
+    document.getElementById('globalSearch').addEventListener('input', applyFilters);
+    document.getElementById('minPushFilter').addEventListener('input', applyFilters);
 </script>
-</body>
 </html>
