@@ -59,7 +59,7 @@
 
         <div class="explorer-content-grid">
             <aside class="explorer-sidebar" id="filterPane">
-                <button class="pane-toggle" onclick="togglePane('filterPane')"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="pane-toggle" onclick="togglePane('filterPane', event)"><i class="fa-solid fa-chevron-left"></i></button>
                 <div class="pane-content">
                     <h3 class="neon-text filter-pane-title">SYSTEM FILTERS</h3>
                     
@@ -358,9 +358,10 @@
 
     function hydrateDetail(c) {
         const detailPane = document.getElementById('detailPane');
-        detailPane.classList.remove('collapsed');
-        
         const content = document.getElementById('detailContent');
+        
+        // Reveal pane and content immediately
+        detailPane.classList.remove('collapsed');
         content.classList.remove('hidden');
         
         const shareLink = `${window.location.origin}/explorer/index.html?id=${c.challengeId}`;
@@ -387,16 +388,13 @@
             </button>
         `;
 
-        // UX Focus: Precise scroll calculation
-        // Simple but timed scroll: ensures the pane has layout space before scrolling
+        // The "Landing" Scroll
         setTimeout(() => {
-            const detailPane = document.getElementById('detailPane');
             detailPane.scrollIntoView({ 
                 behavior: 'smooth', 
-                inline: 'start', // Brings the left edge of the pane to the start of view
-                block: 'nearest' 
+                inline: 'start' 
             });
-        }, 100);
+        }, 420);
     }
 
     const applyFilters = () => {
@@ -439,16 +437,27 @@
         } catch (err) {}
     };
 
-    function togglePane(id) { 
+    function togglePane(id, event) { 
+        if (event) event.stopPropagation();
+        
         const pane = document.getElementById(id);
+        // Force the toggle
         pane.classList.toggle('collapsed');
 
-        if (id === 'detailPane' && pane.classList.contains('collapsed')) {
+        // If we just OPENED the detail pane, we need to scroll to it
+        if (id === 'detailPane' && !pane.classList.contains('collapsed')) {
+            setTimeout(() => {
+                pane.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    inline: 'end', // Scroll to the right edge
+                    block: 'nearest' 
+                });
+            }, 100);
+        } 
+        // If we CLOSED it, scroll back to the list
+        else if (id === 'detailPane' && pane.classList.contains('collapsed')) {
             const mainList = document.querySelector('.explorer-main');
-            mainList.scrollIntoView({ 
-                behavior: 'smooth', 
-                inline: 'start' 
-            });
+            mainList.scrollIntoView({ behavior: 'smooth', inline: 'start' });
         }
     }
 
