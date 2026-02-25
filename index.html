@@ -3,45 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
+
     <title>21xHR - Drummer Manager Game</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
     <link rel="stylesheet" href="css/global.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/index.css">
+
     <script src="/js/social-links.js" defer></script>
 </head>
-<body class="dm-sans">
-    <div class="container my-auto">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 neon-text dm-sans uppercase tracking-tighter">
-            DRUMMER MANAGER
-        </h1>
+<body>
+    <div class="container main-hub-container">
+        <div class="main-card">
+            <h1 class="main-title neon-text">
+                DRUMMER MANAGER
+            </h1>
 
-        <p class="text-lg text-gray-400 mb-8 roboto uppercase tracking-widest text-[11px]">
-            Welcome to the mission hub
-        </p>
+            <p class="main-subtitle roboto">
+                Welcome to the experiment
+            </p>
 
-        <div class="flex flex-col md:flex-row justify-center items-center gap-4 mt-8">
-            <a href="/donation" class="link-button">
-                Support
-            </a>
-            
-            <a href="/faq" class="link-button">
-                How to Play
-            </a>
-
-            <a href="/challengesubmitform" class="link-button">
-                Propose Challenge
-            </a>
-            
-            <a href="https://lumiastream.com/dashboard/bio" target="_blank" class="link-button">
-                Lumia Bio
-            </a>
+            <div class="button-grid">
+                <a href="/explorer" target="_blank" class="link-button">Explore Database</a>
+                <a href="/faq" class="link-button">How to Play</a>
+                <a href="/challengesubmitform" class="link-button">Submit Challenge</a>
+                <a href="/donation" class="link-button">Support</a>
+            </div>
         </div>
     </div>
     
     <social-links></social-links>
-    
 </body>
 </html>
