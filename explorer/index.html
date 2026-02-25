@@ -123,7 +123,7 @@
             </main>
 
             <aside class="explorer-sidebar collapsed" id="detailPane">
-                <button class="pane-toggle" onclick="togglePane('detailPane')"><i class="fa-solid fa-chevron-right"></i></button>
+                <button class="pane-toggle" onclick="togglePane('detailPane')"><i class="fa-solid fa-chevron-left"></i></button>
                 <div class="pane-content">
                     <div id="detailContent" class="hidden"></div>
                 </div>
@@ -359,7 +359,11 @@
     function hydrateDetail(c) {
         const detailPane = document.getElementById('detailPane');
         const content = document.getElementById('detailContent');
-        
+        const paneContent = detailPane.querySelector('.pane-content'); // Get the scrollable area
+
+        // 1. Reset internal scroll IMMEDIATELY (no delay)
+        if (paneContent) paneContent.scrollTop = 0;
+
         // Reveal pane and content immediately
         detailPane.classList.remove('collapsed');
         content.classList.remove('hidden');
@@ -389,12 +393,19 @@
         `;
 
         // The "Landing" Scroll
-        setTimeout(() => {
-            detailPane.scrollIntoView({ 
-                behavior: 'smooth', 
-                inline: 'start' 
-            });
-        }, 420);
+            setTimeout(() => {
+    const grid = document.querySelector('.explorer-content-grid');
+    
+    // Reset the internal pane scroll again just to be safe
+    if (paneContent) paneContent.scrollTop = 0;
+
+    // Manually scroll the grid
+    grid.scrollTo({
+        top: 0,
+        left: detailPane.offsetLeft,
+        behavior: 'smooth'
+    });
+}, 420);
     }
 
     const applyFilters = () => {

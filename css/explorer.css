@@ -332,7 +332,7 @@ body {
     margin-bottom: 1.2rem; 
     border-bottom: 1px solid var(--primary-neon); 
     padding-bottom: 8px;
-    padding-left: 30px; /* Shift text right to make room for the toggle */
+    padding-left: 30px;
 }
 .details-title { 
     font-size: 1.1rem; 
@@ -373,32 +373,76 @@ body {
 
 /* Mobile-Specific Refinements */
 @media (max-width: 768px) {
+    
+    /* 1. App & Grid Layout Controls */
     .explorer-app-container {
-        overflow-x: auto;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        overflow: hidden; /* This clips any "leaking" content from sidebars */
+        margin: 0;
+        border-radius: 0; /* Optional: looks better on mobile to be flush */
     }
 
     .explorer-content-grid {
         display: flex;
         flex-direction: row;
-        width: fit-content; 
-        min-width: 100%;
-        flex: 1;
-        overflow-x: auto; 
+        width: 100%; /* Change from fit-content */
+        overflow-x: auto;
         overflow-y: hidden;
-        scroll-behavior: smooth; 
-        position: relative;
-        align-items: stretch;
+        /* Enable momentum scrolling for iOS */
+        -webkit-overflow-scrolling: touch; 
     }
+
+    body {
+        padding-left: 0;
+        padding-right: 0;
+        overflow-x: hidden; /* Final safety lock */
+    }
+
+    /* 2. Brand & Header Refinements */
+    .brand-title { font-size: 1.8rem; }
+    .brand-subtitle { font-size: 0.9rem; }
 
     .search-bar-wrapper {
         min-width: 210px;
         flex-shrink: 0;
     }
 
+    /* 3. Main List Width */
     .explorer-main {
         min-width: 100vw;
     }
 
-    .brand-title { font-size: 1.8rem; }
-    .brand-subtitle { font-size: 0.9rem; }
+    /* 4. Detail Pane (The "New Page" Feel) */
+    #detailPane { 
+        width: 100vw;
+        min-width: 100vw;
+        max-width: 100vw;
+        border-left: none;
+        overflow: hidden; /* Prevent the pane itself from scrolling horizontally */
+    }
+
+    .pane-content {
+        min-width: 0 !important;
+        width: 100vw;
+        max-width: 100vw;
+        padding: 15px;
+        overflow-x: hidden; /* Force content to stay inside */
+    }
+    
+    /* 5. Detail Internal Content Overrides */
+    .details-header {
+        padding-left: 35px; /* Room for toggle button */
+        width: 100%;
+    }
+    
+    .challenge-data-grid {
+        grid-template-columns: 1fr 1fr; /* Stack vertically to prevent wiggle */
+        gap: 12px;
+    }
+
+    .challenge-text-box {
+        width: 100%;
+        word-break: break-all; /* Prevents long IDs or URLs from pushing the width */
+    }
 }
