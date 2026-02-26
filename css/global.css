@@ -25,6 +25,9 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
     /* Harmonized Timings */
     --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
     --anim-speed: 0.3s;
+
+    --footer-height: 60px;
+    --page-padding: 1rem;
 }
 
 
@@ -63,13 +66,21 @@ body {
     font-family: 'DM Sans', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
-    min-height: 100vh;
-    padding: 2rem 2rem 100px 2rem; 
+    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    box-sizing: border-box;
     animation: fadeIn 0.8s var(--ease-standard);
     position: relative;
+    padding: var(--page-padding) var(--page-padding) var(--footer-height) var(--page-padding) !important;
+}
+
+/* Ensure all containers respect the box model */
+*, *::before, *::after {
+    box-sizing: border-box;
 }
 
 .container {
@@ -205,44 +216,42 @@ html, body {
    ------------------------------------------------------------------ */
 .fixed-social-links-container {
     position: fixed !important;
-    bottom: 0 !important;
     box-sizing: border-box !important;
-    left: 0 !important;
     width: 100% !important;
-    height: 80px !important; 
-    background-color: #0c0c0c !important;
-    border-top: 1px solid rgba(242, 189, 21, 0.15) !important;
+    height: var(--footer-height) !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    background-color: var(--background-color) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
     align-items: center !important;
     padding: 0 !important; 
     margin: 0 !important;
-    z-index: 100 !important;
+    z-index: 0 !important;
 }
 
 .fixed-social-links-container h2 {
     font-size: 10px !important;
     line-height: 1 !important;
-    margin: 0 0 10px 0 !important;
-    padding: 0 !important;
+    padding: 0px 0px 0px 0px!important;
     letter-spacing: 0.25em !important;
-    color: white !important;
+    color: var(--subtext-color) !important;
     font-weight: 700 !important;
 }
 
 .fixed-social-links-container .social-link-wrapper {
     display: flex !important;
     justify-content: center !important;
-    gap: 24px !important;
-    line-height: 1 !important;
+    gap: 42px !important;
+    padding: 0px 0px 10px 0px!important;
 }
 
 .fixed-social-links-container .social-link {
     font-size: 20px !important;
-    color: rgba(242, 242, 242, 0.8) !important;
-    width: 32px !important; 
-    height: 32px !important;
+    color: rgba(242, 242, 242, 1) !important;
+    width: 21px !important; 
+    height: 21px !important;
     display: inline-flex !important;
     justify-content: center !important;
     align-items: center !important;
