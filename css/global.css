@@ -5,13 +5,6 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
 ------------------------------------------------------------------
 */
 
-
-/* ------------------------------------------------------------------
-   GOOGLE FONTS IMPORT
-   ------------------------------------------------------------------ */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Roboto:wght@400;700&display=swap');
-
-
 /* ------------------------------------------------------------------
    CSS VARIABLES
    ------------------------------------------------------------------ */
@@ -43,13 +36,11 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* One master keyframe for all neon text */
 @keyframes neon-text-pulse {
     from { text-shadow: 0 0 3px var(--primary-neon), 0 0 7px var(--primary-neon), 0 0 21px var(--primary-neon); }
     to { text-shadow: 0 0 1px var(--primary-neon), 0 0 2px var(--primary-neon), 0 0 7px var(--primary-neon); }
 }
 
-/* One master keyframe for all neon borders/boxes */
 @keyframes neon-border-pulse {
     0%, 100% { box-shadow: 0 0 7px var(--primary-neon); border-color: rgba(242, 189, 21, 0.3); }
     50% { box-shadow: 0 0 21px var(--primary-neon); border-color: var(--primary-neon); }
@@ -69,11 +60,11 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
    CORE LAYOUT
    ------------------------------------------------------------------ */
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     min-height: 100vh;
-    padding: 2rem 2rem 100px 2rem; /* Bottom padding for fixed footer */
+    padding: 2rem 2rem 100px 2rem; 
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -81,7 +72,6 @@ body {
     position: relative;
 }
 
-/* Main page container styles (Container for FAQ/Leaderboard/Main page) */
 .container {
     max-width: 810px;
     width: 100%;
@@ -98,14 +88,8 @@ html, body {
     position: relative;
 }
 
-.dm-sans {
-    font-family: 'DM Sans', sans-serif;
-}
-
-.roboto {
-    font-family: 'Roboto', sans-serif;
-}
-
+.dm-sans { font-family: 'DM Sans', sans-serif; }
+.roboto { font-family: 'Roboto', sans-serif; }
 
 
 /* ------------------------------------------------------------------
@@ -113,10 +97,7 @@ html, body {
    ------------------------------------------------------------------ */
 .neon-text {
     color: var(--primary-neon);
-    text-shadow:
-        0 0 3px var(--primary-neon),
-        0 0 7px var(--primary-neon),
-        0 0 21px var(--primary-neon);
+    text-shadow: 0 0 3px var(--primary-neon), 0 0 7px var(--primary-neon), 0 0 21px var(--primary-neon);
     animation: neon-text-pulse 2.1s infinite alternate;
 }
 
@@ -140,43 +121,28 @@ html, body {
     text-shadow: 0 0 3px var(--primary-neon), 0 0 5px var(--primary-neon);
 }
 
-.hidden {
-    display: none !important;
-}
+.hidden { display: none !important; }
 
-/* Platform Color Classes */
-.platform-twitch { color: var(--platform-twitch); }
-.platform-youtube { color: var(--platform-youtube); }
-.platform-kick { color: var(--platform-kick); }
+.platform-twitch { color: var(--platform-twitch) !important; }
+.platform-youtube { color: var(--platform-youtube) !important; }
+.platform-kick { color: var(--platform-kick) !important; }
 
 
 /* ------------------------------------------------------------------
    GLOBAL BUTTONS & INTERACTIVITY
    ------------------------------------------------------------------ */
-/* --- MASTER TOOLTIP BASE --- */
 .info-tooltip-text {
-    /* RESET & CORE HIDDEN STATE */
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
     z-index: 99999;
     transition: opacity 0.3s ease, visibility 0.3s ease;
-
-    /* MASTER CENTERED POSITIONING (Restored) */
     position: fixed !important;
     top: 50dvh !important;
     left: 50dvw !important;
     transform: translate(-50%, -50%) !important;
-    right: auto !important;
-    bottom: auto !important;
-    margin: 0 !important;
-
-    /* FLUID BOX STYLING */
     width: 280px;
     max-width: 85vw;
-    min-height: fit-content !important;
-    max-height: 80dvh; /* Safety: never taller than 80% of the screen */
-    overflow-y: auto;  /* Allows scrolling if text is long */
     background-color: rgba(0, 0, 0, 0.98) !important;
     color: #fff !important;
     text-align: center;
@@ -184,19 +150,15 @@ html, body {
     border-radius: 12px;
     border: 2px solid var(--primary-neon);
     box-shadow: 0 0 100px rgba(0,0,0,0.9);
-
-    /* FLUID TYPOGRAPHY */
-    font-size: clamp(12px, 2.5vw, 20px); /* Fluid scaling based on width */
+    font-size: clamp(12px, 2.5vw, 20px);
     line-height: 1.6;
 }
 
-/* TRIGGER: Only when the icon container itself is hovered */
 .info-tooltip-container:hover .info-tooltip-text {
     visibility: visible;
     opacity: 1;
 }
 
-/* Interactive button styles (Primary action) */
 .primary-submit-btn {
     background-color: var(--primary-neon);
     color: var(--background-color);
@@ -204,10 +166,7 @@ html, body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: 
-        background-color 0.2s ease, 
-        box-shadow 0.2s ease,
-        transform 0.1s ease;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
     box-shadow: 0 0 5px rgba(242, 210, 0, 0.1);
     border: 1px solid var(--primary-neon);
     border-radius: 21px;
@@ -215,7 +174,7 @@ html, body {
     padding: 10px 24px;
     min-height: 40px;
     font-weight: 700;
-    text-decoration: none; /* Crucial for the <a> tags in FAQ */
+    text-decoration: none;
 }
 
 .primary-submit-btn:hover:not(:disabled) {
@@ -230,31 +189,6 @@ html, body {
     border-color: #555;
 }
 
-.primary-submit-btn:active:not(:disabled) {
-    transform: scale(0.98); 
-    box-shadow: 0 0 5px var(--primary-neon);
-}
-
-
-/* Link Button (Main Page Links) */
-.link-button {
-    display: inline-block;
-    padding: 0.75rem 2rem;
-    margin: 0.5rem;
-    background-color: var(--primary-neon);
-    color: var(--background-color);
-    font-weight: bold;
-    text-decoration: none;
-    border-radius: 21px;
-    transition: all 0.3s ease;
-}
-
-.link-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Social links styles */
 .social-link {
     color: var(--subtext-color);
     transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease;
@@ -266,27 +200,63 @@ html, body {
     text-shadow: 0 0 5px var(--primary-neon);
 }
 
-
 /* ------------------------------------------------------------------
    MAIN CONTAINERS & LAYOUTS
    ------------------------------------------------------------------ */
 .fixed-social-links-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    background-color: var(--background-color);
-    padding: 10px 0;
-    z-index: 10;
-    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
-    flex-shrink: 0;
+    position: fixed !important;
+    bottom: 0 !important;
+    box-sizing: border-box !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 80px !important; 
+    background-color: #0c0c0c !important;
+    border-top: 1px solid rgba(242, 189, 21, 0.15) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0 !important; 
+    margin: 0 !important;
+    z-index: 100 !important;
+}
+
+.fixed-social-links-container h2 {
+    font-size: 10px !important;
+    line-height: 1 !important;
+    margin: 0 0 10px 0 !important;
+    padding: 0 !important;
+    letter-spacing: 0.25em !important;
+    color: white !important;
+    font-weight: 700 !important;
+}
+
+.fixed-social-links-container .social-link-wrapper {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 24px !important;
+    line-height: 1 !important;
+}
+
+.fixed-social-links-container .social-link {
+    font-size: 20px !important;
+    color: rgba(242, 242, 242, 0.8) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+}
+
+.fixed-social-links-container .social-link:hover {
+    text-decoration: none !important;
+    color: var(--primary-neon) !important;
+    transform: scale(1.1) !important;
 }
 
 /* ------------------------------------------------------------------
    SPECIFIC COMPONENT STYLES
    ------------------------------------------------------------------ */
-/* Stream Status Indicators */
 .stream-status-indicator {
     width: 8px;
     height: 8px;
@@ -296,4 +266,4 @@ html, body {
     box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
 }
 .live { background-color: var(--success-green); box-shadow: 0 0 8px var(--success-green); }
-.offline { background-color: var(--platform-youtube); }
+.offline { background-color: var(--error-red) }
