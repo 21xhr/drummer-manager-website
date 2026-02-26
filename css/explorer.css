@@ -171,31 +171,91 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
-    flex-shrink: 0;
-    width: 210px; 
+    flex-shrink: 0; 
     z-index: 20;
-    overflow-x: hidden;
 }
 
-#filterPane { border: none; } 
+#filterPane { 
+    border-right: 1px solid rgba(242, 189, 21, 0.1);
+    width: 210px;
+} 
+
 #detailPane { 
     width: 450px; 
     border-left: 1px solid rgba(242, 189, 21, 0.1); 
-    background: rgba(10, 10, 10, 0.95); 
+    background: rgba(10, 10, 10, 0.95);
+    z-index: 30; 
 }
 
-/* Specific Toggle positions */
+#detailPane.collapsed { 
+    display: none !important; 
+}
+
+/* Pane Toggle Logic */
+.pane-toggle {
+    position: absolute; 
+    top: 20px; 
+    z-index: 100; 
+    background: rgba(0, 0, 0, 0.8); 
+    border: 1px solid rgba(242, 189, 21, 0.5);
+    color: var(--primary-neon);
+    width: 14px; 
+    height: 24px;
+    border-radius: 6px; 
+    cursor: pointer; 
+    display: flex;
+    align-items: center; 
+    justify-content: center; 
+    font-size: 9px;
+    transition: all 0.3s ease;
+    pointer-events: auto !important;
+}
+
+.pane-toggle:hover {
+    border-color: var(--primary-neon);
+    color: var(--primary-neon);
+    background: black;
+    box-shadow: 0 0 21px rgba(242, 189, 21, 0.3);
+}
+
+/* Individual Pane Toggle Positions */
 #filterPane .pane-toggle { 
-    right: 10px;
+    right: -21px; 
 }
 
 #detailPane .pane-toggle { 
-    left: 10px; 
-    top: 22px;
+    left: 21px;
+}
+
+/* Pane Toggle Collapsed Adjustments */
+#filterPane.collapsed .pane-toggle { 
+    right: -21px; 
+    transform: rotate(180deg);
 }
 
 #detailPane.collapsed .pane-toggle { 
+    left: 21px; 
+    transform: rotate(180deg);
     display: none !important; 
+}
+
+/* Sidebar Collapsed State */
+.explorer-sidebar.collapsed { 
+    width: 0px !important; 
+    min-width: 0px !important;
+    flex-basis: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important; 
+    opacity: 1; 
+    overflow: visible; 
+    pointer-events: none; 
+}
+
+.explorer-sidebar.collapsed .pane-content {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .pane-content {
@@ -203,7 +263,7 @@ body {
     padding-top: 25px;
     min-width: 210px;
     overflow-y: auto;
-    overflow-x: hidden; /* Prevent horizontal scrollbar inside the pane */
+    overflow-x: hidden;
     height: 100%;
     scrollbar-width: thin;
     scrollbar-color: var(--primary-neon) transparent;
@@ -245,57 +305,6 @@ body {
     display: block;
 }
 
-/* Pane Toggle Logic */
-.explorer-sidebar.collapsed { 
-    width: 0px !important; 
-    min-width: 0px !important;
-    flex-basis: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important; 
-    opacity: 1; 
-    overflow: visible; /* Allows toggle buttons to show when width is 0 */
-    pointer-events: none; 
-}
-
-.explorer-sidebar.collapsed .pane-content {
-    display: none;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.pane-toggle {
-    position: absolute; 
-    top: 20px; 
-    z-index: 100; 
-    background: rgba(0, 0, 0, 0.8); 
-    border: 1px solid rgba(242, 189, 21, 0.5);
-    color: var(--primary-neon);
-    width: 14px; 
-    height: 24px;
-    border-radius: 6px; 
-    cursor: pointer; 
-    display: flex;
-    align-items: center; 
-    justify-content: center; 
-    font-size: 9px;
-    transition: all 0.3s ease;
-    pointer-events: auto !important;
-}
-
-.pane-toggle:hover {
-    border-color: var(--primary-neon);
-    color: var(--primary-neon);
-    background: black;
-}
-
-/* Adjusted collapsed positions */
-#filterPane.collapsed .pane-toggle { 
-    right: -21px; 
-    transform: rotate(180deg);
-}
-#detailPane.collapsed .pane-toggle { left: -35px; transform: rotate(180deg); }
-
 /* List Controls */
 .list-controls { padding: 15px 45px; display: flex; align-items: center; justify-content: flex-start; gap: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
 .search-bar-wrapper { max-width: 280px; flex-grow: 0; display: flex; align-items: center; background: rgba(0,0,0,0.5); padding: 0 15px; border-radius: 21px; border: 1px solid #333; }
@@ -307,10 +316,17 @@ body {
 /* Grid Table */
 .list-header, .entry-row {
     display: grid;
-    grid-template-columns: 50px 90px 120px 1fr 70px;
+    grid-template-columns: 50px 90px 120px minmax(200px, 1fr) 80px !important;
     gap: 15px;
     align-items: center;
     width: 100%;
+    min-width: 600px;
+}
+
+.list-header > div:last-child, 
+.entry-row > div:last-child {
+    text-align: right;
+    padding-right: 10px;
 }
 
 .list-header {
@@ -322,7 +338,7 @@ body {
 #challengeList { 
     flex: 1; 
     overflow-y: auto; 
-    overflow-x: hidden; 
+    overflow-x: auto; 
     scrollbar-width: thin; 
     scrollbar-color: var(--primary-neon) transparent; 
 }
@@ -386,32 +402,29 @@ body {
 /* Mobile-Specific Refinements */
 @media (max-width: 768px) {
     
-    /* 1. App & Grid Layout Controls */
     .explorer-app-container {
         width: 100vw !important;
         max-width: 100vw !important;
-        overflow: hidden; /* This clips any "leaking" content from sidebars */
+        overflow: hidden; 
         margin: 0;
-        border-radius: 0; /* Optional: looks better on mobile to be flush */
+        border-radius: 0; 
     }
 
     .explorer-content-grid {
         display: flex;
         flex-direction: row;
-        width: 100%; /* Change from fit-content */
+        width: 100%; 
         overflow-x: auto;
         overflow-y: hidden;
-        /* Enable momentum scrolling for iOS */
         -webkit-overflow-scrolling: touch; 
     }
 
     body {
         padding-left: 0;
         padding-right: 0;
-        overflow-x: hidden; /* Final safety lock */
+        overflow-x: hidden; 
     }
 
-    /* 2. Brand & Header Refinements */
     .brand-title { font-size: 1.8rem; }
     .brand-subtitle { font-size: 0.9rem; }
 
@@ -420,41 +433,40 @@ body {
         flex-shrink: 0;
     }
 
-    /* 3. Main List Width */
     .explorer-main {
         min-width: 100vw;
     }
 
-    /* 4. Detail Pane (The "New Page" Feel) */
     #detailPane { 
-        width: 100vw;
-        min-width: 100vw;
-        max-width: 100vw;
-        border-left: none;
-        overflow: hidden; /* Prevent the pane itself from scrolling horizontally */
+        width: 100vw !important;
+        min-width: 100vw !important;
+        max-width: 100vw !important;
+        overflow: hidden; 
     }
 
     .pane-content {
         min-width: 0 !important;
-        width: 100vw;
-        max-width: 100vw;
-        padding: 15px;
-        overflow-x: hidden; /* Force content to stay inside */
+        padding: 0px 42px 0px 42px !important;
+        overflow-x: hidden; 
+        box-sizing: border-box !important;
     }
     
-    /* 5. Detail Internal Content Overrides */
     .details-header {
-        padding-left: 35px; /* Room for toggle button */
+        padding-left: 0 !important;
         width: 100%;
     }
     
     .challenge-data-grid {
-        grid-template-columns: 1fr 1fr; /* Stack vertically to prevent wiggle */
+        grid-template-columns: 1fr 1fr; 
         gap: 12px;
     }
 
     .challenge-text-box {
         width: 100%;
-        word-break: break-all; /* Prevents long IDs or URLs from pushing the width */
+        word-break: break-all; 
+    }
+
+    .range-wrapper {
+        max-width: max-content;
     }
 }

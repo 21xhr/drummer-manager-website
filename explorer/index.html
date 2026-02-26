@@ -136,7 +136,6 @@
 <script>
     let allChallenges = [];
     let lastSyncTimestamp = new Date().toISOString();
-    // Tracking active status filters based on Prisma schema
     let activeStatusFilters = ['PENDING', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'ARCHIVED', 'AUCTIONED', 'REMOVED'];
 
     const IS_DEV = true; 
@@ -181,7 +180,6 @@
         applyFilters();
     }
 
-    // Toggle logic for the Status Filter stack
     function toggleStatusFilter(element, status) {
         element.classList.toggle('active');
         if (activeStatusFilters.includes(status)) {
@@ -226,7 +224,6 @@
     };
 
     window.onload = () => {
-        // Collapse filter pane by default on mobile devices
         if (window.innerWidth <= 768) {
             document.getElementById('filterPane').classList.add('collapsed');
         }
@@ -267,18 +264,14 @@
                 const platSpan = document.getElementById('reminderPlatform');
                 const platContainer = document.getElementById('platformContainer');
                 
-                // Set text
                 userSpan.textContent = data.username;
                 platSpan.textContent = data.platformName;
                 
-                // Define the brand class (e.g., 'platform-twitch')
                 const platClass = `platform-${data.platformName.toLowerCase()}`;
                 
-                // Apply colors ONLY to the specific identity parts
                 userSpan.className = `roboto user-label ${platClass}`;
                 platSpan.className = `font-bold ${platClass}`;
-                
-                // The container itself keeps the grey 'on' color
+            
                 platContainer.className = `roboto platform-label`;
 
                 statusIcon.classList.remove('fa-spinner', 'fa-spin');
@@ -366,12 +359,10 @@
     function hydrateDetail(c) {
         const detailPane = document.getElementById('detailPane');
         const content = document.getElementById('detailContent');
-        const paneContent = detailPane.querySelector('.pane-content'); // Get the scrollable area
+        const paneContent = detailPane.querySelector('.pane-content'); 
 
-        // 1. Reset internal scroll IMMEDIATELY (no delay)
         if (paneContent) paneContent.scrollTop = 0;
 
-        // Reveal pane and content immediately
         detailPane.classList.remove('collapsed');
         content.classList.remove('hidden');
         
@@ -399,20 +390,18 @@
             </button>
         `;
 
-        // The "Landing" Scroll
-            setTimeout(() => {
-    const grid = document.querySelector('.explorer-content-grid');
-    
-    // Reset the internal pane scroll again just to be safe
-    if (paneContent) paneContent.scrollTop = 0;
 
-    // Manually scroll the grid
-    grid.scrollTo({
-        top: 0,
-        left: detailPane.offsetLeft,
-        behavior: 'smooth'
-    });
-}, 420);
+            setTimeout(() => {
+                const grid = document.querySelector('.explorer-content-grid');
+                
+                if (paneContent) paneContent.scrollTop = 0;
+
+                grid.scrollTo({
+                    top: 0,
+                    left: detailPane.offsetLeft,
+                    behavior: 'smooth'
+                });
+            }, 21);
     }
 
     const applyFilters = () => {
@@ -459,20 +448,18 @@
         if (event) event.stopPropagation();
         
         const pane = document.getElementById(id);
-        // Force the toggle
+
         pane.classList.toggle('collapsed');
 
-        // If we just OPENED the detail pane, we need to scroll to it
         if (id === 'detailPane' && !pane.classList.contains('collapsed')) {
             setTimeout(() => {
                 pane.scrollIntoView({ 
                     behavior: 'smooth', 
-                    inline: 'end', // Scroll to the right edge
+                    inline: 'end',
                     block: 'nearest' 
                 });
-            }, 100);
+            }, 21);
         } 
-        // If we CLOSED it, scroll back to the list
         else if (id === 'detailPane' && pane.classList.contains('collapsed')) {
             const mainList = document.querySelector('.explorer-main');
             mainList.scrollIntoView({ behavior: 'smooth', inline: 'start' });
