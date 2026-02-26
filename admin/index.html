@@ -2,7 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
+
     <title>DMG | Command Center</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/admin.css">
 </head>
@@ -25,8 +35,9 @@
         </form>
     </div>
 
-    <div id="admin-content" style="display:none; width: 100%;">
-    <h1 class="dm-sans neon-text" style="text-align: center; width: 100%; margin: 40px 0;">GAME STATE MONITOR</h1>
+    <div id="admin-content" class="admin-content-hidden">
+        <h1 class="neon-text dashboard-title">GAME STATE MONITOR</h1>
+        
         <div class="admin-grid">
             <div class="admin-card">
                 <h2>System Status</h2>
@@ -64,9 +75,9 @@
                 </div>
                 <div class="data-row">
                     <span class="metric-label">Total Refunded</span>
-                    <span id="refunded" class="data-value" style="color: var(--error-red)">0</span>
+                    <span id="refunded" class="data-value economy-red">0</span>
                 </div>
-                <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
+                <hr class="admin-hr">
                 <div class="data-row">
                     <span class="neon-text metric-label">Net Flow</span>
                     <span id="net-economy" class="admin-metric">0</span>
@@ -80,20 +91,20 @@
                     <span id="chest" class="admin-metric">0</span>
                 </div>
                 <div class="data-row">
-                    <span class="metric-label">Pusher Pool</span>
-                    <span id="pushers" class="admin-metric">0</span>
+                    <span class="metric-label">Returned to Pushers</span>
+                    <span id="returned-to-pushers" class="admin-metric">0</span>
                 </div>
-                <hr style="border:0; border-top:1px dashed #444; margin:15px 0;">
+                <hr class="admin-hr-dashed">
                 <div class="data-row">
-                    <span class="metric-label">"Removals" Refunded</span>
-                    <span id="volatility" class="data-value">0</span>
+                    <span class="metric-label">Removal Redistribution</span>
+                    <span id="removal-redistribution-total" class="data-value">0</span>
                 </div>
             </div>
         </div>
     </div>
 
 <script>
-        const getApiBaseUrl = () => {
+const getApiBaseUrl = () => {
     const host = window.location.hostname;
     if (['localhost', '127.0.0.1', '0.0.0.0'].includes(host)) return 'http://127.0.0.1:3000/api/v1';
     return host.startsWith('192.168.') ? `http://${host}:3000/api/v1` : 'https://drummer-manager-api.vercel.app/api/v1';
@@ -102,23 +113,15 @@
 const API_BASE_URL = getApiBaseUrl();
 let refreshInterval = null;
 
-/**
- * Handle Login
- */
 function unlock(event) {
     if (event) event.preventDefault();
     const key = document.getElementById('admin-key-input').value;
     const feedback = document.getElementById('login-feedback');
-    
     if (!key) return feedback.textContent = "KEY REQUIRED";
-    
     sessionStorage.setItem('dmg_admin_key', key);
     updateDashboard();
 }
 
-/**
- * Fetch and Render Data
- */
 async function updateDashboard() {
     const key = sessionStorage.getItem('dmg_admin_key');
     if (!key) return;
@@ -135,21 +138,17 @@ async function updateDashboard() {
         }
 
         const data = await res.json();
-
-        // Check if the API actually returned a success status
         if (data.status !== "OK") {
             document.getElementById('login-feedback').textContent = data.message || "API ERROR";
             return;
         }
         
-        // Toggle UI visibility
+        // Use class toggle instead of inline display
         document.getElementById('login-overlay').classList.add('hidden');
-        document.getElementById('admin-content').style.display = 'block';
+        document.getElementById('admin-content').classList.remove('admin-content-hidden');
 
-        // Update DOM using the PulseResponse Contract
         const { systems, financials, maintenance } = data;
 
-        // Health
         const db = document.getElementById('db-status');
         const rd = document.getElementById('redis-status');
         db.textContent = systems.supabase;
@@ -157,31 +156,25 @@ async function updateDashboard() {
         rd.textContent = systems.upstash;
         rd.className = systems.upstash === 'UP' ? 'status-up' : 'status-down';
 
-        // Clocks
         document.getElementById('real-day').textContent = maintenance.realDay;
         document.getElementById('stream-day').textContent = maintenance.streamDay;
 
-        // Handle the ISO Date
         const maintDisplay = document.getElementById('last-maint');
         if (maintenance.lastRun) {
             const dateObj = new Date(maintenance.lastRun);
-            // Display in a clean, readable UTC format
             maintDisplay.textContent = dateObj.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
         } else {
             maintDisplay.textContent = "NEVER";
         }
 
-        // Financials
         document.getElementById('gross-spent').textContent = Number(financials.grossSpent).toLocaleString();
         document.getElementById('refunded').textContent = Number(financials.refunded).toLocaleString();
         document.getElementById('net-economy').textContent = Number(financials.netEconomy).toLocaleString();
 
-        // Asset Allocation
         document.getElementById('chest').textContent = Number(financials.communityChest).toLocaleString();
-        document.getElementById('pushers').textContent = Number(financials.totalToPushers).toLocaleString();
-        document.getElementById('volatility').textContent = Number(financials.totalCausedByRemovals).toLocaleString();
+        document.getElementById('returned-to-pushers').textContent = Number(financials.totalToPushers).toLocaleString();
+        document.getElementById('removal-redistribution-total').textContent = Number(financials.totalCausedByRemovals).toLocaleString();
 
-        // Start Auto-Refresh if not already running
         if (!refreshInterval) refreshInterval = setInterval(updateDashboard, 60000);
 
     } catch (err) {
@@ -190,10 +183,9 @@ async function updateDashboard() {
     }
 }
 
-// Initial Run
 if (sessionStorage.getItem('dmg_admin_key')) {
     updateDashboard();
 }
 </script>
 </body>
-</html> 
+</html>

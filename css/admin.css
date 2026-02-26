@@ -12,23 +12,35 @@ body.admin-body {
     align-items: center; 
     font-family: 'DM Sans', sans-serif;
     color: var(--text-color);
-    min-height: 100vh;
+    height: 100vh; /* Changed from min-height to lock viewport */
+    overflow: hidden; /* Prevent vertical scroll */
 }
 
+/* Replaces inline style for the main wrapper */
 #admin-content {
     width: 95%;
     max-width: 1600px; 
-    padding: 60px 0;
+    padding: 2vh 0; /* Reduced from 60px to scale with height */
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 100vh;
+    box-sizing: border-box;
+    justify-content: center;
 }
 
-h1.neon-text {
-    font-size: 4rem; 
+/* Logic for toggling visibility without Tailwind 'hidden' */
+.admin-content-hidden {
+    display: none !important;
+}
+
+/* Replaces inline style for h1 */
+.dashboard-title {
+    font-size: 2.5rem; /* Reduced from 4rem for single viewport fit */
     text-align: center;
+    width: 100%;
     letter-spacing: 6px;
-    margin-bottom: 4rem;
+    margin: 0 0 2vh 0 !important; /* Tightened margins */
 }
 
 /* 2. Login Overlay & Card */
@@ -40,6 +52,11 @@ h1.neon-text {
     align-items: center; 
     justify-content: center; 
     z-index: 999; 
+}
+
+/* Support for the JS hidden class */
+#login-overlay.hidden {
+    display: none;
 }
 
 .login-box {
@@ -78,7 +95,7 @@ h1.neon-text {
 .admin-grid { 
     display: grid; 
     grid-template-columns: repeat(4, 1fr); 
-    gap: 35px; 
+    gap: 20px; /* Reduced from 35px to save vertical space */
     width: 100%;
 }
 
@@ -87,7 +104,7 @@ h1.neon-text {
     background: var(--secondary-bg); 
     border: 3px solid #222; 
     border-radius: 20px; 
-    padding: 35px 20px; 
+    padding: 2vh 20px; /* Changed from 35px to 2vh */
     display: flex;
     flex-direction: column;
     align-items: center; 
@@ -101,19 +118,17 @@ h1.neon-text {
 }
 
 .admin-card h2 {
-    /* THE DESKTOP ALIGNMENT ANCHOR */
-    height: 5rem; /* Fixed height for desktop headers */
+    height: 3.5rem; /* Reduced from 5rem to fit content */
     display: flex;
     align-items: center; 
     justify-content: center;
-    
-    font-size: 1.8rem;
+    font-size: 1.3rem; /* Reduced from 1.8rem */
     font-weight: bold;
     width: 100%;
     text-align: center;
     margin-top: 0;
-    margin-bottom: 30px; /* Constant gap to the first data-row */
-    padding-bottom: 15px;
+    margin-bottom: 20px; /* Reduced from 30px */
+    padding-bottom: 10px; /* Reduced from 15px */
     border-bottom: 3px solid #333;
     box-sizing: border-box;
     color: var(--primary-neon);
@@ -128,11 +143,11 @@ h1.neon-text {
     align-items: center;
     justify-content: center;
     width: 100%;
-    margin-bottom: 25px; 
+    margin-bottom: 15px; /* Reduced from 25px */
 }
 
 .metric-label {
-    font-size: 1.1rem;
+    font-size: 0.9rem; /* Reduced from 1.1rem */
     color: var(--subtext-color); 
     text-align: center;
     width: 100%;
@@ -143,7 +158,7 @@ h1.neon-text {
 
 .admin-metric, .data-value, .status-up, .status-down {
     text-align: center;
-    font-size: 2.2rem;
+    font-size: 1.6rem; /* Reduced from 2.2rem */
     line-height: 1.1;
     font-weight: 900;
     margin: 0;
@@ -152,29 +167,46 @@ h1.neon-text {
     color: var(--primary-neon);
 }
 
+/* Replaces inline style for refunded text */
+.economy-red {
+    color: var(--error-red) !important;
+}
+
+/* HR Styles extracted from inline */
+.admin-hr {
+    border: 0; 
+    border-top: 1px solid #333; 
+    margin: 10px 0;
+    width: 100%;
+}
+
+.admin-hr-dashed {
+    border: 0; 
+    border-top: 1px dashed #444; 
+    margin: 15px 0;
+    width: 100%;
+}
+
 .status-up, .status-down {
-    font-size: 1.8rem;
+    font-size: 1.4rem; /* Reduced from 1.8rem */
 }
 
 .data-row:last-of-type {
     margin-bottom: 0;
 }
 
-.clock-divider {
-    border: 0;
-    border-top: 3px dashed #444;
-    margin: 25px 0;
-}
-
 /* 6. High-Scaling Responsive Fix (Redmi / Mobile View) */
 @media (max-width: 1100px) {
     body.admin-body {
         padding: 10px;
+        height: auto; /* Allow height to grow on mobile */
+        overflow-y: auto; /* Restore scroll for mobile only */
     }
 
     #admin-content {
         width: 100%;
         padding: 15px 0;
+        height: auto;
     }
 
     h1.neon-text {
@@ -200,23 +232,20 @@ h1.neon-text {
     }
 
     .admin-card h2 {
-        /* THE ALIGNMENT ANCHOR */
-        height: 12vw; /* Fixed height for all headers */
+        height: 12vw; 
         display: flex;
-        align-items: center; /* Vertically centers the text within the 12vw */
+        align-items: center; 
         justify-content: center;
-        
         font-size: 4vw;
         width: 100%;
         text-align: center;
         margin-top: 0;
-        margin-bottom: 25px; /* The gap to the first data-row is now constant */
+        margin-bottom: 25px; 
         padding-bottom: 10px;
         border-bottom: 1px solid #222;
-        box-sizing: border-box; /* Ensures padding doesn't add to the 12vw height */
+        box-sizing: border-box; 
     }
 
-    /* ATOMIC GROUPING */
     .data-row {
         display: flex;
         flex-direction: column;
@@ -227,7 +256,7 @@ h1.neon-text {
     }
 
     .metric-label {
-        font-size: 2.8vw; /* Slightly smaller label */
+        font-size: 2.8vw; 
         color: var(--subtext-color); 
         text-align: center;
         width: 100%;
@@ -238,7 +267,7 @@ h1.neon-text {
 
     .admin-metric, .data-value, .status-up, .status-down {
         text-align: center;
-        font-size: 6.5vw; /* SMALLER METRIC: More professional readout */
+        font-size: 6.5vw; 
         line-height: 1.1;
         font-weight: 900;
         margin: 0;
