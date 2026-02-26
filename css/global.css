@@ -262,6 +262,10 @@ html, body {
     transform: translateY(-2px) !important;
 }
 
+.fixed-social-links-container .social-link .fa-twitch {
+    transform: translateY(1px) !important;
+}
+
 .fixed-social-links-container .social-link:hover {
     text-decoration: none !important;
     color: var(--primary-neon) !important;
