@@ -241,11 +241,25 @@ html, body {
 .fixed-social-links-container .social-link {
     font-size: 20px !important;
     color: rgba(242, 242, 242, 0.8) !important;
+    width: 32px !important; 
+    height: 32px !important;
     display: inline-flex !important;
+    justify-content: center !important;
     align-items: center !important;
+    position: relative !important;
     text-decoration: none !important;
     border-bottom: none !important;
     outline: none !important;
+    transition: transform 0.2s, color 0.2s !important;
+}
+
+.fixed-social-links-container .social-link i {
+    display: inline-block !important; 
+    line-height: 1 !important;
+}
+
+.fixed-social-links-container .social-link .fa-mug-hot {
+    transform: translateY(-2px) !important;
 }
 
 .fixed-social-links-container .social-link:hover {
