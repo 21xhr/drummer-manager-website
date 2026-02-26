@@ -1,18 +1,89 @@
-/* DONATION STYLES */
+/* donation.css */
 
-.neon-border {
-    border: 2px solid var(--primary-neon);
-    border-radius: 21px;
-    box-shadow: 0 0 3px var(--primary-neon), 0 0 7px var(--primary-neon),0 0 21px var(--primary-neon), 0 0 42px var(--primary-neon);
-    animation: neon-text-pulsexs 2s infinite alternate;
+/* Professional Best Practice: Apply border-box to everything */
+*, *::before, *::after {
+    box-sizing: border-box;
 }
 
-.iframe-container {
-    width: 100%;
-    max-width: 370px;
-    height: 1029px;
+body {
+    padding: 0;
+    margin: 0;
+    height: 100vh;
+    height: 100svh;
+    display: flex;
+    flex-direction: column; /* Changed to column for vertical centering */
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; 
+    background-color: var(--background-color);
+
+    /* NEW LOGIC: Consistent safe zone for social links and glow */
+    padding-bottom: 80px; 
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.donation-app-container {
+    box-sizing: border-box !important;
+    max-width: 600px; 
+    width: 100%; /* Changed to 100% since body padding handles gutters */
+    
+    /* NEW LOGIC: Dynamic centering and height control */
+    margin: auto 0;
+    align-self: center;
+    max-height: calc(100vh - 120px); 
+    min-height: 80vh;
+    flex-shrink: 1;
+
+    background-color: var(--secondary-bg);
     border-radius: 21px;
+    padding: 1rem 1.5rem 1rem 1.5rem; 
+    position: relative;
+    text-align: center;
+    
+    display: flex; /* Using flex to manage internal title/text/iframe stack */
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden; 
+    animation: neon-border-pulse 4s ease-in-out infinite alternate;
+}
+
+/* --- TYPOGRAPHY --- */
+
+.header-title {
+    color: var(--primary-neon);
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1.2rem, 6.5vw, 2.5rem); 
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin: 0.5rem 0;
+    white-space: nowrap; 
+    animation: neon-text-pulse 2.5s infinite alternate;
+}
+
+.main-text {
+    font-family: 'Roboto', sans-serif;
+    color: var(--subtext-color);
+    text-transform: uppercase;
+    font-size: 10px; 
+    letter-spacing: 0.15em;
+    margin-bottom: 1rem; /* Space before iframe */
+    opacity: 0.7;
+}
+
+/* --- IFRAME (The only scrollable part) --- */
+
+.iframe-container {
+    position: relative; 
+    width: 100%;
+    max-width: 420px;
+    /* NEW LOGIC: Fills remaining space in the container */
+    flex: 1; 
+    border-radius: 12px;
     overflow: hidden;
-    margin-left: auto;
-    margin-right: auto;
+    background: #f9f9f9;
+    touch-action: pan-y; 
+    -webkit-overflow-scrolling: touch;
 }
