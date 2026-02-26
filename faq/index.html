@@ -3,51 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drummer Manager Game - FAQ & Links</title>
+    <link rel="icon" href="data:,">
+
+    <title>Drummer Manager Game - FAQ</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/faq.css">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
+
     <script src="/js/social-links.js" defer></script>
 </head>
-<body class="p-3 sm:p-8">
-    <!-- Main Title -->
-    <h1 class="dm-sans text-4xl sm:text-5xl font-bold text-center mb-7 mt-7 tracking-wide neon-text mx-auto w-full max-w-lg">
-        HOW TO PLAY
-    </h1>
+<body class="faq-body">
+    <div class="faq-main-container">
+        <h1 class="faq-main-title neon-text">
+            HOW TO PLAY
+        </h1>
 
-    <!-- Tabbed Navigation -->
-    <div class="flex justify-center space-x-4 sm:space-x-8 mb-8 border-b border-neutral-700 mx-auto w-full max-w-lg">
-        <button class="tab-button dm-sans text-lg sm:text-xl font-bold p-2 active" data-tab="faq">FAQ</button>
-        <button class="tab-button dm-sans text-lg sm:text-xl font-bold p-2" data-tab="missions">MISSIONS</button>
-    </div>
-    
-    <!-- This new flex container now centers horizontally but allows for vertical growth -->
-    <div class="flex flex-col items-center flex-grow">
-        <!-- Tab Content -->
-        <div id="faq" class="tab-content">
-            <div class="space-y-6">
-                <!-- Interactive FAQ Container -->
-                <div id="interactive-faq" class="interactive-question-container rounded-lg p-6 transition-all duration-300 mx-auto w-full max-w-lg">
-                    <div id="question-container" class="mb-4">
-                        <!-- Questions will be dynamically added here -->
-                    </div>
-                    <div id="answer-container" class="mb-6 hidden">
-                        <!-- Answers will be dynamically added here -->
-                    </div>
-                    <div id="buttons-container" class="flex flex-wrap gap-4 hidden">
-                        <!-- Buttons will be dynamically added here -->
-                    </div>
+        <div class="tab-navigation-container">
+            <button class="tab-button active" data-tab="faq">FAQ</button>
+            <button class="tab-button" data-tab="missions">MISSIONS</button>
+        </div>
+        
+        <div class="faq-content-wrapper">
+            <div id="faq" class="tab-content">
+                <div class="interactive-question-container">
+                    <div id="question-container" class="faq-question-box"></div>
+                    <div id="answer-container" class="faq-answer-box hidden"></div>
+                    <div id="buttons-container" class="faq-buttons-box hidden"></div>
                     
-                    <!-- Final Call to Action -->
-                    <div id="cta-container" class="hidden text-center mt-8">
-                        <h3 class="dm-sans text-base sm:text-lg font-bold text-white mb-4">Ready to Get Involved?</h3>
-                        <p class="roboto text-gray-400 mb-6 text-sm sm:text-base">Join our community or support the stream to help shape the future of Drummer Manager!</p>
-                        <div class="flex justify-center space-x-6 text-2xl sm:text-3xl">
+                    <div id="cta-container" class="cta-box hidden">
+                        <h3>Ready to Get Involved?</h3>
+                        <p class="roboto">Join our community or support the stream to help shape the future of Drummer Manager!</p>
+                        <div class="cta-social-links">
                             <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Join Discord" class="social-link">
                                 <i class="fab fa-discord"></i>
                             </a>
@@ -57,34 +49,28 @@
                         </div>
                     </div>
 
-                    <!-- New navigation container for home, back, and page indicator -->
-                    <div id="navigation-container" class="flex justify-between items-center mt-4">
-                         <div class="flex space-x-2">
-                             <a href="https://drummer-manager-website.vercel.app/" id="home-btn" class="arrow-button rounded-full w-10 h-10 flex items-center justify-center">
+                    <div id="navigation-container" class="faq-nav-container">
+                         <div class="nav-arrows">
+                             <a href="https://drummer-manager-website.vercel.app/" id="home-btn" class="arrow-button">
                                  <i class="fa-solid fa-house"></i>
                              </a>
-                             <button id="prev-btn" class="arrow-button rounded-full w-10 h-10 flex items-center justify-center">
+                             <button id="prev-btn" class="arrow-button">
                                  <i class="fa-solid fa-arrow-left"></i>
-                             </button>
+                             </a>
                          </div>
-                         <div id="page-indicator" class="text-xs text-gray-400 text-center"></div>
+                         <div id="page-indicator" class="page-count"></div>
                     </div>
-                    
                 </div>
             </div>
-        </div>
 
-        <div id="missions" class="tab-content hidden">
-            <div class="under-construction-box rounded-lg p-8 text-center w-full max-w-lg mx-auto">
-                <h3 class="dm-sans text-lg sm:text-xl font-bold text-primary-neon mb-4 tracking-wider">
-                    THE FUTURE IS UNDER CONSTRUCTION
-                </h3>
-                <p class="roboto text-neutral-300 mb-6 text-xs sm:text-sm">
-                    We're building the suggestion system and community missions!
-                </p>
-                <a href="https://discord.gg/av9bpn6Zhp" target="_blank" class="primary-submit-btn">
-                    Join the community
-                </a>
+            <div id="missions" class="tab-content hidden">
+                <div class="under-construction-box">
+                    <h3>THE FUTURE IS UNDER CONSTRUCTION</h3>
+                    <p class="roboto">We're building the suggestion system and community missions!</p>
+                    <a href="https://discord.gg/av9bpn6Zhp" target="_blank" class="primary-submit-btn">
+                        Join the community
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -99,7 +85,6 @@
             const answerContainer = document.getElementById('answer-container');
             const buttonsContainer = document.getElementById('buttons-container');
             const ctaContainer = document.getElementById('cta-container');
-            const homeBtn = document.getElementById('home-btn');
             const prevBtn = document.getElementById('prev-btn');
             const pageIndicator = document.getElementById('page-indicator');
             const navigationContainer = document.getElementById('navigation-container');
@@ -136,61 +121,50 @@
                     renderAsHTML: true,
                 }
             ];
-            const totalFaqs = 4;
+            const totalFaqs = faqs.length + 1;
 
             const displayFAQ = (index) => {
                 if (index < 0) {
                     currentFaqIndex = 0;
                 } else if (index >= faqs.length) {
-                    // Reached the end, show the CTA
                     questionContainer.classList.add('hidden');
                     answerContainer.classList.add('hidden');
                     buttonsContainer.classList.add('hidden');
                     ctaContainer.classList.remove('hidden');
                     pageIndicator.classList.add('hidden');
+                    prevBtn.style.display = 'flex';
                     return;
                 } else {
                     currentFaqIndex = index;
                 }
                 
                 const faqItem = faqs[currentFaqIndex];
-
-                // Update page indicator
                 pageIndicator.textContent = `${currentFaqIndex + 1} of ${totalFaqs}`;
                 pageIndicator.classList.remove('hidden');
                 
-                // Show navigation if not the first page
-                if (currentFaqIndex > 0) {
-                    prevBtn.style.display = 'flex';
-                } else {
-                    prevBtn.style.display = 'none';
-                }
+                prevBtn.style.display = currentFaqIndex > 0 ? 'flex' : 'none';
                 
-                questionContainer.innerHTML = `<h3 class="dm-sans text-base sm:text-lg font-bold interactive-question mb-2">${faqItem.question}</h3>`;
-                
-                // Clear the answer container
+                questionContainer.innerHTML = `<h3>${faqItem.question}</h3>`;
                 answerContainer.innerHTML = '';
                 
                 if (faqItem.renderAsHTML) {
-                    // Manually build the HTML for the list
                     const introPara = document.createElement('p');
-                    introPara.classList.add('roboto', 'interactive-answer', 'mb-2', 'text-xs', 'sm:text-sm');
+                    introPara.className = 'roboto interactive-answer';
                     introPara.innerHTML = faqItem.answer.intro.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                     answerContainer.appendChild(introPara);
 
                     const list = document.createElement('ul');
-                    list.classList.add('custom-list', 'roboto', 'space-y-2');
+                    list.className = 'custom-list roboto';
                     faqItem.answer.list.forEach(itemText => {
                         const li = document.createElement('li');
-                        li.classList.add('interactive-answer', 'text-xs', 'sm:text-sm');
+                        li.className = 'interactive-answer';
                         li.innerHTML = itemText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                         list.appendChild(li);
                     });
                     answerContainer.appendChild(list);
                 } else {
-                    // Display as a standard paragraph
                     const para = document.createElement('p');
-                    para.classList.add('roboto', 'interactive-answer', 'text-xs', 'sm:text-sm');
+                    para.className = 'roboto interactive-answer';
                     para.innerHTML = faqItem.answer.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                     answerContainer.appendChild(para);
                 }
@@ -204,13 +178,9 @@
                 buttonsContainer.innerHTML = '';
                 const button = document.createElement('button');
                 button.textContent = faqItem.buttonText;
-                button.className = 'primary-submit-btn rounded-full px-4 py-2 text-sm sm:text-base font-semibold w-full whitespace-normal';
+                button.className = 'primary-submit-btn faq-action-btn';
                 button.onclick = () => displayFAQ(currentFaqIndex + 1);
                 buttonsContainer.appendChild(button);
-                
-                // Show navigation buttons
-                homeBtn.style.display = 'flex';
-                
             };
             
             tabs.forEach(tab => {
@@ -223,14 +193,7 @@
                 });
             });
 
-            prevBtn.addEventListener('click', () => {
-                displayFAQ(currentFaqIndex - 1);
-            });
-            
-            homeBtn.addEventListener('click', () => {
-                window.location.href = homeBtn.getAttribute('href');
-            });
-            
+            prevBtn.addEventListener('click', () => displayFAQ(currentFaqIndex - 1));
             displayFAQ(0);
         });
     </script>
