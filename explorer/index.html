@@ -267,12 +267,19 @@
                 const platSpan = document.getElementById('reminderPlatform');
                 const platContainer = document.getElementById('platformContainer');
                 
+                // Set text
                 userSpan.textContent = data.username;
                 platSpan.textContent = data.platformName;
                 
+                // Define the brand class (e.g., 'platform-twitch')
                 const platClass = `platform-${data.platformName.toLowerCase()}`;
+                
+                // Apply colors ONLY to the specific identity parts
                 userSpan.className = `roboto user-label ${platClass}`;
-                platContainer.className = `roboto platform-label ${platClass}`;
+                platSpan.className = `font-bold ${platClass}`;
+                
+                // The container itself keeps the grey 'on' color
+                platContainer.className = `roboto platform-label`;
 
                 statusIcon.classList.remove('fa-spinner', 'fa-spin');
                 statusIcon.classList.add('fa-circle-check', 'text-success-green');
