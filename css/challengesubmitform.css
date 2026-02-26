@@ -209,11 +209,6 @@ textarea.form-input {
 .duration-card:hover:not(.disabled) { border-color: var(--primary-neon); }
 .duration-card.selected:not(.disabled) { border-color: var(--primary-neon); box-shadow: 0 0 7px var(--primary-neon); }
 
-.platform-Twitch { color: var(--platform-twitch); }
-.platform-YouTube { color: var(--platform-youtube); }
-.platform-Kick { color: var(--platform-kick); }
-
-
 
 /* ==========================================================================
    4. WYSIWYG & EDITOR
@@ -686,7 +681,7 @@ textarea.form-input {
     margin-bottom: 10px;
     padding: 1rem;
     background-color: var(--background-color);
-    border: 1px solid #1a1a1a;
+    border: 1px solid var(--background-color);
     border-radius: 21px;
     overflow-y: auto;
     scrollbar-width: thin;
