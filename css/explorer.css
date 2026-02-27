@@ -345,18 +345,20 @@ body {
     box-sizing: border-box;
 }
 
+.list-header > span:nth-child(-n+3),
+.entry-row > span:nth-child(-n+3) {
+    text-align: center !important;
+    display: block !important; 
+    width: 100% !important;
+    justify-self: end;
+}
+
 .list-header > span:nth-child(5),
 .entry-row > span:nth-child(5) {
     text-align: right !important;
     display: block !important; 
     width: 100% !important;
     justify-self: end;
-}
-
-.entry-row > span:nth-child(5) {
-    text-align: right !important;
-    overflow: visible !important;
-    padding-right: 5px; 
 }
 
 .list-header {
@@ -409,13 +411,6 @@ body {
 
 .entry-row .description-column::-webkit-scrollbar {
     display: none; /* Hides scrollbar in Chrome/Safari for a cleaner look */
-}
-
-/* Ensures <div> tags from the editor don't push the column out of the row */
-.description-column div {
-    margin: 0;
-    padding: 0;
-    display: block;
 }
 
 .status-badge { 
