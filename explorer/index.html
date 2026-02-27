@@ -310,19 +310,27 @@
     function renderList(challenges) {
         const container = document.getElementById('listEntries');
         container.innerHTML = '';
+        
         challenges.forEach(c => {
             const row = document.createElement('div');
             row.className = 'entry-row animate-fadeIn';
-            const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
-            const textPreview = typeof c.challengeText === 'string' ? c.challengeText : 'Challenge Data';
             
+            const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
+            
+            let textPreview = typeof c.challengeText === 'string' ? c.challengeText : 'Challenge Data';
+
+            const pushCount = (c.totalPush !== undefined && c.totalPush !== null) ? c.totalPush : 0;
+
             row.innerHTML = `
-                <span class="neon-text">${c.challengeId}</span>
-                <span class="status-badge status-${c.status.toLowerCase()}">${c.status}</span>
-                <span class="font-bold">${proposerName}</span>
-                <span class="text-dim text-xs">${textPreview.substring(0, 50)}...</span>
-                <span class="neon-text text-center">${c.totalPush}</span>
+                <span class="neon-text id-column">${c.challengeId}</span>
+                <div class="status-badge-wrapper">
+                    <span class="status-badge status-${c.status.toLowerCase()}">${c.status}</span>
+                </div>
+                <span class="proposer-column">${proposerName}</span>
+                <div class="description-column">${textPreview}</div>
+                <span class="neon-text push-column">${pushCount}</span>
             `;
+            
             row.onclick = () => hydrateDetail(c);
             container.appendChild(row);
         });
