@@ -17,6 +17,9 @@
     <link rel="stylesheet" href="../css/challengesubmitform.css">
 
     <script src="/js/social-links.js" defer></script>
+    <script src="/js/brand-logo.js" defer></script>
+    <script src="/js/identity-reminder.js" defer></script>
+    <script src="/js/site-header.js" defer></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -27,31 +30,7 @@
 
     <div class="form-container mx-auto my-auto" id="form-wrapper">
         
-        <div class="flex justify-between items-stretch mb-6 min-h-[50px]"> 
-            <div class="flex flex-col justify-center space-y-3">
-                <div class="text-3xl font-extrabold neon-text leading-[0.8]">DRUMMER</div>
-                <div class="roboto font-normal text-lg text-white tracking-[0.25em] leading-[0.8]">MANAGER</div>
-            </div>
-            
-            <div class="flex flex-col justify-between items-end text-right"> 
-                <div class="flex items-center space-x-2">
-                    <button type="button" id="muteToggle" class="text-gray-500 hover:text-primary-neon transition-colors">
-                        <i id="muteIcon" class="fa-solid fa-volume-high text-[10px]"></i>
-                    </button>
-                    <span id="streamStatusText" class="roboto text-[10px] uppercase text-gray-400 tracking-tighter">OFFLINE</span>
-                    <div id="streamStatusIndicator" class="stream-status-indicator offline"></div>
-                </div>
-                
-                <div id="identityReminder" class="hidden">
-                    <div class="flex flex-nowrap items-baseline justify-end space-x-1">
-                        <span id="reminderUsername" class="roboto text-[11px] text-white font-bold leading-none"></span>
-                        <div class="roboto text-[9px] text-gray-500 tracking-tighter flex-shrink-0">
-                            on <span id="reminderPlatform" class="font-bold"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <site-header></site-header>
         
         <form id="challengeForm">
 
@@ -314,6 +293,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     
 
     // --- DOM REFERENCES ---
+    // 1. Static elements (already in the HTML)
     const form = document.getElementById('challengeForm');
     const formWrapper = document.getElementById('form-wrapper');
     const formTitle = document.getElementById('formTitle');
@@ -321,13 +301,8 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     const statusIcon = document.getElementById('statusIcon');
     const step2 = document.getElementById('step2');
     const step3 = document.getElementById('step3');
-    const streamStatusText = document.getElementById('streamStatusText');
-    const streamStatusIndicator = document.getElementById('streamStatusIndicator');
     
     const statusMessage1 = document.getElementById('statusMessage1');
-    const identityReminder = document.getElementById('identityReminder');
-    const reminderUsername = document.getElementById('reminderUsername');
-    const reminderPlatform = document.getElementById('reminderPlatform');
     const resetFormBtn = document.getElementById('resetFormBtn'); 
     
     const durationTypeGroup = document.getElementById('durationTypeGroup');
@@ -360,8 +335,6 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     const summaryDetailsWrapper = document.getElementById('summaryDetailsWrapper');
     const highDemandWarningBanner = document.getElementById('highDemandWarningBanner');
     const highDemandWarningText = document.getElementById('highDemandWarningText');
-
-    // Reference to the 'every X days' option element for UI toggle
     const customDaysOption = document.querySelector('#cadenceUnit option[value="CUSTOM_DAYS"]');
 
     /* --- AUDIO OBJECTS --- */
@@ -373,6 +346,76 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         audioObj.currentTime = 0; // Reset to start
         audioObj.play().catch(e => console.log("SFX blocked or missing"));
     };
+
+    // 2. Component elements (will be captured later)
+    let bgMusic, muteToggle, muteIcon, streamStatusText, streamStatusIndicator;
+    let identityReminder, reminderUsername, reminderPlatform;
+
+    // --- AUDIO CONFIG ---
+    const playlist = [
+        "../assets/audio/Glass Rivers by 21_2.mp3",
+        "../assets/audio/Glass Rivers by 21.mp3",
+        "../assets/audio/Neon Artery by 21_2.mp3",
+        "../assets/audio/Neon Artery by 21.mp3",
+        "../assets/audio/Rain On The Window by 21_2.mp3",
+        "../assets/audio/Rain On The Window by 21.mp3",
+        "../assets/audio/Rite of the Iron Colossus by 21_2.mp3",
+        "../assets/audio/Rite of the Iron Colossus by 21.mp3",
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3",
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
+    ];
+    let currentTrack = Math.floor(Math.random() * playlist.length);
+
+    // --- THE INITIALIZER ---
+    // This runs only AFTER the site-header component says it's ready
+    const initializeHeaderUI = () => {
+        bgMusic = document.getElementById('bgMusic');
+        muteToggle = document.getElementById('muteToggle');
+        muteIcon = document.getElementById('muteIcon');
+        streamStatusText = document.getElementById('streamStatusText');
+        streamStatusIndicator = document.getElementById('streamStatusIndicator');
+        identityReminder = document.getElementById('identityReminder');
+        reminderUsername = document.getElementById('reminderUsername');
+        reminderPlatform = document.getElementById('reminderPlatform');
+        
+        if (muteToggle && bgMusic) {
+            muteToggle.addEventListener('click', () => {
+                bgMusic.muted = !bgMusic.muted;
+
+                if (bgMusic.muted) {
+                    muteIcon.className = 'fa-solid fa-volume-xmark mute-icon-muted';
+                } else {
+                    muteIcon.className = 'fa-solid fa-volume-high mute-icon-active';
+                }
+            });
+        }
+
+        if (bgMusic) {
+            bgMusic.addEventListener('ended', playNextSong);
+        }
+        
+        // Initial calls
+        verifyTokenAndStartForm();
+        fetchStreamStatus();
+        handleCopyLink();
+        handleSocialFeedback();
+    };
+
+    // --- LOGIC FUNCTIONS ---
+    const playNextSong = () => {
+        currentTrack = (currentTrack + 1) % playlist.length;
+        bgMusic.src = playlist[currentTrack];
+        bgMusic.play().catch(e => console.log("Playback interrupted"));
+    };
+
+    // --- THE BOOTSTRAP ---
+    document.addEventListener('header-ready', () => {
+        console.log("✅ site-header component READY");
+        initializeHeaderUI();
+    });
+
 
     // --- STEP MANAGEMENT ---
     let currentStep = 1;
@@ -403,7 +446,6 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         const btnText = document.getElementById('streamBtnText');
         if (!btnText) return; 
 
-        // Use the global boolean 'isStreamLive' set by fetchStreamStatus()
         if (isStreamLive) {
             btnText.innerText = "WATCH STREAM";
         } else {
@@ -419,7 +461,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         if (!token) {
             statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
             statusIcon.classList.add('fa-lock', 'text-red-500');
-            statusMessage1.style.color = 'var(--error-red, red)'; // Use a fallback color
+            statusMessage1.style.color = 'var(--error-red, red)';
             statusMessage1.innerHTML = `
                 ACCESS DENIED <br> This page must be accessed via a secure link generated from the chat. 
                 <br>Please use the command ** !challengesubmit ** in chat to get a valid link.
@@ -440,6 +482,8 @@ Tip: Use a writing assistant to help refine your suggestion.`;
 
         try {
             const MIN_VERIFY_DELAY_MS = 2100; 
+
+            console.log("Calling API at:", API_BASE_URL);
             
             const apiCall = fetch(`${API_BASE_URL}/token/verify-challengesubmitform`, {
                 method: 'POST',
@@ -457,44 +501,53 @@ Tip: Use a writing assistant to help refine your suggestion.`;
             if (response.ok) {
                 selectedPlatformId = data.username; 
                 selectedPlatform = data.platformName;
-
                 dailySubmissionCount = data.dailySubmissionCount || 0;
                 dynamicBaseCost = data.serverCalculatedBaseCost || 210;
 
-                reminderUsername.textContent = selectedPlatformId;
-                reminderPlatform.textContent = selectedPlatform;
-                
-                reminderUsername.className = '';
-                reminderPlatform.className = '';
-                const platformClass = `platform-${selectedPlatform.toLowerCase()}`;
-                reminderUsername.classList.add(platformClass);
-                reminderPlatform.classList.add(platformClass);
+                // --- SYNC IDENTITY TO HEADER ---
+                // We re-query these here to ensure we have the fresh DOM elements 
+                // injected by the <identity-reminder> component.
+                reminderUsername = document.getElementById('reminderUsername');
+                reminderPlatform = document.getElementById('reminderPlatform');
+                identityReminder = document.getElementById('identityReminder');
 
+                if (reminderUsername && reminderPlatform) {
+                    reminderUsername.textContent = selectedPlatformId;
+                    reminderPlatform.textContent = selectedPlatform;
+                    
+                    const platformClass = `platform-${selectedPlatform.toLowerCase()}`;
+                    reminderUsername.classList.add(platformClass);
+                    reminderPlatform.classList.add(platformClass);
+                    
+                    if (identityReminder) identityReminder.classList.remove('hidden');
+                    console.log(`👤 Identity synced: ${selectedPlatformId} on ${selectedPlatform}`);
+                }
+
+                // --- UI TRANSITION ---
                 statusIcon.classList.remove('fa-spinner', 'fa-spin');
                 statusIcon.classList.add('fa-circle-check', 'text-success-green');
                 
-                // Inject the container
+                // Guard: Clear existing content before injecting the typewriter structure
+                statusMessage1.innerHTML = '';
                 statusMessage1.innerHTML = `<div class="typewriter-container"><div id="typewriter"></div></div>`;
                 
                 const target = document.getElementById('typewriter');
                 const fullText = `> ACCESS GRANTED: ${selectedPlatformId} @ ${selectedPlatform}`;
                 
-                // Execute
+                // Execute typewriter then advance to the form
                 typeWriter(target, fullText, 0, () => {
                     renderStep(2);
-                    statusMessage1.innerHTML = ''; // Clear for next time
+                    statusMessage1.innerHTML = '';
                     updateDynamicFields();
                 });
             } else if (response.status === 401 || response.status === 400) {
-                // TOKEN EXPIRED/INVALID FAILURE
                 const apiMessage = data.message || 'The secure link you used is no longer valid. Please get a new token.';
                 
-                // Determine a concise title from the API error field (if available)
                 const title = (data.error && data.error.includes('expired')) 
                     ? 'LINK EXPIRED' 
                     : (data.error && data.error.includes('invalid')) 
                     ? 'LINK INVALID/MALFORMED'
-                    : 'AUTHENTICATION FAILED'; // Default
+                    : 'AUTHENTICATION FAILED'; 
                                  
                 statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
                 statusIcon.classList.add('fa-hourglass-half', 'text-yellow-500'); 
@@ -528,31 +581,37 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         }
     };
 
-    // --- STREAM STATUS ---
     const fetchStreamStatus = async () => {
+        streamStatusIndicator = document.getElementById('streamStatusIndicator');
+        streamStatusText = document.getElementById('streamStatusText');
+
         try {
             const response = await fetch(`${API_BASE_URL}/stream/stats`);
             const data = await response.json();
             
             isStreamLive = data.isStreamLive;
             
-            if (isStreamLive) {
-                streamStatusIndicator.classList.remove('offline');
-                streamStatusIndicator.classList.add('live');
-                streamStatusText.textContent = 'LIVE (21% Discount)';
-            } else {
-                streamStatusIndicator.classList.remove('live');
-                streamStatusIndicator.classList.add('offline');
-                streamStatusText.textContent = 'OFFLINE';
+            if (streamStatusIndicator && streamStatusText) {
+                if (isStreamLive) {
+                    streamStatusIndicator.classList.remove('offline');
+                    streamStatusIndicator.classList.add('live');
+                    streamStatusText.textContent = 'LIVE (21% Discount)';
+                } else {
+                    streamStatusIndicator.classList.remove('live');
+                    streamStatusIndicator.classList.add('offline');
+                    streamStatusText.textContent = 'OFFLINE';
+                }
             }
             updateStreamButtonText();
         } catch (error) {
-            streamStatusText.textContent = 'ERROR';
+            if (streamStatusText) streamStatusText.textContent = 'ERROR'; 
             console.error('Error fetching stream stats:', error);
         }
-        calculateTotalSessions();
+        if (typeof calculateTotalSessions === 'function') calculateTotalSessions();
     };
 
+
+    
     // --- HELPER FUNCTIONS ---
     
     // --- HUMANIZED TYPEWRITER LOGIC ---
@@ -1083,15 +1142,8 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         }
     };
 
-    // --- EVENT LISTENERS ---
-
-    fetchStreamStatus();
-    verifyTokenAndStartForm();
-    handleCopyLink();
-    handleSocialFeedback();
-
     // --- AUTO-REFRESH LOGIC (Silent Sync) ---
-    // Polls the server every 21 seconds to keep price and stream status accurate
+    // Polls the server every 21 s to keep price and stream status accurate
     setInterval(async () => {
         // Only poll if we have a token and the user is actually on the form (Step 2)
         const step2 = document.getElementById('step2');
@@ -1127,55 +1179,6 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     }, 21000); 
     
     // Step 2: Duration Card Selection (Trigger 1)
-    const playlist = [
-        "../assets/audio/Glass Rivers by 21_2.mp3",
-        "../assets/audio/Glass Rivers by 21.mp3",
-        "../assets/audio/Neon Artery by 21_2.mp3",
-        "../assets/audio/Neon Artery by 21.mp3",
-        "../assets/audio/Rain On The Window by 21_2.mp3",
-        "../assets/audio/Rain On The Window by 21.mp3",
-        "../assets/audio/Rite of the Iron Colossus by 21_2.mp3",
-        "../assets/audio/Rite of the Iron Colossus by 21.mp3",
-        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
-        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3",
-        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
-    ];
-
-    // Randomize the starting track on page load
-    let currentTrack = Math.floor(Math.random() * playlist.length);
-    //let currentTrack = 0; // Start from the first track for consistency
-
-    const bgMusic = document.getElementById('bgMusic');
-    const muteToggle = document.getElementById('muteToggle');
-    const muteIcon = document.getElementById('muteIcon');
-
-    if (muteToggle && bgMusic) {
-        muteToggle.addEventListener('click', () => {
-            bgMusic.muted = !bgMusic.muted;
-            // Toggle icon and color
-            if (bgMusic.muted) {
-                muteIcon.className = 'fa-solid fa-volume-xmark text-[10px]';
-                muteIcon.style.color = '#666';
-            } else {
-                muteIcon.className = 'fa-solid fa-volume-high text-[10px]';
-                muteIcon.style.color = 'var(--primary-neon)';
-            }
-        });
-    }
-
-    // Handle switching to the next song
-    const playNextSong = () => {
-        currentTrack = (currentTrack + 1) % playlist.length;
-        bgMusic.src = playlist[currentTrack];
-        bgMusic.play().catch(e => console.log("Playback interrupted"));
-    };
-
-    // Listen for when a song ends to play the next one automatically
-    if (bgMusic) {
-        bgMusic.addEventListener('ended', playNextSong);
-    }
-    
     durationCards.forEach(card => {
         card.addEventListener('click', () => {
             if (bgMusic && bgMusic.paused) {
@@ -1403,7 +1406,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     /* ==========================================================================
     STEP 3: INTERACTIVE HANDLERS
     ========================================================================== */
-
+    
     function initializeStep3Handlers() {
         handleCopyLink();
         handleSocialFeedback();

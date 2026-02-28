@@ -94,8 +94,6 @@
     min-height: 300px; /* Ensures space for the button to travel to the center */
 }
 
-
-
 /* ==========================================================================
    2. FORM ELEMENTS & INPUTS
    ========================================================================== */
@@ -141,7 +139,6 @@ textarea.form-input {
     padding-bottom: 0.5rem;
     text-shadow: 0 0 5px rgba(242, 189, 21, 0.5);
 }
-
 
 /* Tooltips */
 .info-tooltip-container {
@@ -566,17 +563,6 @@ textarea.form-input {
 .desc-text-custom {
     font-size: 11px;
     line-height: 1.35;
-}
-
-#identityReminder {
-    max-width: 189px;
-}
-
-#reminderUsername {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
 }
 
 .success-card-main {
