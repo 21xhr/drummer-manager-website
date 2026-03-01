@@ -410,13 +410,6 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         bgMusic.play().catch(e => console.log("Playback interrupted"));
     };
 
-    // --- THE BOOTSTRAP ---
-    document.addEventListener('header-ready', () => {
-        console.log("✅ site-header component READY");
-        initializeHeaderUI();
-    });
-
-
     // --- STEP MANAGEMENT ---
     let currentStep = 1;
 
@@ -1538,5 +1531,12 @@ Tip: Use a writing assistant to help refine your suggestion.`;
             icon.classList.remove('icon-active-pop');
             icon.classList.remove('strobe-effect');
         }, 2100);
+    });
+
+
+    // --- THE BOOTSTRAP ---
+    document.addEventListener('header-ready', () => {
+        console.log("✅ site-header component READY");
+        initializeHeaderUI();
     });
 </script>
