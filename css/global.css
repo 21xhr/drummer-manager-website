@@ -66,13 +66,15 @@ body {
     font-family: 'DM Sans', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
-    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
+    height: 100%;
+    overflow: hidden;
     box-sizing: border-box;
+    margin: 0;
     animation: fadeIn 0.8s var(--ease-standard);
     position: relative;
     padding: var(--page-padding) var(--page-padding) var(--footer-height) var(--page-padding) !important;
@@ -142,34 +144,75 @@ html, body {
 /* ------------------------------------------------------------------
    GLOBAL BUTTONS & INTERACTIVITY
    ------------------------------------------------------------------ */
+/* ==========================================================================
+   TOOLTIP SYSTEM (MODAL STYLE)
+   ========================================================================== */
+
+.info-tooltip-container {
+    display: inline-flex;
+    align-items: center;
+    cursor: help;
+    position: relative;
+    z-index: 101;
+}
+
+.tooltip-icon {
+    font-size: 0.75rem; 
+    margin-left: 0.25rem; 
+    text-transform: lowercase;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.info-tooltip-container:hover .tooltip-icon {
+    opacity: 1;
+    color: var(--primary-neon);
+}
+
+/* The actual floating text box */
 .info-tooltip-text {
+    /* Hide by default */
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
+    
+    /* Layout: Fixed Centering */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 99999;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    position: fixed !important;
-    top: 50dvh !important;
-    left: 50dvw !important;
-    transform: translate(-50%, -50%) !important;
+    
+    /* Box Styling */
     width: 280px;
     max-width: 85vw;
-    background-color: rgba(0, 0, 0, 0.98) !important;
-    color: #fff !important;
-    text-align: center;
     padding: 24px;
+    background-color: rgba(0, 0, 0, 0.98);
+    color: #fff;
+    text-align: center;
     border-radius: 12px;
     border: 2px solid var(--primary-neon);
-    box-shadow: 0 0 100px rgba(0,0,0,0.9);
-    font-size: clamp(12px, 2.5vw, 20px);
+    box-shadow: 0 0 100px rgba(0, 0, 0, 0.9);
+    
+    /* Typography */
+    font-size: clamp(12px, 2.5vw, 16px);
     line-height: 1.6;
+    font-weight: normal;
+    text-transform: none;
+    
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
+/* Show only when the CONTAINER is hovered */
 .info-tooltip-container:hover .info-tooltip-text {
     visibility: visible;
     opacity: 1;
 }
 
+
+/* ==========================================================================
+   PRIMARY BUTTON STYLE
+   ========================================================================== */
 .primary-submit-btn {
     background-color: var(--primary-neon);
     color: var(--background-color);
