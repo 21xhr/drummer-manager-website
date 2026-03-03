@@ -30,7 +30,6 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
     --page-padding: 1rem;
 }
 
-
 /* ------------------------------------------------------------------
    GLOBAL ANIMATIONS
    ------------------------------------------------------------------ */
@@ -139,7 +138,7 @@ html, body {
 .platform-twitch { color: var(--platform-twitch) !important; }
 .platform-youtube { color: var(--platform-youtube) !important; }
 .platform-kick { color: var(--platform-kick) !important; }
-
+.primary-neon { color: var(--primary-neon) !important; }
 
 /* ------------------------------------------------------------------
    GLOBAL BUTTONS & INTERACTIVITY
