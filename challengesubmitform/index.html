@@ -21,23 +21,22 @@
     <script src="/js/identity-reminder.js" defer></script>
     <script src="/js/site-header.js" defer></script>
 
-    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     <audio id="bgMusic" loop>
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3" type="audio/mpeg">
     </audio>
 
-    <div class="form-container mx-auto my-auto" id="form-wrapper">
+    <div class="form-container" id="form-wrapper">
         
         <site-header></site-header>
         
         <form id="challengeForm">
 
-            <div id="step1" class="step-container text-center">
+            <div id="step1" class="step-container step-loading-view">
                 <div class="form-group">
-                    <i id="statusIcon" class="fa-solid fa-spinner text-3xl mb-4"></i>
-                    <p id="statusMessage1" class="roboto text-sm text-center text-gray-400">
+                    <i id="statusIcon" class="fa-solid fa-spinner status-icon-main"></i>
+                    <p id="statusMessage1" class="roboto status-msg-text">
                         Verifying secure link...
                     </p>
                 </div>
@@ -46,21 +45,21 @@
             <div id="step2" class="step-container hidden">
                 
                 <div id="durationTypeGroup" class="form-group">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div class="duration-card p-4 flex items-center justify-center border border-[#222] rounded-lg hover:border-primary-neon transition-all" data-duration="ONE_OFF">
-                            <h4 class="font-black text-lg uppercase tracking-wider mb-0">
+                    <div class="duration-grid">
+                        <div class="duration-card" data-duration="ONE_OFF">
+                            <h4 class="duration-card-title">
                                 One-Off 
                                 <span class="info-tooltip-container">
-                                    <span class="text-s ml-1 lowercase">ⓘ</span>
+                                    <span class="tooltip-icon">ⓘ</span>
                                     <span class="info-tooltip-text">Must be completed within the ONE stream day...</span>
                                 </span>
                             </h4>
                         </div>
-                        <div class="duration-card p-4 flex items-center justify-center border border-[#222] rounded-lg hover:border-primary-neon transition-all" data-duration="RECURRING">
-                            <h4 class="font-black text-lg uppercase tracking-wider mb-0">
+                        <div class="duration-card" data-duration="RECURRING">
+                            <h4 class="duration-card-title">
                                 Recurring 
                                 <span class="info-tooltip-container">
-                                    <span class="text-s ml-1 lowercase">ⓘ</span>
+                                    <span class="tooltip-icon">ⓘ</span>
                                     <span class="info-tooltip-text">Multi-session task scheduled across multiple days...</span>
                                 </span>
                             </h4>
@@ -68,52 +67,53 @@
                     </div>
                 </div>
 
-                <div id="challengeTextGroup" class="form-group mt-4 form-section-disabled">
+                <div id="challengeTextGroup" class="form-group editor-container form-section-disabled">
                     <div id="challengeEditor" 
-                        class="form-input p-2 rounded-t-lg shadow-sm w-full bg-[#1a1a1a] text-white border border-[#333]" 
-                        style="min-height: 100px; max-height: 300px; overflow-y: auto;"
+                        class="editor-main"
                         contenteditable="true"
                         placeholder="Describe the task. (Min 10 chars) 
-                        Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!"
+                Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!"
                         required>
                     </div>
                     <input type="hidden" id="challengeText" value="">
-                    <div class="flex border-t-0 border border-[#333] rounded-b-lg p-2 bg-[#2a2a2a]">
-                        <button type="button" data-edit="bold" class="editor-button text-gray-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none w-8 h-8 rounded-md hover:bg-[#3d3d3d] flex justify-center items-center mr-1" title="Bold" disabled>
+                    <div class="editor-toolbar">
+                        <button type="button" data-edit="bold" class="editor-button" title="Bold" disabled>
                             <i class="fa-solid fa-bold"></i>
                         </button>
-                        <button type="button" data-edit="italic" class="editor-button text-gray-400 hover:text-white disabled:opacity-50 disabled:pointer-events-none w-8 h-8 rounded-md hover:bg-[#3d3d3d] flex justify-center items-center mr-1" title="Italic" disabled>
+                        <button type="button" data-edit="italic" class="editor-button" title="Italic" disabled>
                             <i class="fa-solid fa-italic"></i>
                         </button>
                     </div>
                 </div>
                 
-                <div id="timePaceGroup" class="form-group mt-6 form-section-disabled">
+                <div id="timePaceGroup" class="form-group form-section-disabled">
                     <div id="oneOffGroup" class="form-group hidden">
                         <div class="summary-line-wrapper">
-                            <div class="summary-badge flex items-center gap-2">
-                                <span class="roboto text-xs text-gray-400 uppercase tracking-tighter">Total:</span>
-                                <input type="number" id="totalTimeframeCount" class="form-input cadence-input" min="1" value="1" max="999" disabled required>
-                                <span class="roboto neon-text text-sm">Session(s)</span>
-                                <strong id="oneOffSummary" class="roboto text-[10px] neon-text ml-1"></strong>
+                            <div class="summary-badge">
+                                <span class="roboto time-pace-summary-label">Total:</span>
+                                <input type="number" id="totalTimeframeCount" class="form-input time-pace-input" min="1" value="1" max="999" disabled required>
+                                <span id="oneOffSessionPluralization" class="roboto neon-text time-pace-summary-value">Session(s)</span>
+                                <strong id="oneOffSummary" class="neon-text time-pace-summary-value"></strong>
                             </div>
                             
                             <div class="cost-badge-container summary-badge">
-                                <span class="roboto text-xs text-gray-400 mr-2 uppercase">Cost:</span>
-                                <span id="oneOffCostDisplay" class="neon-text font-bold text-sm">--</span> 
-                                <span class="text-[9px] text-gray-500 ml-1 font-bold">NUMBERS</span>
+                                <span class="roboto time-pace-summary-label">Cost:</span>
+                                <span id="oneOffCostDisplay" class="neon-text time-pace-summary-value">--</span> 
+                                <span class="cost-currency">NUMBERS</span>
                             </div>
                         </div>
                     </div>
 
-                    <div id="cadenceGroup" class="form-group hidden">
-                        <label for="cadenceCount" class="roboto text-sm text-gray-400 block mb-1">Set Cadence:</label>
-                        <div id="cadenceFieldsWrapper" class="space-y-2 mt-2">
-                            <div class="flex flex-wrap items-center gap-2 text-sm">
+                   <div id="cadenceGroup" class="form-group hidden">
+                        <label for="cadenceCount" class="cadence-label">Set Cadence:</label>
+                        
+                        <div id="cadenceFieldsWrapper" class="cadence-fields-container">
+                            <div class="cadence-sentence-row">
                                 <span class="roboto">Do</span> 
-                                <input type="number" id="cadenceCount" class="form-input cadence-input" value="1" min="1" max="999" disabled>
-                                <span class="roboto">session(s)</span>
-                                <select id="cadenceUnit" class="form-input" style="width: 120px !important; padding: 5px 8px !important;" disabled>
+                                <input type="number" id="cadenceCount" class="form-input time-pace-input" value="1" min="1" max="999" disabled>
+                                <span id="recurringSessionPluralizer" class="roboto">session(s)</span>
+                                
+                                <select id="cadenceUnit" class="form-input cadence-select" disabled>
                                     <option value="" disabled selected class="hidden">select frequency</option>
                                     <option value="DAILY">per Day</option>
                                     <option value="WEEKLY">per Week</option>
@@ -121,30 +121,30 @@
                                     <option value="CUSTOM_DAYS">every X days</option> 
                                 </select>
                             </div>
-                            <div id="customDaysGroup" class="hidden flex flex-wrap items-center gap-2 text-sm">
-                                <span class="roboto">Every</span>
-                                <input type="number" id="customDaysCount" class="form-input cadence-input" value="2" min="2" max="365" disabled>
+
+                            <div id="customDaysGroup" class="hidden cadence-sentence-row">
+                                <span class="roboto"></span>
+                                <input type="number" id="customDaysCount" class="form-input time-pace-input" value="2" min="2" max="365" disabled>
                                 <span class="roboto">days</span>
                             </div>
-                            <div id="durationGroup" class="hidden flex flex-wrap items-center gap-2 text-sm">
+
+                            <div id="durationGroup" class="hidden cadence-sentence-row">
                                 <span id="durationLeadInText" class="roboto">for a total of</span>
-                                <input type="number" id="recurrenceDurationCount" class="form-input cadence-input" min="1" max="999" value="1" disabled>
+                                <input type="number" id="recurrenceDurationCount" class="form-input time-pace-input" min="1" max="999" value="1" disabled>
                                 <span id="timeframeUnitSentence" class="roboto">Weeks</span>
                             </div>
                         </div>
 
-                        <div id="totalSummaryWrapper" class="mt-3 pt-3 border-t border-[#333]">
-                            <div class="summary-line-wrapper">
-                                <div class="summary-badge flex items-center gap-2">
-                                    <span class="roboto text-xs text-gray-400 uppercase tracking-tighter">Total:</span>
-                                    <strong id="cadencePreview" class="neon-text text-sm">...</strong>
-                                </div>
+                        <div class="summary-line-wrapper">
+                            <div class="summary-badge">
+                                <span class="roboto time-pace-summary-label">Total:</span>
+                                <strong id="cadencePreview" class="neon-text time-pace-summary-value">...</strong>
+                            </div>
 
-                                <div class="cost-badge-container summary-badge">
-                                    <span class="roboto text-xs text-gray-400 mr-2 uppercase">Cost:</span>
-                                    <span id="recurringCostDisplay" class="neon-text font-bold text-sm">--</span> 
-                                    <span class="text-[9px] text-gray-500 ml-1 font-bold">NUMBERS</span>
-                                </div>
+                            <div class="cost-badge-container summary-badge">
+                                <span class="roboto time-pace-summary-label">Cost:</span>
+                                <span id="recurringCostDisplay" class="neon-text font-bold time-pace-summary-value">--</span> 
+                                <span class="cost-currency">NUMBERS</span>
                             </div>
                         </div>
                     </div>
@@ -155,82 +155,83 @@
                     <input type="hidden" id="calculatedCost" value="0">
                 </div>
 
-                <div id="highDemandWarningBanner" class="high-demand-warning hidden mt-5 p-4 rounded-lg">
-                    <p class="roboto text-lg font-bold" style="color: var(--primary-neon);">⚠️ HIGH-DEMAND CHALLENGE WARNING ⚠️</p>
-                    <p id="highDemandWarningText" class="roboto mt-2 text-sm" style="color: rgba(242, 189, 21, 0.7);">
+                <div id="highDemandWarningBanner" class="warning-banner warning-pulse hidden">
+                    <h4 class="warning-title">⚠️ HIGH-DEMAND CHALLENGE WARNING ⚠️</h4>
+                    <p id="highDemandWarningText" class="warning-text">
                         This submission requires [X] sessions per [Period], which far exceeds the normal demand threshold.
                     </p>
-                    <p class="roboto mt-3 text-xs italic" style="color: var(--error-red);">
+                    <p class="warning-footer">
                         <strong>REMINDER:</strong> Once submitted, you never know what might happen...
                     </p>
                 </div>
                 <div class="form-footer-actions">
                     <button type="submit" id="submitButton" class="primary-submit-btn" disabled>
                         <span class="main-btn-text">SUBMIT</span>
-                        <div id="submitWarningText" class="is-hidden">
+                        <div id="submitWarningText" class="hidden">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                             <span>THIS IS FINAL</span>
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
                     </button>
-                    <p id="statusMessage2" class="roboto text-sm text-center mt-3"></p>
+                    <p id="statusMessage2" class="roboto form-status-message"></p>
                 </div>
             </div>
 
             <div id="step3" class="step-container hidden animate-fadeIn">
                 <div id="step3_header" class="success-header-wrapper">
-                    <h2 class="text-4xl font-black neon-text tracking-[0.2em] uppercase">SUCCESSFUL</h2>
+                    <h2 class="success-title neon-text">SUCCESSFUL</h2>
                     <button type="button" id="resetFormBtn" title="Submit Another">
                         <i class="fa-solid fa-rotate-right"></i>
                     </button>
                 </div>
 
-                <div class="flex flex-col space-y-4">
-                    <div class="success-card-main bg-[#0a0a0a] p-6 rounded-lg border border-[#222] shadow-2xl">
-                        <div class="success-card-content">
-                            
-                            <div class="flex-1 flex flex-col items-center sm:items-start text-center sm:text-left">
-                                <h3 class="text-[14px] font-black text-white uppercase tracking-widest leading-none mb-1">What's Next?</h3>
-                                <p class="roboto text-[11px] uppercase tracking-widest font-medium">Join the mission</p>
-                            </div>
-                            
-                            <div class="connector-arrow-wrapper">
-                                <div class="glow-arrow-container">
-                                    <i class="fa-solid fa-angles-right text-xl glow-arrow sm:rotate-0 rotate-90"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="flex-1 flex flex-col gap-2 w-full max-w-[280px] sm:max-w-none">
-                                <a href="https://youtube.com/@21xhr/live" target="_blank" id="streamLink" class="flex items-center justify-center gap-2 py-2.5 bg-[#f2bd15] text-black font-black text-[10px] uppercase hover:scale-[1.02] transition-transform">
-                                    <i class="fa-solid fa-play text-[9px]"></i> <span id="streamBtnText">WATCH STREAM</span>
-                                </a>
-                                
-                                <a href="https://discord.gg/yourlink" target="_blank" id="discordLink" class="flex items-center justify-center gap-2 py-2.5 bg-[#5865F2] text-white font-black text-[10px] uppercase hover:scale-[1.02] transition-transform">
-                                    <i class="fa-brands fa-discord text-[10px]"></i> Discord
-                                </a>
-
-                                <div class="flex gap-1">
-                                    <a href="#" id="shareX" target="_blank" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white transition-all">
-                                        <i class="fa-brands fa-x-twitter text-[11px]"></i>
-                                    </a>
-                                    <a href="#" id="shareFB" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white transition-all">
-                                        <i class="fa-brands fa-facebook-f text-[11px]"></i>
-                                    </a>
-                                    <button type="button" id="copyLink" class="flex-grow flex items-center justify-center py-2 bg-[#111] border border-[#222] text-white transition-all">
-                                        <i class="fa-solid fa-link text-[11px]"></i>
-                                    </button>
-                                </div>
-                            </div>
-
+                
+                <div class="success-card-main">
+                    <div class="success-card-content">
+                        
+                        <div class="success-text-info">
+                            <h3 class="success-subtitle">What's Next?</h3>
+                            <p class="success-hint roboto">Join the mission</p>
                         </div>
-                    </div>
+                        
+                        <div class="connector-arrow-wrapper">
+                            <div class="glow-arrow-container">
+                                <i class="fa-solid fa-angles-right glow-arrow"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="success-links-group">
+                            <a href="https://youtube.com/@21xhr/live" target="_blank" id="streamLink" class="btn-action btn-stream">
+                                <i class="fa-solid fa-play"></i> <span id="streamBtnText">WATCH STREAM</span>
+                            </a>
+                            
+                            <a href="https://discord.gg/yourlink" target="_blank" id="discordLink" class="btn-action btn-discord">
+                                <i class="fa-brands fa-discord"></i> Discord
+                            </a>
 
-                    <div class="overflow-hidden">
-                        <button type="button" id="toggleSummaryBtn" class="w-full flex justify-between items-center p-3 bg-[#0d0d0d] transition-all group">
-                            <span class="roboto text-[10px] uppercase tracking-[0.3em] font-bold">Submission Details</span>
-                            <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300" id="chevronIcon"></i>
-                        </button>
-                        <div id="summaryDetailsWrapper" class="hidden bg-[#050505] p-4 animate-fadeIn"></div>
+                            <div class="share-row">
+                                <a href="#" id="shareX" target="_blank" class="share-btn">
+                                    <i class="fa-brands fa-x-twitter"></i>
+                                </a>
+                                <a href="#" id="shareFB" class="share-btn">
+                                    <i class="fa-brands fa-facebook-f"></i>
+                                </a>
+                                <button type="button" id="copyLink" class="share-btn">
+                                    <i class="fa-solid fa-link"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="details-accordion-container">
+                    <button type="button" id="toggleSummaryBtn" class="details-toggle-btn">
+                        <span class="roboto details-toggle-text">Submission Details</span>
+                        <i class="fa-solid fa-chevron-down" id="chevronIcon"></i>
+                    </button>
+                    <div class="details-content-area-wrapper hidden">
+                        <div id="summaryDetailsWrapper" class="details-content-area"></div>
                     </div>
                 </div>
             </div>
@@ -424,7 +425,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         // 2. Manage the Identity Reminder visibility
         if (identityReminder) {
             // Only hide on step 1 (verification), show on 2 and 3
-            identityReminder.classList.toggle('hidden', step === 1);
+            identityReminder.classList.toggle('hidden', step === 1 || !selectedPlatformId);
         }
 
         // 3. UI Cleanup when moving back to Step 2
@@ -453,8 +454,9 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         
         if (!token) {
             statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-            statusIcon.classList.add('fa-lock', 'text-red-500');
-            statusMessage1.style.color = 'var(--error-red, red)';
+            statusIcon.classList.add('fa-lock');
+            statusIcon.style.color = 'var(--error-red)';
+            statusMessage1.style.color = 'var(--error-red)';
             statusMessage1.innerHTML = `
                 ACCESS DENIED <br> This page must be accessed via a secure link generated from the chat. 
                 <br>Please use the command ** !challengesubmit ** in chat to get a valid link.
@@ -465,7 +467,14 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         submissionToken = token;
 
         statusIcon.classList.add('fa-spinner', 'fa-spin');
-        statusIcon.classList.remove('fa-lock', 'fa-triangle-exclamation', 'fa-hourglass-half', 'fa-circle-check', 'text-success-green', 'text-red-500');
+        statusIcon.classList.remove(
+            'fa-lock', 
+            'fa-triangle-exclamation', 
+            'fa-hourglass-half', 
+            'fa-circle-check', 
+            'success-green',
+            'error-red'
+        );
         
         statusIcon.style.color = 'var(--primary-neon)'; 
         statusIcon.style.textShadow = '0 0 5px var(--primary-neon)';
@@ -474,7 +483,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         statusMessage1.textContent = 'Verifying your Producer credentials via secure link...';
 
         try {
-            const MIN_VERIFY_DELAY_MS = 2100; 
+            const MIN_VERIFY_DELAY_MS = 100;
 
             console.log("Calling API at:", API_BASE_URL);
             
@@ -518,11 +527,12 @@ Tip: Use a writing assistant to help refine your suggestion.`;
 
                 // --- UI TRANSITION ---
                 statusIcon.classList.remove('fa-spinner', 'fa-spin');
-                statusIcon.classList.add('fa-circle-check', 'text-success-green');
+                statusIcon.classList.add('fa-circle-check');
+                statusIcon.style.color = 'var(--primary-neon)';
                 
                 // Guard: Clear existing content before injecting the typewriter structure
                 statusMessage1.innerHTML = '';
-                statusMessage1.innerHTML = `<div class="typewriter-container"><div id="typewriter"></div></div>`;
+                statusMessage1.innerHTML = `<div class="typewriter-container status-typewriter"><div id="typewriter"></div></div>`;
                 
                 const target = document.getElementById('typewriter');
                 const fullText = `> ACCESS GRANTED: ${selectedPlatformId} @ ${selectedPlatform}`;
@@ -543,23 +553,25 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                     : 'AUTHENTICATION FAILED'; 
                                  
                 statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-                statusIcon.classList.add('fa-hourglass-half', 'text-yellow-500'); 
+                statusIcon.classList.add('fa-hourglass-half'); 
+                statusIcon.style.color = 'var(--primary-neon)';
                 statusMessage1.style.color = 'var(--primary-neon)';
                 
                 // Inject the specific error message from the API response
                 statusMessage1.innerHTML = `
-                    <span class="font-bold text-lg">${title}</span>
-                    <p class="roboto mt-2 mb-3">
-                        ${apiMessage}
-                    </p>
+                    <div class="status-alert">
+                        <span class="status-alert-title">${title}</span>
+                        <p class="roboto">${apiMessage}</p>
+                    </div>
                 `; // 3. Fall back (Display static error)
             } else {
                 // Generic Verification Failure (e.g., 500 server error)
                 statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-                statusIcon.classList.add('fa-triangle-exclamation', 'text-red-500');
-                statusMessage1.style.color = 'var(--error-red, red)';
+                statusIcon.classList.add('fa-triangle-exclamation');
+                statusIcon.style.color = 'var(--error-red)';
+                statusMessage1.style.color = 'var(--error-red)';
                 statusMessage1.innerHTML = `
-                    **Verification Failed!** An unknown server error occurred during verification.
+                    <strong class="error-text">Verification Failed!</strong> An unknown server error occurred...
                     <br>Please try again or check the server status.
                 `;
             }
@@ -567,8 +579,9 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         } catch (error) {
             // TRUE NETWORK ERROR (Client cannot physically reach the server)
             statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-            statusIcon.classList.add('fa-server', 'text-red-500');
-            statusMessage1.style.color = 'var(--error-red, red)';
+            statusIcon.classList.add('fa-server');
+            statusIcon.style.color = 'var(--error-red)';
+            statusMessage1.style.color = 'var(--error-red)';
             statusMessage1.textContent = `CRITICAL ERROR: Could not connect to the API server (${API_BASE_URL}). Check server status.`;
             console.error('Verification Network Error:', error);
         }
@@ -616,7 +629,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
 
             // 2. Human Timing: Base speed + random variance
             let delay = Math.floor(Math.random() * 63) + 42; 
-            if (text.charAt(n) === ' ' || text.charAt(n) === ':') delay += 210;
+            if (text.charAt(n) === ' ' || text.charAt(n) === ':') delay += 120;
 
             // 3. The "Human Error": Type a wrong character at the typoIndex
             if (n === typoIndex && !hasTypoOccurred) {
@@ -749,8 +762,8 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         // Manually enable the warning based on button state
         const submitWarningText = document.getElementById('submitWarningText');
         if (submitWarningText) {
-            // If disabled, add 'is-hidden'. If enabled, remove it.
-            submitWarningText.classList.toggle('is-hidden', submitButton.disabled);
+            // If disabled, add 'hidden'. If enabled, remove it.
+            submitWarningText.classList.toggle('hidden', submitButton.disabled);
         }
 
         // --- Call Warning Checker ---
@@ -758,48 +771,47 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     };
 
     const setCadenceTimeframeDefaults = (unit) => {
-        // Only set this up when recurring is active
         if (challengeDurationTypeHidden.value !== 'RECURRING') return;
         
-        // --- UI: Manage visibility and text of the 'every X days' option ---
+        const isCustom = unit === 'CUSTOM_DAYS';
+        
         if (customDaysOption) {
-            if (unit === 'CUSTOM_DAYS') {
-                // 1. Hide the option from the list
-                customDaysOption.style.display = 'none';
-                // 2. Clear the displayed text in the closed dropdown box to avoid redundancy
-                customDaysOption.textContent = ' '; 
+            if (isCustom) {
+                customDaysOption.textContent = 'Every'; 
+                cadenceUnitSelect.classList.add('is-minimized');
+                cadenceUnitSelect.blur(); 
             } else {
-                // 1. Show the option when any other unit is selected
-                customDaysOption.style.display = 'block'; 
-                // 2. Restore the original text
                 customDaysOption.textContent = 'every X days'; 
+                cadenceUnitSelect.classList.remove('is-minimized');
             }
         }
 
-        // IMPORTANT: Reset to preferred minimums when changing unit
         cadenceCountInput.value = '1'; 
         recurrenceDurationCountInput.value = '2';
         
-        // This is only for display purposes in the sentence
-        if (unit === 'DAILY') {
-            timeframeUnitSentenceSpan.textContent = "Days";
-        } else if (unit === 'WEEKLY') {
-            timeframeUnitSentenceSpan.textContent = "Weeks";
-        } else if (unit === 'MONTHLY') {
-            timeframeUnitSentenceSpan.textContent = "Months";
-        } else if (unit === 'CUSTOM_DAYS') {
-            timeframeUnitSentenceSpan.textContent = "times";
-        }
+        const labels = {
+            'DAILY': 'Days',
+            'WEEKLY': 'Weeks',
+            'MONTHLY': 'Months',
+            'CUSTOM_DAYS': 'times'
+        };
+        timeframeUnitSentenceSpan.textContent = labels[unit] || 'Days';
 
-        customDaysGroup.classList.toggle('hidden', unit !== 'CUSTOM_DAYS');
+        customDaysGroup.classList.toggle('hidden', !isCustom);
         
-        // We always call calculateTotalSessions to ensure all fields are updated
         calculateTotalSessions();
     };
     
     const calculateTotalSessions = () => {
         const durationType = challengeDurationTypeHidden.value;
 
+        // Collapses timePaceGroup container when no type is selected
+        if (durationType === 'ONE_OFF' || durationType === 'RECURRING') {
+            timePaceGroup.classList.remove('form-section-disabled');
+        } else {
+            timePaceGroup.classList.add('form-section-disabled');
+        }
+        
         let text = "";
         let calculatedTotal = 0;
         
@@ -844,10 +856,16 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 
             }
             
-            // 2. Update DOM fields with enforced minimums
+            // Update DOM fields with enforced minimums
             cadenceCountInput.value = pace;
             recurrenceDurationCountInput.value = timeframeCount;
             // --- End Enforcement ---
+
+            // --- PLURALIZATION LOGIC for the cadence preview ---
+            const recurringSessionPluralizer = document.getElementById('recurringSessionPluralizer');
+            if (recurringSessionPluralizer) {
+                recurringSessionPluralizer.textContent = pace === 1 ? 'session' : 'sessions';
+            }
 
             calculatedTotal = pace * timeframeCount;
             
@@ -874,7 +892,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                     text = `${pace} ${paceText} per ${unitDisplay} for ${timeframeCount} ${timeframeUnit}`;
                 } else if (unit === 'CUSTOM_DAYS') {
                     // e.g., "1 session every 3 days for 4 times"
-                    text = `${pace} ${paceText} every ${customDays} days for ${timeframeCount} times`;
+                    text = `${pace} ${paceText} ${customDays} days for ${timeframeCount} times`;
                 }
             }
 
@@ -888,20 +906,22 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         const totalMinutes = calculatedTotal * SESSION_DURATION_MINUTES;
         const finalCost = dynamicBaseCost;
 
+        // Update the hidden sentence and preview fields with the new cadence text and total sessions
         calculatedTotalSessionsInput.value = calculatedTotal;
         sessionCadenceHidden.value = text;
         calculatedCostInput.value = finalCost;
         
-        // Implementation: Display total sessions/minutes correctly for the active duration type
-        const totalSessionsDisplay = `${calculatedTotal.toLocaleString()} sessions (${totalMinutes.toLocaleString()} Mins)`;
+        // Display total sessions/minutes correctly with pluralization
+        const sessionPlural = calculatedTotal === 1 ? 'session' : 'sessions';
+        const totalSessionsDisplay = `${calculatedTotal.toLocaleString()} ${sessionPlural} (${totalMinutes.toLocaleString()} Mins)`;
         
-        // 3. Update One-Off Summary element if visible (uses the new HTML element)
+        // Update One-Off Summary element if visible (uses the new HTML element)
         const oneOffSummary = document.getElementById('oneOffSummary');
         if (oneOffSummary && durationType === 'ONE_OFF') {
              oneOffSummary.textContent = `(${totalMinutes.toLocaleString()} Mins)`;
         }
 
-        // 4. Update Recurring/General Summary element if visible
+        // Update Recurring/General Summary element if visible
         cadencePreview.textContent = totalSessionsDisplay; 
         
         // --- Define formattedCost here ---
@@ -979,7 +999,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 const averageDailyPace = pace / customDays; 
                 
                 sessionsPerPeriod = pace; 
-                periodText = ` ${customDays} Day cycle`;
+                periodText = `${customDays}-day cycle`;
                 
                 // Check against the DAILY threshold for the average pace
                 if (averageDailyPace > RECURRING_THRESHOLDS.DAILY) {
@@ -990,7 +1010,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         
         // 3. UI UPDATE (Runs only if a warning was triggered in step 1 or 2)
         if (shouldShowWarning) {
-            highDemandWarningText.innerHTML = `This submission requires <strong>${sessionsPerPeriod} session(s) per ${periodText}</strong>, which far exceeds the normal demand threshold. If activated, it will rapidly monopolize the execution slot for an extended duration.`;
+            highDemandWarningText.innerHTML = `This submission requires <strong>${sessionsPerPeriod} sessions per ${periodText}</strong>, which far exceeds the normal demand threshold. If activated, it will rapidly monopolize the execution slot for an extended duration.`;
             highDemandWarningBanner.classList.remove('hidden');
         } else {
             highDemandWarningBanner.classList.add('hidden');
@@ -1052,46 +1072,50 @@ Tip: Use a writing assistant to help refine your suggestion.`;
             : "Single session mission";
 
         return `
-            <div class="space-y-4 animate-fadeIn">
-                <div class="flex justify-between border-b border-[#333] pb-2 items-center">
+            <div class="result-summary-container">
+                <div class="result-summary-row-header">
                     <div>
-                        <div class="summary-label">Challenge ID</div>
-                        <div class="summary-value text-lg">#${challenge.challengeId}</div>
+                        <div class="result-summary-label">Challenge ID</div>
+                        <div class="result-summary-value">#${challenge.challengeId}</div>
                     </div>
-                    <div class="text-center">
-                        <div class="summary-label">Cost</div>
-                        <div class="summary-value text-lg text-primary-neon">${cost.toLocaleString()} <span class="text-[9px]">NUMBERS</span></div>
+                    <div>
+                        <div class="result-summary-label">Cost</div>
+                        <div class="result-summary-value primary-neon">
+                            ${cost.toLocaleString()}<span class="summary-cost-unit">NUMBERS</span>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <div class="summary-label mb-0.5">TYPE</div>
-                        <div class="text-[11px] font-bold text-gray-200 uppercase">${durationType.replace('_', ' ')}</div>
+                    <div>
+                        <div class="result-summary-label">TYPE</div>
+                        <div class="result-summary-type-badge">${durationType.replace('_', ' ')}</div>
                     </div>
                 </div>
                 
-                <div class="flex justify-between items-stretch gap-2">
-                    <div class="flex-1 p-3 rounded-lg border border-[#222] flex flex-col justify-center items-start text-left bg-gradient-to-br from-[#0a0a0a] to-[#111]">
-                        <div class="summary-label mb-1">SESSIONS</div>
-                        <div class="text-[11px] font-bold text-gray-200">${challenge.totalSessions} Total</div>
+                <div class="result-summary-grid">
+                    <div class="result-summary-stat-card result-summary-card-left">
+                        <div class="result-summary-label">SESSIONS</div>
+                        <div class="result-summary-type-badge">${challenge.totalSessions} Total</div>
                     </div>
 
-                    <div class="flex-[1.5] p-3 rounded-lg border border-[#1a1a1a] flex flex-col justify-center text-right bg-gradient-to-br from-[#0a0a0a] to-[#111]">
-                        <div class="summary-label mb-1">TIMELINE & PACING</div>
-                        <div class="text-[11px] text-gray-300 roboto tracking-wide">
-                            ${cadenceDetail} <i class="fa-solid fa-calendar-check text-primary-neon ml-1"></i>
+                    <div class="result-summary-stat-card result-summary-card-right">
+                        <div class="result-summary-label">TIMELINE & PACING</div>
+                        <div class="result-summary-pacing-detail">
+                            ${cadenceDetail} <i class="fa-solid fa-calendar-check primary-neon"></i>
                         </div>
                     </div>
                 </div>
 
-                <div class="pt-1">
-                    <div class="summary-label mb-1">DESCRIPTION</div>
-                    <div class="challenge-description-area roboto italic">
-                        "${challenge.challengeText}"
-                    </div>
+                <div class="result-summary-desc-wrapper">
+                    <div class="result-summary-label">DESCRIPTION</div>
+                    <div class="challenge-description-area roboto">${challenge.challengeText}</div>
                 </div>
 
-                <div class="flex justify-between items-center pt-2 border-t border-[#222]">
-                    <div class="summary-label">New Balance</div>
-                    <div class="summary-value text-sm text-white">${userStats.currentBalance.toLocaleString()} <span class="text-[9px] text-primary-neon">NUMBERS</span></div>
+                <div class="result-summary-footer">
+                    <span class="result-summary-label">Balance:</span>
+                    <div class=".result-balance-numbers">
+                        <span class="primary-neon">${userStats.currentBalance.toLocaleString()}</span>
+                        <span class="primary-neon summary-cost-unit">NUMBERS</span>
+                    </div>
+                        
                 </div>
             </div>
         `;
@@ -1103,7 +1127,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         
         if (statusMessage2) {
             statusMessage2.textContent = '';
-            statusMessage2.className = 'roboto text-sm text-center mt-3'; // Reset to base classes
+            statusMessage2.className = 'roboto form-status-message';
         }
         
         // Clear the visual editor if it exists
@@ -1302,12 +1326,10 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 const { newChallenge, cost, userStats } = data.details;
                 summaryDetailsWrapper.innerHTML = generateChallengeSummary(newChallenge, cost, userStats);
 
-                // 4. THE POP & REVEAL (Synchronized)
+                // POP & REVEAL
                 setTimeout(() => {
-                    // Start shrinking the button
                     submitButton.classList.add('button-pop-out');
                     
-                    // START STEP 3 ALMOST IMMEDIATELY (Don't wait for button to be 100% gone)
                     setTimeout(() => {
                         const step2 = document.getElementById('step2');
                         if (step2) step2.classList.add('hidden');
@@ -1320,7 +1342,6 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                         const container = document.querySelector('.form-container');
                         container.style.height = 'auto'; 
 
-                        // Cleanup in the background
                         submitButton.classList.remove('btn-success-morph', 'button-pop-out');
                         submitButton.style.removeProperty('--travel-distance');
                         formFields.forEach(field => field.classList.remove('form-content-fade'));
@@ -1330,8 +1351,8 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                         
                         handleSocialFeedback();
                         handleCopyLink();
-                    }, 21); // Only a 150ms gap feels like a "hand-off" rather than a wait
-                }, 2100); // Time spent the center instead of the container 
+                    }, 21);
+                }, 2100);
             } else {
                 // Server Error (e.g. 400 or 500)
                 formFields.forEach(field => field.classList.remove('form-content-fade'));
@@ -1379,17 +1400,24 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     };
 
     const toggleBtn = document.getElementById('toggleSummaryBtn');
-    const summaryBox = document.getElementById('summaryDetailsWrapper');
+    const wrapperBox = document.querySelector('.details-content-area-wrapper');
     const chevron = document.getElementById('chevronIcon');
 
-    if (toggleBtn) {
+    if (toggleBtn && wrapperBox) {
+        // Ensure it starts hidden in JS if it's hidden in CSS
         toggleBtn.addEventListener('click', () => {
-            const isHidden = summaryBox.classList.contains('hidden');
-            summaryBox.classList.toggle('hidden');
-            chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-            if (isHidden) {
+            const isCurrentlyHidden = wrapperBox.classList.contains('hidden');
+            
+            // 1. Toggle the wrapper, not just the inner text
+            wrapperBox.classList.toggle('hidden');
+            
+            // 2. Rotate Chevron
+            chevron.style.transform = isCurrentlyHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+            
+            // 3. Smooth Scroll if opening
+            if (isCurrentlyHidden) {
                 setTimeout(() => {
-                    summaryBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    wrapperBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }, 50);
             }
         });
@@ -1519,7 +1547,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         
         icon.classList.add('icon-active-pop');
         icon.classList.add('strobe-effect');
-        icon.style.color = "var(--error-red)"; // Flash red first
+        icon.style.color = "var(--error-red)";
         setTimeout(() => { 
             icon.style.color = "var(--primary-neon)"; 
         }, 100);
