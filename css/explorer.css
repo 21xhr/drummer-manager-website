@@ -98,9 +98,9 @@ body {
     touch-action: none;
 }
 .range-inputs-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-.range-to-label { color: #4b5563; font-size: 10px; }
+.range-to-label { color: var(--subtext-color); font-size: 10px; }
 
-.small-num-input { width: 50px; height: 28px; background: #111; border: 1px solid #333; color: white; font-size: 12px; border-radius: 4px; text-align: center; outline: none; }
+.small-num-input { width: 50px; height: 28px; background: var(--background-color); border: 1px solid var(--subtext-color); color: var(--text-color); font-size: 12px; border-radius: 4px; text-align: center; outline: none; }
 
 /* Main Content Area */
 .explorer-main {
@@ -244,7 +244,7 @@ body {
 .status-filter-stack { display: flex; flex-direction: column; gap: 8px; }
 .status-item { 
     font-size: 11px; 
-    color: #6b7280;
+    color: var(--subtext-color);
     cursor: pointer; 
     text-transform: uppercase; 
     font-weight: bold; 
@@ -264,7 +264,7 @@ body {
 .search-prompt { margin-right: 8px; }
 .sync-status { margin-left: 20px; min-width: 90px; font-size: 9px; opacity: 0.5; }
 
-.filter-input-round { width: 100%; background: transparent; color: white; border: none; padding: 10px 5px; font-size: 0.85rem; outline: none; }
+.filter-input-round { width: 100%; background: transparent; color: var(--text-color); border: none; padding: 10px 5px; font-size: 0.85rem; outline: none; }
 
 #challengeList {
     flex: 1;
@@ -275,7 +275,7 @@ body {
     flex-direction: column;
 }
 
-/* --- GRID TABLE FIX --- */
+/* --- GRID TABLE --- */
 .list-header, .entry-row {
     display: grid;
     /* ID | Status | Proposer | Description | Pushes */
@@ -348,7 +348,7 @@ body {
     overflow-x: hidden;
     scrollbar-width: none;
     line-height: 1.42 !important;
-    color: #9ca3af; 
+    color: var(--subtext-color); 
 }
 
 .entry-row .description-column::-webkit-scrollbar {
@@ -387,11 +387,7 @@ body {
     box-shadow: inset 2px 0 0 #3b82f6, 0 0 10px rgba(59, 130, 246, 0.2); 
     background: rgba(59, 130, 246, 0.1); 
 }
-.status-pending { 
-    color: #fbbf24; 
-    box-shadow: inset 3px 0 0 #fbbf24; 
-    background: rgba(251, 191, 36, 0.1); 
-}
+
 .status-completed { 
     color: #10b981; 
     box-shadow: inset 3px 0 0 #10b981; 
@@ -400,7 +396,7 @@ body {
 
 .proposer-column {
     font-weight: bold;
-    color: white;
+    color: var(--text-color);
 }
 
 /* Details Styling */
@@ -414,11 +410,11 @@ body {
     font-size: 1.1rem; 
     letter-spacing: 1px;
 }
-.details-id-sub { font-size: 10px; color: #6b7280; }
+.details-id-sub { font-size: 10px; color: var(--subtext-color); }
 
 .challenge-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.2rem; }
-.challenge-field label { display: block; font-size: 9px; color: #6b7280; text-transform: uppercase; }
-.challenge-field span { font-size: 14px; color: white; font-weight: bold; }
+.challenge-field label { display: block; font-size: 9px; color: var(--subtext-color); text-transform: uppercase; }
+.challenge-field span { font-size: 14px; color: var(--text-color); font-weight: bold; }
 
 .challenge-text-box { 
     background: rgba(0,0,0,0.5); 
@@ -429,12 +425,12 @@ body {
     min-height: 120px; 
     line-height: 1.6; 
     font-size: 14px; 
-    color: #eee; 
+    color: var(--text-color); 
     overflow: auto;
 }
 
 .challenge-failure-field { margin-bottom: 1rem; }
-.failure-reason-val { color: #f87171; font-size: 0.75rem; }
+.failure-reason-val { color: var(--error-color); font-size: 0.75rem; }
 
 .share-btn { width: 100%; margin-bottom: 25px; }
 .share-btn i { margin-right: 12px;}
@@ -442,7 +438,7 @@ body {
 /* Lock Screen */
 .lock-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; }
 .status-icon-main { font-size: 2rem; margin-bottom: 1rem; }
-.status-msg-text { font-size: 0.875rem; color: #9ca3af; }
+.status-msg-text { font-size: 0.875rem; color: var(--subtext-color); }
 .typewriter-container { display: flex; justify-content: center; }
 .typewriter-cursor { font-family: monospace; color: var(--primary-neon); border-right: 3px solid var(--primary-neon); animation: blink-caret 0.5s step-end infinite; }
 

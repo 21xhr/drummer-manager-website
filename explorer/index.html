@@ -63,7 +63,6 @@
                     <div class="filter-group">
                         <label class="label-accent">CHALLENGE STATUS</label>
                         <div id="statusFilters" class="status-filter-stack">
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'PENDING')">PENDING</div>
                             <div class="status-item active" onclick="toggleStatusFilter(this, 'ACTIVE')">ACTIVE</div>
                             <div class="status-item active" onclick="toggleStatusFilter(this, 'IN_PROGRESS')">IN_PROGRESS</div>
                             <div class="status-item active" onclick="toggleStatusFilter(this, 'COMPLETED')">COMPLETED</div>
@@ -116,7 +115,7 @@
 <script>
     let allChallenges = [];
     let lastSyncTimestamp = new Date().toISOString();
-    let activeStatusFilters = ['PENDING', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'ARCHIVED', 'AUCTIONED', 'REMOVED'];
+    let activeStatusFilters = ['ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'ARCHIVED', 'AUCTIONED', 'REMOVED'];
 
     const IS_DEV = true; 
     const TYPE_PAUSE = IS_DEV ? 10 : 420;
@@ -298,7 +297,7 @@
             
             const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
             
-            let textPreview = typeof c.challengeText === 'string' ? c.challengeText : 'Challenge Data';
+            let textPreview = c.challengeText?.goal || c.challengeText || 'No Data';
 
             const pushCount = (c.totalPush !== undefined && c.totalPush !== null) ? c.totalPush : 0;
 
@@ -369,7 +368,11 @@
                 <div class="challenge-field"><label>Cadence</label><span>${c.sessionCadenceText || 'ONE-OFF'}</span></div>
                 <div class="challenge-field"><label>Pushes</label><span>${c.totalPush}</span></div>
             </div>
-            <div class="challenge-text-box roboto">${c.challengeText}</div>
+            <div class="challenge-text-box roboto">
+                <strong>GOAL:</strong> ${c.challengeText?.goal || c.challengeText}<br><br>
+                <strong>INSTRUCTIONS:</strong> ${c.challengeText?.instructions || 'N/A'}<br><br>
+                <strong>REFERENCE:</strong> ${c.challengeText?.reference || 'N/A'}
+            </div>
             <div class="challenge-field challenge-failure-field">
                 <label>Failure Reason</label>
                 <span class="failure-reason-val">${c.failureReason || 'NONE'}</span>
