@@ -54,8 +54,7 @@
                                 One-Off
                                 <span class="info-tooltip-container">
                                     <span class="tooltip-icon">ⓘ</span>
-                                    <span class="info-tooltip-text">Must be completed within the ONE stream
-                                        day...</span>
+                                    <span class="info-tooltip-text">Must be completed within a SINGLE stream day...</span>
                                 </span>
                             </h4>
                         </div>
@@ -73,17 +72,43 @@
                 </div>
 
                 <div id="challengeTextGroup" class="form-group editor-container form-section-disabled">
-                    <div id="challengeEditor" class="editor-main" contenteditable="true" placeholder="Describe the task. (Min 10 chars) 
-                Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!" required>
+                    <!-- 1. Goal Section -->
+                    <div class="input-block">
+                        <label class="roboto section-label">CORE GOAL</label>
+                        <input type="text" id="goalInput" class="form-input" placeholder="Set your core goal..." required>
                     </div>
-                    <input type="hidden" id="challengeText" value="">
-                    <div class="editor-toolbar">
-                        <button type="button" data-edit="bold" class="editor-button" title="Bold" disabled>
-                            <i class="fa-solid fa-bold"></i>
-                        </button>
-                        <button type="button" data-edit="italic" class="editor-button" title="Italic" disabled>
-                            <i class="fa-solid fa-italic"></i>
-                        </button>
+
+                    <!-- 2. Instructions Section -->
+                    <div class="input-block">
+                        <label class="roboto section-label">INSTRUCTIONS</label>
+                        <textarea id="instructionsInput" class="form-input" rows="3" placeholder="Detailed instructions, use AI and review carefully..." required></textarea>
+                    </div>
+
+                    <!-- 3. Constraints Section -->
+                    <div class="input-block" id="constraintsContainer">
+                        <label class="roboto section-label">CONSTRAINTS & RULES</label>
+                        <div class="dynamic-list" id="constraintsList">
+                            <input type="text" class="form-input constraint-item" placeholder="Add a constraint or rule...">
+                        </div>
+                    </div>
+
+                    <!-- 4. References Section -->
+                    <div class="input-block" id="referencesContainer">
+                        <label class="roboto section-label">REFERENCES / LINKS</label>
+                        <div class="dynamic-list placeholder-trigger" id="referencesList">
+                            <div class="reference-item-block">
+                                <select class="ref-type-select">
+                                    <option value="VIDEO">Video</option>
+                                    <option value="AUDIO">Audio</option>
+                                    <option value="WIKI">Wiki</option>
+                                    <option value="DOCUMENT">Document</option>
+                                    <option value="IMAGE">Image</option>
+                                    <option value="OTHER">Other</option>
+                                </select>
+                                <input type="text" class="ref-label-input" placeholder="Label">
+                                <input type="url" class="ref-url-input" placeholder="URL">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -262,25 +287,6 @@
     let selectedPlatform = '';
     let selectedPlatformId = '';
     let isStreamLive = false;
-    let challengeTextCache = '';
-
-    const DEFAULT_PLACEHOLDER = `Describe the task. (Min 10 chars)
-Tip: Use an AI tool like Gemini to help you formulate a clear suggestion!`;
-
-    const RECURRING_PLACEHOLDER = `Describe the task in at least 10 characters.
-
-Use the section below to set the cadence.
-
-Tip: Use a writing assistant to help refine your suggestion.`;
-
-    const ONE_OFF_PLACEHOLDER = `Describe the task in at least 10 characters.
-
-Use the section below to set the total number of 21-minute sessions.
-
-Tip: Use a writing assistant to help refine your suggestion.`;
-
-    // Create a new constant for the disabled state to handle line breaks if needed
-    const DISABLED_PLACEHOLDER = `Please select a Duration Type above first.`;
 
     // --- API URL LOGIC (The most robust dual-path) ---
     const getApiBaseUrl = () => {
@@ -321,8 +327,6 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     const durationCards = formWrapper.querySelectorAll('.duration-card');
 
     const challengeTextGroup = document.getElementById('challengeTextGroup');
-    const challengeEditor = document.getElementById('challengeEditor');
-    const challengeText = document.getElementById('challengeText');
 
     const timePaceGroup = document.getElementById('timePaceGroup');
     const currentCostDisplay = document.getElementById('currentCostDisplay');
@@ -628,9 +632,6 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     };
 
 
-
-    // --- HELPER FUNCTIONS ---
-
     // --- HUMANIZED TYPEWRITER LOGIC ---
     const typeWriter = (element, text, n, callback) => {
         if (n < text.length) {
@@ -666,53 +667,97 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         }
     };
 
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+    // CONSOLIDATED FORM ENGINE (MASTER)
+//////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Handle Progressive Disclosure for Dynamic Lists
+     * (Constraints and References appear only when the current one is being used)
+     */
+    const setupProgressiveList = (containerId, selectorClass, htmlGenerator, maxItems = 99) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        container.addEventListener('input', (e) => {
+            const allItems = Array.from(container.querySelectorAll(`.${selectorClass}`));
+            const lastItem = allItems[allItems.length - 1];
+            let canAdd = false;
+
+            // 1. ADD LOGIC
+            if (containerId === 'referencesList') {
+                const lastBlock = container.querySelector('.reference-item-block:last-child');
+                const label = lastBlock?.querySelector('.ref-label-input')?.value.trim();
+                const url = lastBlock?.querySelector('.ref-url-input')?.value.trim();
+                canAdd = label !== "" && url !== "";
+            } else {
+                canAdd = lastItem.value.trim() !== "";
+            }
+
+            if (canAdd && allItems.length < maxItems) {
+                const newRow = document.createElement('div');
+                newRow.innerHTML = htmlGenerator();
+                container.appendChild(newRow.firstElementChild || newRow);
+            }
+
+            // 2. CLEANUP LOGIC
+            allItems.forEach((item, index) => {
+                if (index === allItems.length - 1) return; 
+
+                let shouldRemove = false;
+                if (containerId === 'referencesList') {
+                    const block = item.closest('.reference-item-block');
+                    const l = block.querySelector('.ref-label-input').value.trim();
+                    const u = block.querySelector('.ref-url-input').value.trim();
+                    shouldRemove = l === "" && u === "";
+                } else {
+                    shouldRemove = item.value.trim() === "";
+                }
+
+                if (shouldRemove) {
+                    if (containerId === 'referencesList') {
+                        item.closest('.reference-item-block').remove();
+                    } else {
+                        item.remove();
+                    }
+                }
+            });
+        });
+    };
+
+    /**
+     * CORE DYNAMIC UPDATE ENGINE
+     */
     const updateDynamicFields = () => {
-        // CRITICAL: Read text length from the contenteditable div's plain text
-        const textLength = challengeEditor.textContent.trim().length;
+        // 1. Gather values
+        const goalVal = document.getElementById('goalInput')?.value || "";
+        const instructionsVal = document.getElementById('instructionsInput')?.value || "";
+        const textLength = (goalVal.trim().length + instructionsVal.trim().length);
+        
         const durationType = challengeDurationTypeHidden.value;
         const isRecurring = durationType === 'RECURRING';
         const isOneOff = durationType === 'ONE_OFF';
 
-        // Update Placeholder based on selection (via the div's attribute)
-        if (isRecurring) {
-            challengeEditor.setAttribute('placeholder', RECURRING_PLACEHOLDER);
-        } else if (isOneOff) {
-            challengeEditor.setAttribute('placeholder', ONE_OFF_PLACEHOLDER);
-        } else {
-            challengeEditor.setAttribute('placeholder', DEFAULT_PLACEHOLDER);
-        }
-
-
-        // Trigger: (Duration Type Selection)
+        // 2. Handle Group Unlocking (Step 2: Text Specs)
         if (durationType) {
             challengeTextGroup.classList.remove('form-section-disabled');
-            // Enable the editor div and the toolbar buttons
-            challengeEditor.removeAttribute('disabled');
-            document.querySelectorAll('.editor-button').forEach(btn => btn.removeAttribute('disabled'));
-
-            // Clear content if the user hasn't typed anything, 
-            // ensuring the new CSS placeholder shows correctly.
-            if (challengeEditor.textContent.trim().length === 0 ||
-                challengeEditor.innerHTML.trim() === '<br>') { // Check for empty or just a line break
-                challengeEditor.innerHTML = '';
-            }
-
         } else {
             challengeTextGroup.classList.add('form-section-disabled');
-            // Disable the editor div and the toolbar buttons
-            challengeEditor.setAttribute('disabled', 'true');
-            document.querySelectorAll('.editor-button').forEach(btn => btn.setAttribute('disabled', 'true'));
-
-            // Set the specific disabled placeholder on the DIV
-            challengeEditor.setAttribute('placeholder', DISABLED_PLACEHOLDER);
-
-            // When the editor is disabled, ensure the content is empty 
-            // so the disabled placeholder shows immediately.
-            challengeEditor.innerHTML = '';
         }
 
-        // Trigger: Enable Time/Pace after sufficient challenge text is entered
-        const canSetPace = durationType && textLength >= 10;
+        // 3. Enable Step 3 (Time/Pace) after sufficient text is entered (Min 10 chars)
+        // AND both fields must have content
+        const isTextValid = goalVal.trim().length > 0 && instructionsVal.trim().length > 0 && textLength >= 10;
+        const canSetPace = durationType && isTextValid;
+
+        const summaryWrapper = document.querySelector('.summary-line-wrapper');
+        if (summaryWrapper) summaryWrapper.classList.toggle('hidden', !isTextValid);
 
         if (canSetPace) {
             timePaceGroup.classList.remove('form-section-disabled');
@@ -725,13 +770,10 @@ Tip: Use a writing assistant to help refine your suggestion.`;
             oneOffGroup.classList.toggle('hidden', !isOneOff);
             cadenceGroup.classList.toggle('hidden', !isRecurring);
 
-            // Set default for recurring if not set
             if (isRecurring && !cadenceUnitSelect.value) {
                 cadenceUnitSelect.value = 'DAILY';
-                // Trigger the full reset if we had to set the default
-                setCadenceTimeframeDefaults(cadenceUnitSelect.value); // This runs the first calculation
+                setCadenceTimeframeDefaults(cadenceUnitSelect.value);
             }
-
         } else {
             timePaceGroup.classList.add('form-section-disabled');
             totalTimeframeCountInput.disabled = true;
@@ -740,44 +782,28 @@ Tip: Use a writing assistant to help refine your suggestion.`;
             customDaysInput.disabled = true;
             recurrenceDurationCountInput.disabled = true;
 
-            // Reset cost displays if sections are disabled
             const oneOffDisplay = document.getElementById('oneOffCostDisplay');
             const recurringDisplay = document.getElementById('recurringCostDisplay');
             if (oneOffDisplay) oneOffDisplay.textContent = '--';
             if (recurringDisplay) recurringDisplay.textContent = '--';
-
             cadencePreview.textContent = '...';
         }
 
-        // CRITICAL: Ensure calculation runs BEFORE the submit check
+        // 4. Calculate Sessions
         calculateTotalSessions();
 
-        // Update submit button state
-        const hasChallengeText = textLength >= 10;
-        const hasDurationSelection = !!durationType;
-        let hasSessions = false;
+        // 5. Submit Button State
+        const totalSessions = parseInt(calculatedTotalSessionsInput.value) || 0;
+        const hasSessions = isRecurring ? (totalSessions >= 2) : (totalSessions >= 1);
 
-        // Ensure total sessions is calculated and >= 1. For recurring, ensure >= 2.
-        const totalSessions = parseInt(calculatedTotalSessionsInput.value);
-        if (totalSessions >= 1) {
-            // For Recurring, enforce a total of at least 2 sessions to be valid
-            if (isRecurring && totalSessions < 2) {
-                hasSessions = false;
-            } else {
-                hasSessions = true;
-            }
-        }
+        submitButton.disabled = !(isTextValid && !!durationType && hasSessions);
 
-        submitButton.disabled = !(hasChallengeText && hasDurationSelection && hasSessions);
-
-        // Manually enable the warning based on button state
+        // 6. UI Feedback
         const submitWarningText = document.getElementById('submitWarningText');
         if (submitWarningText) {
-            // If disabled, add 'hidden'. If enabled, remove it.
-            submitWarningText.classList.toggle('hidden', submitButton.disabled);
+            submitWarningText.classList.toggle('hidden', !submitButton.disabled);
         }
 
-        // --- Call Warning Checker ---
         checkHighDemandWarning();
     };
 
@@ -785,7 +811,6 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         if (challengeDurationTypeHidden.value !== 'RECURRING') return;
 
         const isCustom = unit === 'CUSTOM_DAYS';
-
         if (customDaysOption) {
             if (isCustom) {
                 customDaysOption.textContent = 'Every';
@@ -809,70 +834,43 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         timeframeUnitSentenceSpan.textContent = labels[unit] || 'Days';
 
         customDaysGroup.classList.toggle('hidden', !isCustom);
-
         calculateTotalSessions();
     };
 
     const calculateTotalSessions = () => {
         const durationType = challengeDurationTypeHidden.value;
-
-        // Collapses timePaceGroup container when no type is selected
-        if (durationType === 'ONE_OFF' || durationType === 'RECURRING') {
-            timePaceGroup.classList.remove('form-section-disabled');
-        } else {
-            timePaceGroup.classList.add('form-section-disabled');
-        }
-
         let text = "";
         let calculatedTotal = 0;
 
         if (durationType === 'ONE_OFF') {
             calculatedTotal = Math.min(parseInt(totalTimeframeCountInput.value) || 1, 999);
-            // Ensure minimum of 1 session for one-off
             if (calculatedTotal < 1) calculatedTotal = 1;
             totalTimeframeCountInput.value = calculatedTotal;
             text = `ONE_OFF: ${calculatedTotal} session(s).`;
 
         } else if (durationType === 'RECURRING') {
             const unit = cadenceUnitSelect.value;
-            // Get user inputs, default to 1
             let pace = Math.min(parseInt(cadenceCountInput.value) || 1, 999);
             let timeframeCount = Math.min(parseInt(recurrenceDurationCountInput.value) || 1, 999);
             const customDays = parseInt(customDaysInput.value) || 1;
 
-            // --- Show durationGroup if a unit is selected and parent section is enabled ---
             if (unit && !timePaceGroup.classList.contains('form-section-disabled')) {
                 durationGroup.classList.remove('hidden');
             }
 
-            // --- CRITICAL: Minimums based on unit type ---
+            // CRITICAL Minimums
             if (unit === 'DAILY' || unit === 'CUSTOM_DAYS') {
-
-                if (pace < 1) pace = 1; // Enforce minimum pace of 1
-
-                // Enforce minimum duration of 2 units (days/times) for recurrence
-                if (timeframeCount < 2) {
-                    timeframeCount = 2;
-                }
-
+                if (pace < 1) pace = 1;
+                if (timeframeCount < 2) timeframeCount = 2;
             } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
-
-                if (pace < 1) pace = 1; // Allow minimum pace of 1 session per week/month
-                if (timeframeCount < 1) timeframeCount = 1; // Enforce minimum duration of 1 unit
-
-                // If pace is 1, duration must be at least 2 units to ensure 2 total sessions
-                if (pace === 1 && timeframeCount < 2) {
-                    timeframeCount = 2;
-                }
-
+                if (pace < 1) pace = 1;
+                if (timeframeCount < 1) timeframeCount = 1;
+                if (pace === 1 && timeframeCount < 2) timeframeCount = 2;
             }
 
-            // Update DOM fields with enforced minimums
             cadenceCountInput.value = pace;
             recurrenceDurationCountInput.value = timeframeCount;
-            // --- End Enforcement ---
 
-            // --- PLURALIZATION LOGIC for the cadence preview ---
             const recurringSessionPluralizer = document.getElementById('recurringSessionPluralizer');
             if (recurringSessionPluralizer) {
                 recurringSessionPluralizer.textContent = pace === 1 ? 'session' : 'sessions';
@@ -881,17 +879,12 @@ Tip: Use a writing assistant to help refine your suggestion.`;
             calculatedTotal = pace * timeframeCount;
 
             if (!unit) {
-                // If cadenceUnit is not selected yet
                 text = "Select a frequency and duration to calculate total sessions.";
                 calculatedTotal = 0;
-                durationGroup.classList.add('hidden'); // Ensure it hides if unit is reset
+                durationGroup.classList.add('hidden');
             } else {
-
-                // --- GRAMMAR FIXES ---
                 const paceText = pace === 1 ? 'session' : 'sessions';
                 let unitDisplay = unit.toLowerCase();
-
-                // Map 'daily', 'weekly', 'monthly' to 'day', 'week', 'month'
                 if (unitDisplay === 'daily') unitDisplay = 'day';
                 else if (unitDisplay === 'weekly') unitDisplay = 'week';
                 else if (unitDisplay === 'monthly') unitDisplay = 'month';
@@ -899,15 +892,11 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 const timeframeUnit = timeframeUnitSentenceSpan.textContent.toLowerCase();
 
                 if (unit === 'DAILY' || unit === 'WEEKLY' || unit === 'MONTHLY') {
-                    // e.g., "1 session per day for 2 days"
                     text = `${pace} ${paceText} per ${unitDisplay} for ${timeframeCount} ${timeframeUnit}`;
                 } else if (unit === 'CUSTOM_DAYS') {
-                    // e.g., "1 session every 3 days for 4 times"
                     text = `${pace} ${paceText} every ${customDays} days then repeat this ${timeframeCount} times`;
                 }
             }
-
-            // Removed: redundant "= X Total Sessions" part
             durationLeadInText.textContent = unit === 'CUSTOM_DAYS' ? "then repeat this" : "for a total of";
         } else {
             text = "Select a Duration Type to continue.";
@@ -917,35 +906,25 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         const totalMinutes = calculatedTotal * SESSION_DURATION_MINUTES;
         const finalCost = dynamicBaseCost;
 
-        // Update the hidden sentence and preview fields with the new cadence text and total sessions
         calculatedTotalSessionsInput.value = calculatedTotal;
         sessionCadenceHidden.value = text;
         calculatedCostInput.value = finalCost;
 
-        // Display total sessions/minutes correctly with pluralization
         const sessionPlural = calculatedTotal === 1 ? 'session' : 'sessions';
         const totalSessionsDisplay = `${calculatedTotal.toLocaleString()} ${sessionPlural} (${totalMinutes.toLocaleString()} Mins)`;
 
-        // Update One-Off Summary element if visible (uses the new HTML element)
         const oneOffSummary = document.getElementById('oneOffSummary');
         if (oneOffSummary && durationType === 'ONE_OFF') {
             oneOffSummary.textContent = `(${totalMinutes.toLocaleString()} Mins)`;
         }
 
-        // Update Recurring/General Summary element if visible
         cadencePreview.textContent = totalSessionsDisplay;
-
-        // --- Define formattedCost here ---
         const formattedCost = finalCost.toLocaleString();
-
-        // Update both cost displays 
         const oneOffDisplay = document.getElementById('oneOffCostDisplay');
         const recurringDisplay = document.getElementById('recurringCostDisplay');
-
         if (oneOffDisplay) oneOffDisplay.textContent = formattedCost;
         if (recurringDisplay) recurringDisplay.textContent = formattedCost;
 
-        // --- PLURALIZATION LOGIC ---
         const oneOffPluralizer = document.getElementById('oneOffSessionPluralization');
         if (oneOffPluralizer && durationType === 'ONE_OFF') {
             const currentCount = parseInt(totalTimeframeCountInput.value) || 0;
@@ -953,41 +932,28 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         }
     };
 
-
-    // --- WARNING LOGIC IMPLEMENTATION ---
     const checkHighDemandWarning = () => {
         const durationType = challengeDurationTypeHidden.value;
         const totalSessions = parseInt(calculatedTotalSessionsInput.value) || 0;
-
         let shouldShowWarning = false;
         let sessionsPerPeriod = 0;
         let periodText = '';
 
-        // Constants for thresholds (Self-documenting and easy to adjust)
         const ONE_OFF_MAX_SESSIONS = 7;
-        const RECURRING_THRESHOLDS = {
-            'DAILY': 7,
-            'WEEKLY': 42,
-            'MONTHLY': 147,
-        };
+        const RECURRING_THRESHOLDS = { 'DAILY': 7, 'WEEKLY': 42, 'MONTHLY': 147 };
 
-        // If no duration is selected, hide and exit
         if (!durationType) {
             highDemandWarningBanner.classList.add('hidden');
             return;
         }
 
-        // 1. ONE-OFF CHALLENGE LOGIC
         if (durationType === 'ONE_OFF') {
             if (totalSessions > ONE_OFF_MAX_SESSIONS) {
                 shouldShowWarning = true;
                 sessionsPerPeriod = totalSessions;
                 periodText = 'Single Challenge Day';
             }
-        }
-
-        // 2. RECURRING CHALLENGE LOGIC
-        else if (durationType === 'RECURRING') {
+        } else if (durationType === 'RECURRING') {
             const unit = cadenceUnitSelect.value;
             const pace = parseInt(cadenceCountInput.value) || 0;
 
@@ -995,31 +961,20 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 sessionsPerPeriod = pace;
                 periodText = 'Day';
                 if (pace > RECURRING_THRESHOLDS.DAILY) shouldShowWarning = true;
-
             } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
                 sessionsPerPeriod = pace;
-                // Use the display text from the global variable (Days, Weeks, Months)
                 periodText = timeframeUnitSentenceSpan.textContent.slice(0, -1);
-
                 if (unit === 'WEEKLY' && pace > RECURRING_THRESHOLDS.WEEKLY) shouldShowWarning = true;
                 if (unit === 'MONTHLY' && pace > RECURRING_THRESHOLDS.MONTHLY) shouldShowWarning = true;
-
             } else if (unit === 'CUSTOM_DAYS') {
                 const customDays = parseInt(customDaysInput.value) || 1;
-                // Normalized check: Average daily pace must be > 7 sessions/day
                 const averageDailyPace = pace / customDays;
-
                 sessionsPerPeriod = pace;
                 periodText = `${customDays}-day cycle`;
-
-                // Check against the DAILY threshold for the average pace
-                if (averageDailyPace > RECURRING_THRESHOLDS.DAILY) {
-                    shouldShowWarning = true;
-                }
+                if (averageDailyPace > RECURRING_THRESHOLDS.DAILY) shouldShowWarning = true;
             }
         }
 
-        // 3. UI UPDATE (Runs only if a warning was triggered in step 1 or 2)
         if (shouldShowWarning) {
             highDemandWarningText.innerHTML = `This submission requires <strong>${sessionsPerPeriod} sessions per ${periodText}</strong>, which far exceeds the normal demand threshold. If activated, it will rapidly monopolize the execution slot for an extended duration.`;
             highDemandWarningBanner.classList.remove('hidden');
@@ -1029,244 +984,77 @@ Tip: Use a writing assistant to help refine your suggestion.`;
     };
 
 
-    const generateChallengeSummary = (challenge, cost, userStats) => {
-        if (!challenge || !userStats) return `<p>Error</p>`;
+    // Row Generators
+    const generateConstraintInput = () => `<input type="text" class="form-input constraint-item" placeholder="Add another rule (Max 7)...">`;
+    const generateReferenceRow = () => `<div class="reference-item-block"><select class="ref-type-select"><option value="VIDEO">Video</option><option value="AUDIO">Audio</option><option value="IMAGE">Image</option><option value="DOCUMENT">Document</option><option value="LINK">Other</option></select><input type="text" class="ref-label-input" placeholder="Label"><input type="url" class="ref-url-input" placeholder="URL"></div>`;
 
-        const isRecurring = challenge.durationType === 'RECURRING';
+    // Initialize Lists and Interaction
+    setupProgressiveList('constraintsList', 'constraint-item', generateConstraintInput, 7);
+    setupProgressiveList('referencesList', 'ref-url-input', generateReferenceRow);
 
-        /* --- SOCIAL SHARE LINK UPDATE LOGIC --- */
-        const challengeUrl = `https://drummer-manager-website.vercel.app/challenge/${challenge.challengeId}`;
+    // Duration Type Selection Logic
+    durationCards.forEach(card => {
+        card.addEventListener('click', () => {
+            if (bgMusic && bgMusic.paused) {
+                if (!bgMusic.src) bgMusic.src = playlist[currentTrack];
+                bgMusic.volume = 0.2; bgMusic.play().catch(e => console.log("Audio blocked"));
+            }
+            const type = card.getAttribute('data-duration');
+            durationCards.forEach(btn => btn.classList.remove('selected'));
+            card.classList.add('selected');
+            challengeDurationTypeHidden.value = type;
+            if (challengeTextGroup) {
+                challengeTextGroup.classList.remove('form-section-disabled');
+                challengeTextGroup.querySelectorAll('input, textarea, select, button').forEach(i => i.disabled = false);
+            }
+            if (type === 'RECURRING') {
+                if (!cadenceUnitSelect.value) cadenceUnitSelect.value = 'DAILY';
+                cadenceCountInput.value = '1'; recurrenceDurationCountInput.value = '2';
+                setCadenceTimeframeDefaults(cadenceUnitSelect.value);
+            } else if (type === 'ONE_OFF') {
+                if (totalTimeframeCountInput.value === '0') totalTimeframeCountInput.value = '1';
+            }
+            updateDynamicFields();
+        });
+    });
 
-        const shareText = encodeURIComponent(
-            `🥁 DROPPED Challenge #${challenge.challengeId} to @21xhr!\n\n` +
-            `Powering this with ${cost.toLocaleString()} NUMBERS. ⚡\n` +
-            `Produce with me, enter the manager deck and take control:\n\n` +
-            `#DMG #TwentyOne`
-        );
+    ['goalInput', 'instructionsInput'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', updateDynamicFields);
+    });
 
-        const xButton = document.getElementById('shareX');
-        if (xButton) {
-            xButton.href = `https://x.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(challengeUrl)}`;
-        }
-
-
-        // SAFETY LOGIC: Default to ONE_OFF if durationType is missing
-        const durationType = challenge?.durationType || 'ONE_OFF';
-
-        // Helper 1: Handles the unit name mapping
-        const getUnitName = (unit) => {
-            const map = { 'DAILY': 'day', 'WEEKLY': 'week', 'MONTHLY': 'month' };
-            return map[unit] || 'day';
-        };
-
-        // Helper 2: Adds 's' if count is NOT 1
-        const plural = (count, word) => {
-            if (!word) return '';
-            const cleanWord = word.replace(/s$/i, ''); // Strip existing 's' to prevent "Weekss"
-            return count === 1 ? cleanWord : `${cleanWord}s`;
-        };
-
-        // 1. Determine the Base Unit (Day, Week, Month)
-        let unitLabel = 'day';
-        if (challenge.cadenceUnit === 'WEEKLY') unitLabel = 'week';
-        if (challenge.cadenceUnit === 'MONTHLY') unitLabel = 'month';
-        // For CUSTOM_DAYS, the unit is always 'day'
-
-        // 2. Use the ACTUAL count from the challenge object
-        const totalTimeframeValue = challenge.recurrenceDurationCount || 1;
-
-        // 3. Pluralize correctly
-        const timeUnitPlural = plural(totalTimeframeValue, unitLabel);
-
-        const cadenceDetail = durationType === 'RECURRING'
-            ? (challenge.sessionCadenceText || "Recurring mission")
-            : "Single session mission";
-
-        return `
-            <div class="result-summary-container">
-                <div class="result-summary-row-header">
-                    <div>
-                        <div class="result-summary-label">Challenge ID</div>
-                        <div class="result-summary-value">#${challenge.challengeId}</div>
-                    </div>
-                    <div>
-                        <div class="result-summary-label">Cost</div>
-                        <div class="result-summary-value primary-neon">
-                            ${cost.toLocaleString()}<span class="summary-cost-unit">NUMBERS</span>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="result-summary-label">TYPE</div>
-                        <div class="result-summary-type-badge">${durationType.replace('_', ' ')}</div>
-                    </div>
-                </div>
-                
-                <div class="result-summary-grid">
-                    <div class="result-summary-stat-card result-summary-card-left">
-                        <div class="result-summary-label">SESSIONS</div>
-                        <div class="result-summary-type-badge">${challenge.totalSessions} Total</div>
-                    </div>
-
-                    <div class="result-summary-stat-card result-summary-card-right">
-                        <div class="result-summary-label">TIMELINE & PACING</div>
-                        <div class="result-summary-pacing-detail">
-                            ${cadenceDetail} <i class="fa-solid fa-calendar-check primary-neon"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="result-summary-desc-wrapper">
-                    <div class="result-summary-label">DESCRIPTION</div>
-                    <div class="challenge-description-area roboto">${challenge.challengeText}</div>
-                </div>
-
-                <div class="result-summary-footer">
-                    <span class="result-summary-label">Balance:</span>
-                    <div class=".result-balance-numbers">
-                        <span class="primary-neon">${userStats.currentBalance.toLocaleString()}</span>
-                        <span class="primary-neon summary-cost-unit">NUMBERS</span>
-                    </div>
-                        
-                </div>
-            </div>
-        `;
-    };
-
-    const resetForm = () => {
-        // --- Reset internal UI state instead of hard reload ---
-        form.reset();
-
-        if (statusMessage2) {
-            statusMessage2.textContent = '';
-            statusMessage2.className = 'roboto form-status-message';
-        }
-
-        // Clear the visual editor if it exists
-        if (typeof challengeEditor !== 'undefined' && challengeEditor) {
-            challengeEditor.innerHTML = '';
-        }
-
-        // Clean up classes
-        challengeDurationTypeHidden.value = '';
-        durationCards.forEach(card => card.classList.remove('selected'));
-        challengeTextGroup.classList.add('form-section-disabled');
-        timePaceGroup.classList.add('form-section-disabled');
-        oneOffGroup.classList.add('hidden');
-        cadenceGroup.classList.add('hidden');
-        submitButton.disabled = true;
-        const container = document.querySelector('.form-container');
-        if (container) container.classList.remove('boosted-neon-border-pulse');
-
-        // --- INSTEAD OF window.location.href ---
-        // Just move the user back to the verification step 
-        // This keeps the Live Server connection active!
-        if (typeof renderStep === 'function') {
-            renderStep(1);
-            // Re-run verification to ensure token is still valid
-            verifyTokenAndStartForm();
-        } else {
-            // Fallback only if renderStep is missing
-            window.location.reload();
-        }
-    };
-
-    // --- AUTO-REFRESH LOGIC (Silent Sync) ---
-    // Polls the server every 21 s to keep price and stream status accurate
+    // --- PERIODIC TOKEN RE-VERIFICATION & STREAM STATUS UPDATE ---
     setInterval(async () => {
-        // Only poll if we have a token and the user is actually on the form (Step 2)
         const step2 = document.getElementById('step2');
-        const isVisible = step2 && !step2.classList.contains('hidden');
-
-        if (submissionToken && isVisible) {
+        if (submissionToken && step2 && !step2.classList.contains('hidden')) {
             try {
-                // 1. Silent re-verification to get the latest flat fee from the DB
                 const response = await fetch(`${API_BASE_URL}/token/verify-challengesubmitform`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: submissionToken })
                 });
                 const data = await response.json();
-
                 if (response.ok) {
-                    // 2. Update the flat cost and count
                     dynamicBaseCost = data.serverCalculatedBaseCost || 210;
                     dailySubmissionCount = data.dailySubmissionCount || 0;
-
-                    // 3. Trigger a visual refresh of the price displays
                     calculateTotalSessions();
                 }
-            } catch (e) {
-                console.error("Silent price sync failed:", e);
-            }
+            } catch (e) { console.error("Sync failed", e); }
         }
-
-        // Also keep the Live/Offline badge in the header updated
-        if (typeof fetchStreamStatus === 'function') {
-            fetchStreamStatus();
-        }
+        if (typeof fetchStreamStatus === 'function') fetchStreamStatus();
     }, 21000);
 
-    // Step 2: Duration Card Selection (Trigger 1)
-    durationCards.forEach(card => {
-        card.addEventListener('click', () => {
-            if (bgMusic && bgMusic.paused) {
-                // Only set the source if it hasn't been set yet
-                if (!bgMusic.src) {
-                    bgMusic.src = playlist[currentTrack];
-                }
-                bgMusic.volume = 0.2;
-                bgMusic.play().catch(e => console.log("Audio blocked"));
-            }
-            const type = card.getAttribute('data-duration');
-
-            challengeTextCache = challengeText.value;
-
-            durationCards.forEach(btn => btn.classList.remove('selected'));
-            card.classList.add('selected');
-
-            challengeDurationTypeHidden.value = type;
-
-            challengeText.value = challengeTextCache;
-
-            challengeTextGroup.classList.remove('form-section-disabled');
-            challengeText.disabled = false;
-
-            if (type === 'RECURRING') {
-                if (!cadenceUnitSelect.value) {
-                    cadenceUnitSelect.value = 'DAILY';
-                }
-                // DEFAULTS: 1 session per unit, for 2 units total (ensures minimum recurrence)
-                cadenceCountInput.value = '1';
-                recurrenceDurationCountInput.value = '2';
-
-                setCadenceTimeframeDefaults(cadenceUnitSelect.value); // This runs calculation
-            } else if (type === 'ONE_OFF') {
-                if (totalTimeframeCountInput.value === '0') {
-                    totalTimeframeCountInput.value = '1';
-                }
-            }
-
-            updateDynamicFields();
-        });
-    });
-
-    // Step 2: Challenge Text Input (Trigger 2)
-    challengeText.addEventListener('input', () => {
-        challengeTextCache = challengeText.value;
-        updateDynamicFields();
-    });
-
-    // Step 2: Cadence/Session logic
+    // Cadence unit change resets related fields and updates session calculation
     cadenceUnitSelect.addEventListener('change', (e) => {
         setCadenceTimeframeDefaults(e.target.value);
     });
+
     // Input changes calls the update function
     cadenceCountInput.addEventListener('input', updateDynamicFields);
     customDaysInput.addEventListener('input', updateDynamicFields);
     recurrenceDurationCountInput.addEventListener('input', updateDynamicFields);
     totalTimeframeCountInput.addEventListener('input', updateDynamicFields);
 
-    // Step 2: Form Submission
+    // --- FORM SUBMISSION LOGIC ---
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -1290,7 +1078,24 @@ Tip: Use a writing assistant to help refine your suggestion.`;
 
         const submissionData = {
             token: submissionToken,
-            challengeText: challengeText.value,
+            challengeText: {
+                goal: document.getElementById('goalInput').value.trim(),
+                instructions: document.getElementById('instructionsInput').value.trim(),
+                constraints: Array.from(document.querySelectorAll('.constraint-item'))
+                    .map(i => i.value.trim())
+                    .filter(v => v !== ''),
+                references: Array.from(document.querySelectorAll('.reference-item-block'))
+                    .map(block => ({
+                        type: block.querySelector('.ref-type-select').value,
+                        label: block.querySelector('.ref-label-input').value.trim(),
+                        url: block.querySelector('.ref-url-input').value.trim()
+                    }))
+                    .filter(r => r.label !== ''),
+                system: {
+                    requiresReview: true,
+                    version: "2.1"
+                }
+            },
             totalSessions: parseInt(calculatedTotalSessionsInput.value),
             durationType: challengeDurationTypeHidden.value,
             cost: parseInt(calculatedCostInput.value),
@@ -1310,28 +1115,19 @@ Tip: Use a writing assistant to help refine your suggestion.`;
             if (response.ok) {
                 // 1. Success Feedback
                 submitButton.innerHTML = '<i class="fa-solid fa-circle-check"></i> RECEIVED';
-
-                // 2. CALCULATE CENTER
+                
+                // (Continue with your existing animation and summary logic here...)
                 const container = document.querySelector('.form-container');
                 const btnRect = submitButton.getBoundingClientRect();
                 const containerRect = container.getBoundingClientRect();
-
-                // Calculate the distance from the button's current center to the container's center
                 const btnCenterY = btnRect.top + btnRect.height / 2;
                 const containerCenterY = containerRect.top + containerRect.height / 2;
                 const travelDistance = containerCenterY - btnCenterY;
-
-                // Set the CSS variable so the animation knows where to go
                 submitButton.style.setProperty('--travel-distance', `${travelDistance}px`);
 
-                // 3. START TRANSLATION
-                // Small timeout to ensure the CSS variable is registered
                 setTimeout(() => {
                     submitButton.classList.add('btn-success-morph');
-                    // Trigger pulse sound roughly halfway through the morph/travel duration
-                    setTimeout(() => {
-                        playSFX(pulseSfx, 0.42);
-                    }, 21); // Adjust this timing to match your CSS transition duration
+                    setTimeout(() => { playSFX(pulseSfx, 0.42); }, 21);
                 }, 10);
 
                 const { newChallenge, cost, userStats } = data.details;
@@ -1340,26 +1136,20 @@ Tip: Use a writing assistant to help refine your suggestion.`;
                 // POP & REVEAL
                 setTimeout(() => {
                     submitButton.classList.add('button-pop-out');
-
                     setTimeout(() => {
                         const step2 = document.getElementById('step2');
                         if (step2) step2.classList.add('hidden');
-
                         renderStep(3);
                         playSFX(successChime, 0.21);
-
                         lockResetButton();
-
                         const container = document.querySelector('.form-container');
                         container.style.height = 'auto';
-
                         submitButton.classList.remove('btn-success-morph', 'button-pop-out');
                         submitButton.style.removeProperty('--travel-distance');
                         formFields.forEach(field => field.classList.remove('form-content-fade'));
                         submitButton.style.backgroundColor = '';
                         submitButton.innerHTML = originalBtnText;
                         submitButton.disabled = false;
-
                         handleSocialFeedback();
                         handleCopyLink();
                     }, 21);
@@ -1382,33 +1172,6 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         }
     });
 
-    // --- WYSIWYG EDITOR LOGIC ---
-    const updateHiddenChallengeText = () => {
-        let content = challengeEditor.innerHTML.trim();
-        const plainText = challengeEditor.textContent.trim();
-
-        if (plainText.length === 0) {
-            if (content === '<br>') {
-                content = '';
-                challengeEditor.innerHTML = '';
-            }
-            if (content.length === 0) {
-                challengeEditor.innerHTML = '';
-            }
-        }
-        challengeText.value = content;
-        return plainText.length;
-    };
-
-    const execCommand = (command, value = null) => {
-        challengeEditor.focus();
-        try {
-            document.execCommand(command, false, value);
-        } catch (error) {
-            console.error(`execCommand failed for ${command}:`, error);
-        }
-        updateDynamicFields();
-    };
 
     const toggleBtn = document.getElementById('toggleSummaryBtn');
     const wrapperBox = document.querySelector('.details-content-area-wrapper');
@@ -1434,20 +1197,64 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         });
     }
 
+    /// --- CHALLENGE SUMMARY GENERATION (POST-SUBMISSION) ---
+    const generateChallengeSummary = (challenge, cost, userStats) => {
+        if (!challenge || !userStats) return `<p>Error</p>`;
+        const challengeUrl = `https://drummer-manager-website.vercel.app/challenge/${challenge.challengeId}`;
+        const shareText = encodeURIComponent(`🥁 DROPPED Challenge #${challenge.challengeId} to @21xhr!\n\nPowering this with ${cost.toLocaleString()} NUMBERS. ⚡\nProduce with me, enter the manager deck and take control:\n\n#DMG #TwentyOne`);
+        const xButton = document.getElementById('shareX');
+        if (xButton) xButton.href = `https://x.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(challengeUrl)}`;
 
-    /* ==========================================================================
-    STEP 3: INTERACTIVE HANDLERS
-    ========================================================================== */
+        const durationType = challenge?.durationType || 'ONE_OFF';
+        const cadenceDetail = durationType === 'RECURRING' ? (challenge.sessionCadenceText || "Recurring mission") : "Single session mission";
+        let descriptionHTML = '';
+        let data = challenge.challengeText;
+        if (typeof data === 'string' && data.startsWith('{')) { try { data = JSON.parse(data); } catch (e) { data = challenge.challengeText; } }
 
+        if (typeof data === 'object' && data !== null) {
+            descriptionHTML = `<div class="summary-section">
+                <div class="summary-spec-item"><span class="spec-label">GOAL</span> ${data.goal || 'N/A'}</div>
+                <div class="summary-spec-item"><span class="spec-label">INSTRUCTIONS</span> ${data.instructions || 'N/A'}</div>
+                ${data.constraints?.length ? `<div class="summary-spec-item"><span class="spec-label">CONSTRAINTS</span><ul class="summary-spec-list">${data.constraints.map(c => `<li>${c}</li>`).join('')}</ul></div>` : ''}
+            </div>`;
+        } else {
+            descriptionHTML = `<div style="font-size: 0.9rem; color: #ccc; line-height: 1.5;">${challenge.challengeText}</div>`;
+        }
+
+        return `
+        <div class="result-summary-container">
+            <div class="result-summary-row-header">
+                <div><div class="result-summary-label">Challenge ID</div><div class="result-summary-value">#${challenge.challengeId}</div></div>
+                <div><div class="result-summary-label">Cost</div><div class="result-summary-value primary-neon">${cost.toLocaleString()}<span class="summary-cost-unit">NUMBERS</span></div></div>
+                <div><div class="result-summary-label">TYPE</div><div class="result-summary-type-badge">${durationType.replace('_', ' ')}</div></div>
+            </div>
+            <div class="result-summary-grid">
+                <div class="result-summary-stat-card result-summary-card-left"><div class="result-summary-label">SESSIONS</div><div class="result-summary-value">${challenge.totalSessions} Total</div></div>
+                <div class="result-summary-stat-card result-summary-card-right"><div class="result-summary-label">TIMELINE & PACING</div><div class="result-summary-pacing-detail">${cadenceDetail} <i class="fa-solid fa-calendar-check primary-neon"></i></div></div>
+            </div>
+            <div class="result-summary-desc-wrapper"><div class="result-summary-label">CHALLENGE SPECS</div>${descriptionHTML}</div>
+            <div class="result-summary-footer"><span class="result-summary-label">Balance:</span><div class="result-balance-numbers"><span class="primary-neon">${userStats.currentBalance.toLocaleString()}</span><span class="primary-neon summary-cost-unit">NUMBERS</span></div></div>
+        </div>`;
+    };
+
+
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // STEP 3: INTERACTIVE HANDLERS
+    /// - Copy Link, Social Feedback, Reset Button Lock
+    ///////////////////////////////////////////////////////////////////////////
+    
+    /// --- INITIALIZE STEP 3 HANDLERS ---
     function initializeStep3Handlers() {
         handleCopyLink();
         handleSocialFeedback();
     }
 
-    /**
-    * Locks the Reset button for a safety window (2.1s)
-    * Prevents accidental double-clicks and throttles overstimulated players.
-    */
+    /// --- RESET BUTTON LOCK ---
     function lockResetButton() {
         const resetBtn = document.getElementById('resetFormBtn');
         if (!resetBtn) return;
@@ -1471,6 +1278,27 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         }, 21000);
     }
 
+    /// --- FORM RESET LOGIC (After submission or when going back to Step 1) ---
+    const resetForm = () => {
+        form.reset();
+        if (statusMessage2) { statusMessage2.textContent = ''; statusMessage2.className = 'roboto form-status-message'; }
+        const constraintsList = document.getElementById('constraintsList');
+        if (constraintsList) { constraintsList.innerHTML = '<input type="text" class="form-input constraint-item" placeholder="Add a constraint or rule...">'; }
+        const referencesList = document.getElementById('referencesList');
+        if (referencesList) { referencesList.innerHTML = `<div class="reference-item-block"><select class="ref-type-select"><option value="IMAGE">Image</option><option value="VIDEO">Video</option><option value="AUDIO">Audio</option><option value="OTHER">Other</option><option value="WIKI">Wiki</option></select><input type="text" class="ref-label-input" placeholder="Label"><input type="url" class="ref-url-input" placeholder="URL"></div>`; }
+        challengeDurationTypeHidden.value = '';
+        durationCards.forEach(card => card.classList.remove('selected'));
+        challengeTextGroup.classList.add('form-section-disabled');
+        timePaceGroup.classList.add('form-section-disabled');
+        oneOffGroup.classList.add('hidden');
+        cadenceGroup.classList.add('hidden');
+        submitButton.disabled = true;
+        const container = document.querySelector('.form-container');
+        if (container) container.classList.remove('boosted-neon-border-pulse');
+        if (typeof renderStep === 'function') { renderStep(1); verifyTokenAndStartForm(); } else { window.location.reload(); }
+    };
+
+    // --- COPY LINK HANDLER WITH FULL FALLBACK ---
     function handleCopyLink() {
         const copyBtn = document.getElementById('copyLink');
         if (!copyBtn || copyBtn.dataset.initialized === "true") return;
@@ -1513,6 +1341,7 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         copyBtn.dataset.initialized = "true";
     }
 
+    // --- SOCIAL FEEDBACK HANDLER (X & FB) WITH VISUAL FEEDBACK ---
     function handleSocialFeedback() {
         ['shareX', 'shareFB'].forEach(id => {
             const btn = document.getElementById(id);
@@ -1536,21 +1365,8 @@ Tip: Use a writing assistant to help refine your suggestion.`;
         });
     }
 
-    // Toolbar button listeners
-    document.querySelectorAll('.editor-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            const command = button.getAttribute('data-edit');
-            execCommand(command);
-        });
-    });
 
-    // Update the hidden input and check validation on content change
-    challengeEditor.addEventListener('input', () => {
-        updateHiddenChallengeText();
-        updateDynamicFields();
-    });
-
+    /// --- RESET BUTTON INTERACTION ---
     resetFormBtn.addEventListener('click', function () {
         const icon = this.querySelector('i');
 
