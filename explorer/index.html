@@ -64,12 +64,13 @@
                         <label class="label-accent">CHALLENGE STATUS</label>
                         <div id="statusFilters" class="status-filter-stack">
                             <div class="status-item active" onclick="toggleStatusFilter(this, 'ACTIVE')">ACTIVE</div>
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'IN_PROGRESS')">IN_PROGRESS</div>
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'COMPLETED')">COMPLETED</div>
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'FAILED')">FAILED</div>
                             <div class="status-item active" onclick="toggleStatusFilter(this, 'ARCHIVED')">ARCHIVED</div>
                             <div class="status-item active" onclick="toggleStatusFilter(this, 'AUCTIONED')">AUCTIONED</div>
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'COMPLETED')">COMPLETED</div>
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'FAILED')">FAILED</div>
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'IN_PROGRESS')">IN_PROGRESS</div>
                             <div class="status-item active" onclick="toggleStatusFilter(this, 'REMOVED')">REMOVED</div>
+                            <div class="status-item active" onclick="toggleStatusFilter(this, 'UNDER_REVIEW')">UNDER_REVIEW</div>
                         </div>
                     </div>
 
@@ -115,7 +116,7 @@
 <script>
     let allChallenges = [];
     let lastSyncTimestamp = new Date().toISOString();
-    let activeStatusFilters = ['ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'ARCHIVED', 'AUCTIONED', 'REMOVED'];
+    let activeStatusFilters = ['ACTIVE', 'ARCHIVED', 'AUCTIONED', 'COMPLETED', 'FAILED', 'IN_PROGRESS', 'REMOVED', 'UNDER_REVIEW'];
 
     const IS_DEV = true; 
     const TYPE_PAUSE = IS_DEV ? 10 : 420;
