@@ -72,19 +72,16 @@
                 </div>
 
                 <div id="challengeTextGroup" class="form-group editor-container form-section-disabled">
-                    <!-- 1. Goal Section -->
                     <div class="input-block">
                         <label class="roboto section-label">CORE GOAL</label>
                         <input type="text" id="goalInput" class="form-input" placeholder="Set your core goal..." required>
                     </div>
 
-                    <!-- 2. Instructions Section -->
                     <div class="input-block">
                         <label class="roboto section-label">INSTRUCTIONS</label>
                         <textarea id="instructionsInput" class="form-input" rows="3" placeholder="Detailed instructions, use AI and review carefully..." required></textarea>
                     </div>
 
-                    <!-- 3. Constraints Section -->
                     <div class="input-block" id="constraintsContainer">
                         <label class="roboto section-label">CONSTRAINTS & RULES</label>
                         <div class="dynamic-list" id="constraintsList">
@@ -92,21 +89,49 @@
                         </div>
                     </div>
 
-                    <!-- 4. References Section -->
                     <div class="input-block" id="referencesContainer">
-                        <label class="roboto section-label">REFERENCES / LINKS</label>
+                        <label class="roboto section-label">
+                            REFERENCES / LINKS
+                            <span class="info-tooltip-container">
+                                <span class="tooltip-icon">ⓘ</span>
+                                <span class="info-tooltip-text">
+                                    <b>Example:</b><br>
+                                    Video: Performances, tutorials, gear demos...<br>
+                                    Audio: Songs, podcasts, speeches...<br>
+                                    Wiki: People, genres, concepts...<br>
+                                    Docs: PDF, sheet music, technical charts...<br>
+                                    Other: Custom links...<br><br>
+                                    <i>Note: Links from unknown sites will be flagged for review!</i>
+                                </span>
+                            </span>
+                        </label>
+
                         <div class="dynamic-list placeholder-trigger" id="referencesList">
                             <div class="reference-item-block">
-                                <select class="ref-type-select">
-                                    <option value="VIDEO">Video</option>
-                                    <option value="AUDIO">Audio</option>
-                                    <option value="WIKI">Wiki</option>
-                                    <option value="DOCUMENT">Document</option>
-                                    <option value="IMAGE">Image</option>
-                                    <option value="OTHER">Other</option>
-                                </select>
-                                <input type="text" class="ref-label-input" placeholder="Label">
-                                <input type="url" class="ref-url-input" placeholder="URL">
+                                <div class="ref-row-top">
+                                    <div class="ref-type-wrapper">
+                                        <select class="ref-type-select">
+                                            <option value="VIDEO">Video</option>
+                                            <option value="AUDIO">Audio</option>
+                                            <option value="WIKI">Wiki</option>
+                                            <option value="DOCUMENT">Document</option>
+                                            <option value="OTHER">Other</option>
+                                        </select>
+                                        <span class="info-tooltip-container dynamic-type-tooltip">
+                                            <span class="tooltip-icon">ⓘ</span>
+                                            <span class="info-tooltip-text">Whitelist: youtube.com, youtu.be, vimeo.com. Others will be flagged!</span>
+                                        </span>
+                                    </div>
+                                    <div class="ref-url-wrapper">
+                                        <input type="url" class="form-input ref-url-input" placeholder="Paste link (URL)...">
+                                        <span class="fetch-indicator hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                                    </div>
+                                </div>
+                                <div class="ref-row-bottom hidden">
+                                    <input type="text" class="form-input ref-title-input" placeholder="Title">
+                                    <input type="text" class="form-input ref-note-input hidden" placeholder="Add a specific note...">
+                                </div>
+                                <div class="ref-warning-text hidden"></div>
                             </div>
                         </div>
                     </div>
@@ -197,6 +222,7 @@
                         <strong>REMINDER:</strong> Once submitted, you never know what might happen...
                     </p>
                 </div>
+                
                 <div class="form-footer-actions">
                     <button type="submit" id="submitButton" class="primary-submit-btn" disabled>
                         <span class="main-btn-text">SUBMIT</span>
@@ -417,6 +443,7 @@
         fetchStreamStatus();
         handleCopyLink();
         handleSocialFeedback();
+        initializeDefaultReferences();
     };
 
     // --- LOGIC FUNCTIONS ---
@@ -492,7 +519,7 @@
         );
 
         statusIcon.style.color = 'var(--primary-neon)';
-        statusIcon.style.textShadow = '0 0 5px var(--primary-neon)';
+        statusIcon.style.textShadow = 'var(--primary-neon)';
 
         statusMessage1.style.color = 'var(--text-color)';
         statusMessage1.textContent = 'Verifying your Producer credentials via secure link...';
@@ -674,13 +701,69 @@
 
 
 //////////////////////////////////////////////////////////////////////////////////
-    // CONSOLIDATED FORM ENGINE (MASTER)
-//////////////////////////////////////////////////////////////////////////////////
+    // STEP 2: DYNAMIC FORM LOGIC
+    //////////////////////////////////////////////////////////////////////////////////
+    /* ==========================================================================
+        CONFIG & WHITELIST
+    ========================================================================== */
+    const TRUSTED_SOURCES = {
+        VIDEO: ['youtube.com', 'youtu.be', 'vimeo.com'],
+        AUDIO: ['spotify.com', 'soundcloud.com', 'apple.com'],
+        WIKI: ['wikipedia.org', 'fandom.com', 'wikimedia.org'],
+        DOCUMENT: ['drive.google.com', 'dropbox.com', 'scribd.com'],
+        OTHER: []
+    };
+
+    const apiKey = ""; // Environment handles this
+    
+    // --- WHITELIST VALIDATION LOGIC ---
+    const validateWhitelist = (block) => {
+        const urlInput = block.querySelector('.ref-url-input');
+        const typeSelect = block.querySelector('.ref-type-select');
+        const warningText = block.querySelector('.ref-warning-text');
+        
+        // Safety check: if the HTML structure is missing the warning div, stop here
+        if (!urlInput || !warningText || !typeSelect) return;
+
+        const url = urlInput.value.trim();
+        const type = typeSelect.value;
+
+        if (!url) {
+            warningText.classList.add('hidden');
+            warningText.textContent = "";
+            return;
+        }
+
+        const whitelist = TRUSTED_SOURCES[type] || [];
+        const isTrusted = whitelist.some(domain => url.toLowerCase().includes(domain));
+
+        if (!isTrusted) {
+            warningText.textContent = "⚠️ Reference not whitelisted. Please provide a descriptive title.";
+            warningText.classList.remove('hidden');
+        } else {
+            warningText.classList.add('hidden');
+            warningText.textContent = ""; 
+        }
+    };
 
     /**
-     * Handle Progressive Disclosure for Dynamic Lists
-     * (Constraints and References appear only when the current one is being used)
-     */
+    * Fetches video metadata (like title) for known platforms to auto-populate the title field.
+    */
+    const fetchReferenceTitle = async (url) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/metadata/resolve-title?url=${encodeURIComponent(url)}`);
+            if (!response.ok) return null;
+
+            const data = await response.json();
+            return data.title || null;
+        } catch (e) {
+            return null;
+        }
+    };
+
+    /* ==========================================================================
+        CONSOLIDATED FORM ENGINE (MASTER)
+    ========================================================================== */
     const setupProgressiveList = (containerId, selectorClass, htmlGenerator, maxItems = 99) => {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -690,12 +773,11 @@
             const lastItem = allItems[allItems.length - 1];
             let canAdd = false;
 
-            // 1. ADD LOGIC
             if (containerId === 'referencesList') {
                 const lastBlock = container.querySelector('.reference-item-block:last-child');
-                const label = lastBlock?.querySelector('.ref-label-input')?.value.trim();
-                const url = lastBlock?.querySelector('.ref-url-input')?.value.trim();
-                canAdd = label !== "" && url !== "";
+                const title = lastBlock?.querySelector('.ref-title-input')?.value.trim() || "";
+                const url = lastBlock?.querySelector('.ref-url-input')?.value.trim() || "";
+                canAdd = url !== "" && title !== "";
             } else {
                 canAdd = lastItem.value.trim() !== "";
             }
@@ -703,62 +785,185 @@
             if (canAdd && allItems.length < maxItems) {
                 const newRow = document.createElement('div');
                 newRow.innerHTML = htmlGenerator();
-                container.appendChild(newRow.firstElementChild || newRow);
+                const newElement = newRow.firstElementChild || newRow;
+                container.appendChild(newElement);
+                
+                if (containerId === 'referencesList') {
+                    // Initialize the NEW row
+                    setupReferenceBlockListeners(newElement);
+                }
             }
 
-            // 2. CLEANUP LOGIC
-            allItems.forEach((item, index) => {
-                if (index === allItems.length - 1) return; 
+            // Cleanup logic: Remove any empty rows except the last one
+            if (containerId === 'referencesList') {
+                const blocks = Array.from(container.querySelectorAll('.reference-item-block'));
 
-                let shouldRemove = false;
-                if (containerId === 'referencesList') {
-                    const block = item.closest('.reference-item-block');
-                    const l = block.querySelector('.ref-label-input').value.trim();
-                    const u = block.querySelector('.ref-url-input').value.trim();
-                    shouldRemove = l === "" && u === "";
-                } else {
-                    shouldRemove = item.value.trim() === "";
-                }
+                // Remove any trailing blocks that are not needed anymore
+                for (let i = blocks.length - 1; i > 0; i--) {
+                    const current = blocks[i];
+                    const previous = blocks[i - 1];
 
-                if (shouldRemove) {
-                    if (containerId === 'referencesList') {
-                        item.closest('.reference-item-block').remove();
-                    } else {
-                        item.remove();
+                    const currentUrl = current.querySelector('.ref-url-input')?.value.trim() || "";
+                    const currentTitle = current.querySelector('.ref-title-input')?.value.trim() || "";
+
+                    const prevUrl = previous.querySelector('.ref-url-input')?.value.trim() || "";
+                    const prevTitle = previous.querySelector('.ref-title-input')?.value.trim() || "";
+
+                    const currentIsEmpty = currentUrl === "" && currentTitle === "";
+                    const previousIsComplete = prevUrl !== "" && prevTitle !== "";
+
+                    // Keep one empty placeholder only if the previous block is complete
+                    if (currentIsEmpty && !previousIsComplete) {
+                        current.remove();
                     }
                 }
-            });
+            } else {
+                const items = Array.from(container.querySelectorAll(`.${selectorClass}`));
+                items.forEach((item, index) => {
+                    if (index === items.length - 1) return;
+                    if (item.value.trim() === "") item.remove();
+                });
+            }
         });
     };
 
     /**
-     * CORE DYNAMIC UPDATE ENGINE
+     * Logic for Reference Block Field Disclosure & Validation
      */
+    const setupReferenceBlockListeners = (block) => {
+        // 1. Capture all elements at the start
+        const typeSelect = block.querySelector('.ref-type-select');
+        const urlInput = block.querySelector('.ref-url-input');
+        const bottomRow = block.querySelector('.ref-row-bottom');
+        const titleInput = block.querySelector('.ref-title-input');
+        const noteInput = block.querySelector('.ref-note-input');
+        const tooltipText = block.querySelector('.info-tooltip-text');
+        const warningText = block.querySelector('.ref-warning-text');
+        const fetchIndicator = block.querySelector('.fetch-indicator');
+
+        const updateTooltip = () => {
+            if (!tooltipText || !typeSelect) return;
+            const type = typeSelect.value;
+            const list = TRUSTED_SOURCES[type] || [];
+            tooltipText.textContent = list.length > 0 
+                ? `Whitelist: ${list.join(', ')}. Others will be flagged!`
+                : "Any valid URL is accepted for this type.";
+        };
+
+        typeSelect?.addEventListener('change', () => {
+            updateTooltip();
+            validateWhitelist(block);
+            urlInput?.dispatchEvent(new Event('input'));
+        });
+
+        let fetchTimeout;
+
+        urlInput?.addEventListener('input', () => {
+            const url = urlInput.value.trim();
+
+            if (!bottomRow || !warningText) return;
+
+            if (url.length === 0) {
+                bottomRow.classList.add('hidden');
+                warningText.classList.add('hidden');
+                warningText.textContent = "";
+                return;
+            }
+
+            bottomRow.classList.remove('hidden');
+            validateWhitelist(block);
+            block.dispatchEvent(new Event('input', { bubbles: true }));
+
+            clearTimeout(fetchTimeout);
+
+            if (!titleInput.value.trim()) {
+                fetchTimeout = setTimeout(async () => {
+                    fetchIndicator?.classList.remove('hidden');
+                    const fetchedTitle = await fetchReferenceTitle(url);
+                    fetchIndicator?.classList.add('hidden');
+
+                    if (fetchedTitle && !titleInput.value.trim()) {
+                        titleInput.value = fetchedTitle;
+                        titleInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                }, 500);
+            }
+        });
+
+        titleInput?.addEventListener('input', () => {
+            if (noteInput) {
+                noteInput.classList.toggle('hidden', titleInput.value.trim().length < 2);
+            }
+            block.dispatchEvent(new Event('input', { bubbles: true }));
+            if (typeof updateDynamicFields === 'function') updateDynamicFields();
+        });
+
+        updateTooltip();
+    };
+
+    // This function runs once to prepare the reference row that exists in the HTML on load
+    const initializeDefaultReferences = () => {
+        const referencesList = document.getElementById('referencesList');
+        if (!referencesList) return;
+
+        const firstRefBlock = referencesList.querySelector('.reference-item-block');
+        if (firstRefBlock) {
+            // 1. Attach listeners
+            setupReferenceBlockListeners(firstRefBlock);
+            
+            // 2. FORCE INITIAL STATE: Hide the bottom row (Title/Note) on load
+            const urlInput = firstRefBlock.querySelector('.ref-url-input');
+            const bottomRow = firstRefBlock.querySelector('.ref-row-bottom');
+            
+            if (urlInput.value.trim() === "") {
+                bottomRow.classList.add('hidden');
+            } else {
+                // If there's already text (like a draft), validate it immediately
+                validateWhitelist(firstRefBlock);
+                bottomRow.classList.remove('hidden');
+            }
+        }
+    };
+    /* ==========================================================================
+     * CORE DYNAMIC UPDATE ENGINE
+     ========================================================================== */
     const updateDynamicFields = () => {
         // 1. Gather values
-        const goalVal = document.getElementById('goalInput')?.value || "";
-        const instructionsVal = document.getElementById('instructionsInput')?.value || "";
-        const textLength = (goalVal.trim().length + instructionsVal.trim().length);
+        const goalInput = document.getElementById('goalInput');
+        const instructionsInput = document.getElementById('instructionsInput');
+        const goalVal = goalInput?.value || "";
+        const instructionsVal = instructionsInput?.value || "";
         
         const durationType = challengeDurationTypeHidden.value;
         const isRecurring = durationType === 'RECURRING';
         const isOneOff = durationType === 'ONE_OFF';
 
-        // 2. Handle Group Unlocking (Step 2: Text Specs)
+        // 2. Check Validity
+        // Requires both fields to have content AND total length >= 10
+        const isTextValid = goalVal.trim().length > 0 && instructionsVal.trim().length > 0 && (goalVal.length + instructionsVal.length) >= 10;
+        const canSetPace = durationType && isTextValid;
+
+        // 3. Handle Step 2 Visibility & Locking
         if (durationType) {
             challengeTextGroup.classList.remove('form-section-disabled');
+            // Goal and Instructions should ALWAYS be enabled if a duration is picked
+            goalInput.disabled = false;
+            instructionsInput.disabled = false;
+            
+            // Constraints and References ONLY unlock when Goal/Instructions are filled
+            const constraintsContainer = document.getElementById('constraintsContainer');
+            const referencesContainer = document.getElementById('referencesContainer');
+            
+            [constraintsContainer, referencesContainer].forEach(el => {
+                if (!el) return;
+                el.classList.toggle('form-section-disabled', !isTextValid);
+                el.querySelectorAll('input, select, button').forEach(i => i.disabled = !isTextValid);
+            });
         } else {
             challengeTextGroup.classList.add('form-section-disabled');
         }
 
-        // 3. Enable Step 3 (Time/Pace) after sufficient text is entered (Min 10 chars)
-        // AND both fields must have content
-        const isTextValid = goalVal.trim().length > 0 && instructionsVal.trim().length > 0 && textLength >= 10;
-        const canSetPace = durationType && isTextValid;
-
-        const summaryWrapper = document.querySelector('.summary-line-wrapper');
-        if (summaryWrapper) summaryWrapper.classList.toggle('hidden', !isTextValid);
-
+        // 4. Handle Step 3 (Time/Pace)
         if (canSetPace) {
             timePaceGroup.classList.remove('form-section-disabled');
             totalTimeframeCountInput.disabled = false;
@@ -776,12 +981,9 @@
             }
         } else {
             timePaceGroup.classList.add('form-section-disabled');
-            totalTimeframeCountInput.disabled = true;
-            cadenceCountInput.disabled = true;
-            cadenceUnitSelect.disabled = true;
-            customDaysInput.disabled = true;
-            recurrenceDurationCountInput.disabled = true;
-
+            // Disable all inputs in Step 3
+            [totalTimeframeCountInput, cadenceCountInput, cadenceUnitSelect, customDaysInput, recurrenceDurationCountInput].forEach(i => i.disabled = true);
+            
             const oneOffDisplay = document.getElementById('oneOffCostDisplay');
             const recurringDisplay = document.getElementById('recurringCostDisplay');
             if (oneOffDisplay) oneOffDisplay.textContent = '--';
@@ -789,20 +991,15 @@
             cadencePreview.textContent = '...';
         }
 
-        // 4. Calculate Sessions
+        // 5. Calculate Sessions & Submit State
         calculateTotalSessions();
-
-        // 5. Submit Button State
         const totalSessions = parseInt(calculatedTotalSessionsInput.value) || 0;
         const hasSessions = isRecurring ? (totalSessions >= 2) : (totalSessions >= 1);
-
+        
         submitButton.disabled = !(isTextValid && !!durationType && hasSessions);
 
-        // 6. UI Feedback
         const submitWarningText = document.getElementById('submitWarningText');
-        if (submitWarningText) {
-            submitWarningText.classList.toggle('hidden', !submitButton.disabled);
-        }
+        if (submitWarningText) submitWarningText.classList.toggle('hidden', !submitButton.disabled);
 
         checkHighDemandWarning();
     };
@@ -986,11 +1183,37 @@
 
     // Row Generators
     const generateConstraintInput = () => `<input type="text" class="form-input constraint-item" placeholder="Add another rule (Max 7)...">`;
-    const generateReferenceRow = () => `<div class="reference-item-block"><select class="ref-type-select"><option value="VIDEO">Video</option><option value="AUDIO">Audio</option><option value="IMAGE">Image</option><option value="DOCUMENT">Document</option><option value="LINK">Other</option></select><input type="text" class="ref-label-input" placeholder="Label"><input type="url" class="ref-url-input" placeholder="URL"></div>`;
+    const generateReferenceRow = () => `
+    <div class="reference-item-block">
+        <div class="ref-row-top">
+            <div class="ref-type-wrapper">
+                <select class="ref-type-select">
+                    <option value="VIDEO">Video</option>
+                    <option value="AUDIO">Audio</option>
+                    <option value="WIKI">Wiki</option>
+                    <option value="DOCUMENT">Document</option>
+                    <option value="OTHER">Other</option>
+                </select>
+                <span class="info-tooltip-container dynamic-type-tooltip">
+                    <span class="tooltip-icon">ⓘ</span>
+                    <span class="info-tooltip-text"></span>
+                </span>
+            </div>
+            <div class="ref-url-wrapper">
+                <input type="url" class="form-input ref-url-input" placeholder="Paste link (URL)...">
+                <span class="fetch-indicator hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+            </div>
+        </div>
+        <div class="ref-row-bottom hidden">
+            <input type="text" class="form-input ref-title-input" placeholder="Title">
+            <input type="text" class="form-input ref-note-input hidden" placeholder="Add a specific note...">
+        </div>
+        <div class="ref-warning-text hidden"></div>
+    </div>`;
 
     // Initialize Lists and Interaction
     setupProgressiveList('constraintsList', 'constraint-item', generateConstraintInput, 7);
-    setupProgressiveList('referencesList', 'ref-url-input', generateReferenceRow);
+    setupProgressiveList('referencesList', 'reference-item-block', generateReferenceRow);
 
     // Duration Type Selection Logic
     durationCards.forEach(card => {
@@ -1087,10 +1310,11 @@
                 references: Array.from(document.querySelectorAll('.reference-item-block'))
                     .map(block => ({
                         type: block.querySelector('.ref-type-select').value,
-                        label: block.querySelector('.ref-label-input').value.trim(),
-                        url: block.querySelector('.ref-url-input').value.trim()
+                        url: block.querySelector('.ref-url-input').value.trim(),
+                        title: block.querySelector('.ref-title-input').value.trim(),
+                        note: block.querySelector('.ref-note-input').value.trim()
                     }))
-                    .filter(r => r.label !== ''),
+                    .filter(r => r.title !== ''),
                 system: {
                     requiresReview: true,
                     version: "2.1"
@@ -1216,9 +1440,16 @@
                 <div class="summary-spec-item"><span class="spec-label">GOAL</span> ${data.goal || 'N/A'}</div>
                 <div class="summary-spec-item"><span class="spec-label">INSTRUCTIONS</span> ${data.instructions || 'N/A'}</div>
                 ${data.constraints?.length ? `<div class="summary-spec-item"><span class="spec-label">CONSTRAINTS</span><ul class="summary-spec-list">${data.constraints.map(c => `<li>${c}</li>`).join('')}</ul></div>` : ''}
+                ${data.references.map(r => `
+                    <li class="summary-spec-item">
+                        <span>[${r.type || 'LINK'}]</span> 
+                        <span>${r.title || 'Untitled Resource'}</span>
+                        ${r.note ? `<div class="ref-note">Note: ${r.note}</div>` : ''}
+                    </li>
+                `).join('')}
             </div>`;
         } else {
-            descriptionHTML = `<div style="font-size: 0.9rem; color: #ccc; line-height: 1.5;">${challenge.challengeText}</div>`;
+            descriptionHTML = `<div>${challenge.challengeText}</div>`;
         }
 
         return `
@@ -1236,6 +1467,14 @@
             <div class="result-summary-footer"><span class="result-summary-label">Balance:</span><div class="result-balance-numbers"><span class="primary-neon">${userStats.currentBalance.toLocaleString()}</span><span class="primary-neon summary-cost-unit">NUMBERS</span></div></div>
         </div>`;
     };
+
+    // Prevent Enter Key submission except in textareas
+    form.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            return false;
+        }
+    });
 
 
 
@@ -1285,7 +1524,39 @@
         const constraintsList = document.getElementById('constraintsList');
         if (constraintsList) { constraintsList.innerHTML = '<input type="text" class="form-input constraint-item" placeholder="Add a constraint or rule...">'; }
         const referencesList = document.getElementById('referencesList');
-        if (referencesList) { referencesList.innerHTML = `<div class="reference-item-block"><select class="ref-type-select"><option value="IMAGE">Image</option><option value="VIDEO">Video</option><option value="AUDIO">Audio</option><option value="OTHER">Other</option><option value="WIKI">Wiki</option></select><input type="text" class="ref-label-input" placeholder="Label"><input type="url" class="ref-url-input" placeholder="URL"></div>`; }
+        if (referencesList) {
+            referencesList.innerHTML = `
+            <div class="reference-item-block">
+                <div class="ref-row-top">
+                    <div class="ref-type-wrapper">
+                        <select class="ref-type-select">
+                            <option value="VIDEO">Video</option>
+                            <option value="AUDIO">Audio</option>
+                            <option value="WIKI">Wiki</option>
+                            <option value="DOCUMENT">Document</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                        <span class="info-tooltip-container dynamic-type-tooltip">
+                            <span class="tooltip-icon">ⓘ</span>
+                            <span class="info-tooltip-text"></span>
+                        </span>
+                    </div>
+                    <div class="ref-url-wrapper">
+                        <input type="url" class="form-input ref-url-input" placeholder="Paste link (URL)...">
+                        <span class="fetch-indicator hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                    </div>
+                </div>
+                <div class="ref-row-bottom hidden">
+                    <input type="text" class="form-input ref-title-input" placeholder="Title">
+                    <input type="text" class="form-input ref-note-input hidden" placeholder="Add a specific note...">
+                </div>
+                <div class="ref-warning-text hidden"></div>
+            </div>`;
+            
+            // Re-run the listener attachment for the newly created block
+            const newFirstBlock = referencesList.querySelector('.reference-item-block');
+            setupReferenceBlockListeners(newFirstBlock);
+        }
         challengeDurationTypeHidden.value = '';
         durationCards.forEach(card => card.classList.remove('selected'));
         challengeTextGroup.classList.add('form-section-disabled');
