@@ -9,7 +9,7 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
    CSS VARIABLES
    ------------------------------------------------------------------ */
 :root {
-    --background-color: #0c0c0c;
+    --background-color: rgb(12, 12, 12);
     --primary-neon: rgb(242, 189, 21);
     --primary-neon-rgb: 242, 189, 21;
     --text-color: rgb(242, 242, 242);
@@ -18,6 +18,7 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
     --disabled-color: #666; 
     --error-red: #d24242;
     --success-green: #39FF14;
+    --platform-discord: #738ADB;
     --platform-kick: #00FF00;
     --platform-twitch: #9146FF;
     --platform-youtube: #FF0000;
@@ -62,8 +63,8 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
    CORE LAYOUT
    ------------------------------------------------------------------ */
 body {
-    font-family: 'DM Sans', sans-serif;
     background-color: var(--background-color);
+    font-family: 'DM Sans', sans-serif;
     color: var(--text-color);
     display: flex;
     flex-direction: column;
@@ -74,8 +75,8 @@ body {
     overflow: hidden;
     box-sizing: border-box;
     margin: 0;
-    animation: fadeIn 0.8s var(--ease-standard);
     position: relative;
+    animation: fadeIn 0.8s var(--ease-standard);
     padding: var(--page-padding) var(--page-padding) var(--footer-height) var(--page-padding) !important;
 }
 
