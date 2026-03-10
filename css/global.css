@@ -29,6 +29,8 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
 
     --footer-height: 60px;
     --page-padding: 1rem;
+
+    --radius-brand: 21px;
 }
 
 /* ------------------------------------------------------------------
