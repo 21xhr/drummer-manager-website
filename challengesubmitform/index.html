@@ -107,10 +107,10 @@
                         </label>
 
                         <div class="dynamic-list placeholder-trigger" id="referencesList">
-                            <div class="reference-item-block">
-                                <div class="ref-row-top">
-                                    <div class="ref-type-wrapper">
-                                        <select class="ref-type-select">
+                            <div class="reference-block">
+                                <div class="reference-row-top">
+                                    <div class="reference-type-wrapper">
+                                        <select class="reference-type-select">
                                             <option value="VIDEO">Video</option>
                                             <option value="AUDIO">Audio</option>
                                             <option value="WIKI">Wiki</option>
@@ -122,16 +122,16 @@
                                             <span class="info-tooltip-text">Whitelist: youtube.com, youtu.be, vimeo.com. Others will be flagged!</span>
                                         </span>
                                     </div>
-                                    <div class="ref-url-wrapper">
-                                        <input type="url" class="form-input ref-url-input" placeholder="Paste link (URL)...">
-                                        <span class="fetch-indicator hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                                    <div class="reference-url-wrapper">
+                                        <input type="url" class="form-input reference-url-input" placeholder="Paste link (URL)...">
+                                        <span class="reference-fetch-indicator hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
                                     </div>
                                 </div>
-                                <div class="ref-row-bottom hidden">
-                                    <input type="text" class="form-input ref-title-input" placeholder="Title">
-                                    <input type="text" class="form-input ref-note-input hidden" placeholder="Add a specific note...">
+                                <div class="reference-row-bottom hidden">
+                                    <input type="text" class="form-input reference-title-input" placeholder="Title">
+                                    <input type="text" class="form-input reference-note-input hidden" placeholder="Add a specific note...">
                                 </div>
-                                <div class="ref-warning-text hidden"></div>
+                                <div class="reference-warning-text hidden"></div>
                             </div>
                         </div>
                     </div>
@@ -140,7 +140,7 @@
                 <div id="timePaceGroup" class="form-group form-section-disabled">
                     <div id="oneOffGroup" class="form-group hidden">
                         <div class="summary-line-wrapper">
-                            <div class="summary-badge">
+                            <div class="time-pace-summary-pill">
                                 <span class="roboto time-pace-summary-label">Total:</span>
                                 <input type="number" id="totalTimeframeCount" class="form-input time-pace-input" min="1"
                                     value="1" max="999" disabled required>
@@ -149,7 +149,7 @@
                                 <strong id="oneOffSummary" class="neon-text time-pace-summary-value"></strong>
                             </div>
 
-                            <div class="cost-badge-container summary-badge">
+                            <div class="cost-badge-container time-pace-summary-pill">
                                 <span class="roboto time-pace-summary-label">Cost:</span>
                                 <span id="oneOffCostDisplay" class="neon-text time-pace-summary-value">--</span>
                                 <span class="cost-currency">NUMBERS</span>
@@ -192,12 +192,12 @@
                         </div>
 
                         <div class="summary-line-wrapper">
-                            <div class="summary-badge">
+                            <div class="time-pace-summary-pill">
                                 <span class="roboto time-pace-summary-label">Total:</span>
                                 <strong id="cadencePreview" class="neon-text time-pace-summary-value">...</strong>
                             </div>
 
-                            <div class="cost-badge-container summary-badge">
+                            <div class="cost-badge-container time-pace-summary-pill">
                                 <span class="roboto time-pace-summary-label">Cost:</span>
                                 <span id="recurringCostDisplay"
                                     class="neon-text font-bold time-pace-summary-value">--</span>
@@ -718,9 +718,9 @@
     
     // --- WHITELIST VALIDATION LOGIC ---
     const validateWhitelist = (block) => {
-        const urlInput = block.querySelector('.ref-url-input');
-        const typeSelect = block.querySelector('.ref-type-select');
-        const warningText = block.querySelector('.ref-warning-text');
+        const urlInput = block.querySelector('.reference-url-input');
+        const typeSelect = block.querySelector('.reference-type-select');
+        const warningText = block.querySelector('.reference-warning-text');
         
         // Safety check: if the HTML structure is missing the warning div, stop here
         if (!urlInput || !warningText || !typeSelect) return;
@@ -774,9 +774,9 @@
             let canAdd = false;
 
             if (containerId === 'referencesList') {
-                const lastBlock = container.querySelector('.reference-item-block:last-child');
-                const title = lastBlock?.querySelector('.ref-title-input')?.value.trim() || "";
-                const url = lastBlock?.querySelector('.ref-url-input')?.value.trim() || "";
+                const lastBlock = container.querySelector('.reference-block:last-child');
+                const title = lastBlock?.querySelector('.reference-title-input')?.value.trim() || "";
+                const url = lastBlock?.querySelector('.reference-url-input')?.value.trim() || "";
                 canAdd = url !== "" && title !== "";
             } else {
                 canAdd = lastItem.value.trim() !== "";
@@ -796,18 +796,18 @@
 
             // Cleanup logic: Remove any empty rows except the last one
             if (containerId === 'referencesList') {
-                const blocks = Array.from(container.querySelectorAll('.reference-item-block'));
+                const blocks = Array.from(container.querySelectorAll('.reference-block'));
 
                 // Remove any trailing blocks that are not needed anymore
                 for (let i = blocks.length - 1; i > 0; i--) {
                     const current = blocks[i];
                     const previous = blocks[i - 1];
 
-                    const currentUrl = current.querySelector('.ref-url-input')?.value.trim() || "";
-                    const currentTitle = current.querySelector('.ref-title-input')?.value.trim() || "";
+                    const currentUrl = current.querySelector('.reference-url-input')?.value.trim() || "";
+                    const currentTitle = current.querySelector('.reference-title-input')?.value.trim() || "";
 
-                    const prevUrl = previous.querySelector('.ref-url-input')?.value.trim() || "";
-                    const prevTitle = previous.querySelector('.ref-title-input')?.value.trim() || "";
+                    const prevUrl = previous.querySelector('.reference-url-input')?.value.trim() || "";
+                    const prevTitle = previous.querySelector('.reference-title-input')?.value.trim() || "";
 
                     const currentIsEmpty = currentUrl === "" && currentTitle === "";
                     const previousIsComplete = prevUrl !== "" && prevTitle !== "";
@@ -832,14 +832,14 @@
      */
     const setupReferenceBlockListeners = (block) => {
         // 1. Capture all elements at the start
-        const typeSelect = block.querySelector('.ref-type-select');
-        const urlInput = block.querySelector('.ref-url-input');
-        const bottomRow = block.querySelector('.ref-row-bottom');
-        const titleInput = block.querySelector('.ref-title-input');
-        const noteInput = block.querySelector('.ref-note-input');
+        const typeSelect = block.querySelector('.reference-type-select');
+        const urlInput = block.querySelector('.reference-url-input');
+        const bottomRow = block.querySelector('.reference-row-bottom');
+        const titleInput = block.querySelector('.reference-title-input');
+        const noteInput = block.querySelector('.reference-note-input');
         const tooltipText = block.querySelector('.info-tooltip-text');
-        const warningText = block.querySelector('.ref-warning-text');
-        const fetchIndicator = block.querySelector('.fetch-indicator');
+        const warningText = block.querySelector('.reference-warning-text');
+        const fetchIndicator = block.querySelector('.reference-fetch-indicator');
 
         const lockTitle = () => {
             titleInput.readOnly = true;
@@ -955,14 +955,14 @@
         const referencesList = document.getElementById('referencesList');
         if (!referencesList) return;
 
-        const firstRefBlock = referencesList.querySelector('.reference-item-block');
+        const firstRefBlock = referencesList.querySelector('.reference-block');
         if (firstRefBlock) {
             // 1. Attach listeners
             setupReferenceBlockListeners(firstRefBlock);
             
             // 2. FORCE INITIAL STATE: Hide the bottom row (Title/Note) on load
-            const urlInput = firstRefBlock.querySelector('.ref-url-input');
-            const bottomRow = firstRefBlock.querySelector('.ref-row-bottom');
+            const urlInput = firstRefBlock.querySelector('.reference-url-input');
+            const bottomRow = firstRefBlock.querySelector('.reference-row-bottom');
             
             if (urlInput.value.trim() === "") {
                 bottomRow.classList.add('hidden');
@@ -1030,7 +1030,7 @@
             }
         } else {
             timePaceGroup.classList.add('form-section-disabled');
-            // Disable all inputs in Step 3
+            // Disable all inputs in the Time/Pace section
             [totalTimeframeCountInput, cadenceCountInput, cadenceUnitSelect, customDaysInput, recurrenceDurationCountInput].forEach(i => i.disabled = true);
             
             const oneOffDisplay = document.getElementById('oneOffCostDisplay');
@@ -1233,10 +1233,10 @@
     // Row Generators
     const generateConstraintInput = () => `<input type="text" class="form-input constraint-item" placeholder="Add another rule (Max 7)...">`;
     const generateReferenceRow = () => `
-    <div class="reference-item-block">
-        <div class="ref-row-top">
-            <div class="ref-type-wrapper">
-                <select class="ref-type-select">
+    <div class="reference-block">
+        <div class="reference-row-top">
+            <div class="reference-type-wrapper">
+                <select class="reference-type-select">
                     <option value="VIDEO">Video</option>
                     <option value="AUDIO">Audio</option>
                     <option value="WIKI">Wiki</option>
@@ -1248,21 +1248,21 @@
                     <span class="info-tooltip-text"></span>
                 </span>
             </div>
-            <div class="ref-url-wrapper">
-                <input type="url" class="form-input ref-url-input" placeholder="Paste link (URL)...">
-                <span class="fetch-indicator hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+            <div class="reference-url-wrapper">
+                <input type="url" class="form-input reference-url-input" placeholder="Paste link (URL)...">
+                <span class="reference-fetch-indicator hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
             </div>
         </div>
-        <div class="ref-row-bottom hidden">
-            <input type="text" class="form-input ref-title-input" placeholder="Title">
-            <input type="text" class="form-input ref-note-input hidden" placeholder="Add a specific note...">
+        <div class="reference-row-bottom hidden">
+            <input type="text" class="form-input reference-title-input" placeholder="Title">
+            <input type="text" class="form-input reference-note-input hidden" placeholder="Add a specific note...">
         </div>
-        <div class="ref-warning-text hidden"></div>
+        <div class="reference-warning-text hidden"></div>
     </div>`;
 
     // Initialize Lists and Interaction
     setupProgressiveList('constraintsList', 'constraint-item', generateConstraintInput, 7);
-    setupProgressiveList('referencesList', 'reference-item-block', generateReferenceRow, 7);
+    setupProgressiveList('referencesList', 'reference-block', generateReferenceRow, 7);
 
     // Duration Type Selection Logic
     durationCards.forEach(card => {
@@ -1337,19 +1337,19 @@
         }
 
         // FINAL VALIDATION: Ensure that every reference with a URL also has a title before allowing submission
-        const referenceBlocks = Array.from(document.querySelectorAll('.reference-item-block'));
+        const referenceBlocks = Array.from(document.querySelectorAll('.reference-block'));
 
         for (const block of referenceBlocks) {
-            const url = block.querySelector('.ref-url-input')?.value.trim() || "";
-            const title = block.querySelector('.ref-title-input')?.value.trim() || "";
-            const warningText = block.querySelector('.ref-warning-text');
+            const url = block.querySelector('.reference-url-input')?.value.trim() || "";
+            const title = block.querySelector('.reference-title-input')?.value.trim() || "";
+            const warningText = block.querySelector('.reference-warning-text');
 
             if (url && !title) {
                 if (warningText) {
                     warningText.textContent = "⚠️ A title is required for every reference link.";
                     warningText.classList.remove('hidden');
                 }
-                block.querySelector('.ref-title-input')?.focus();
+                block.querySelector('.reference-title-input')?.focus();
                 statusMessage2.style.color = 'var(--error-red)';
                 statusMessage2.textContent = 'Submission blocked: complete all reference titles.';
                 return;
@@ -1376,12 +1376,12 @@
                 constraints: Array.from(document.querySelectorAll('.constraint-item'))
                     .map(i => i.value.trim())
                     .filter(v => v !== ''),
-                references: Array.from(document.querySelectorAll('.reference-item-block'))
+                references: Array.from(document.querySelectorAll('.reference-block'))
                     .map(block => ({
-                        type: block.querySelector('.ref-type-select').value,
-                        url: block.querySelector('.ref-url-input').value.trim(),
-                        title: block.querySelector('.ref-title-input').value.trim(),
-                        note: block.querySelector('.ref-note-input').value.trim()
+                        type: block.querySelector('.reference-type-select').value,
+                        url: block.querySelector('.reference-url-input').value.trim(),
+                        title: block.querySelector('.reference-title-input').value.trim(),
+                        note: block.querySelector('.reference-note-input').value.trim()
                     }))
                     .filter(r => r.title !== ''),
                 system: {
@@ -1505,35 +1505,35 @@
         if (typeof data === 'string' && data.startsWith('{')) { try { data = JSON.parse(data); } catch (e) { data = challenge.challengeText; } }
 
         if (typeof data === 'object' && data !== null) {
-            descriptionHTML = `<div class="summary-section">
-                <div class="summary-spec-item">
-                    <span class="spec-label">GOAL</span>
+            descriptionHTML = `<div class="result-summary-specs-group">
+                <div class="result-summary-spec-item">
+                    <span class="result-summary-spec-label">GOAL</span>
                     <div>${data.goal || 'N/A'}</div>
                 </div>
 
-                <div class="summary-spec-item">
-                    <span class="spec-label">INSTRUCTIONS</span>
+                <div class="result-summary-spec-item">
+                    <span class="result-summary-spec-label">INSTRUCTIONS</span>
                     <div>${data.instructions || 'N/A'}</div>
                 </div>
 
                 ${data.constraints?.length ? `
-                    <div class="summary-spec-item">
-                        <span class="spec-label">CONSTRAINTS</span>
-                        <ul class="summary-spec-list">
+                    <div class="result-summary-spec-item">
+                        <span class="result-summary-spec-label">CONSTRAINTS</span>
+                        <ul class="result-summary-spec-list">
                             ${data.constraints.map(c => `<li>${c}</li>`).join('')}
                         </ul>
                     </div>
                 ` : ''}
 
                 ${data.references?.length ? `
-                    <div class="summary-spec-item">
-                        <span class="spec-label">REFERENCES</span>
-                        <ul class="summary-spec-list">
+                    <div class="result-summary-spec-item">
+                        <span class="result-summary-spec-label">REFERENCES</span>
+                        <ul class="result-summary-spec-list">
                             ${data.references.map(r => `
                                 <li>
-                                    <strong class="summary-ref-type">[${r.type || 'LINK'}]</strong>
-                                    <span class="summary-ref-title">${r.title || 'Untitled resource'}</span>
-                                    ${r.note ? `<div class="summary-ref-note">Note: ${r.note}</div>` : ''}
+                                    <strong class="result-summary-reference-type">[${r.type || 'LINK'}]</strong>
+                                    <span class="result-summary-reference-title">${r.title || 'Untitled resource'}</span>
+                                    ${r.note ? `<div class="result-summary-reference-note">Note: ${r.note}</div>` : ''}
                                 </li>
                             `).join('')}
                         </ul>
@@ -1546,17 +1546,17 @@
 
         return `
         <div class="result-summary-container">
-            <div class="result-summary-row-header">
+            <header class="result-summary-row-header">
                 <div><div class="result-summary-label">Challenge ID</div><div class="result-summary-value">#${challenge.challengeId}</div></div>
-                <div><div class="result-summary-label">Cost</div><div class="result-summary-value primary-neon">${cost.toLocaleString()}<span class="summary-cost-unit">NUMBERS</span></div></div>
-                <div><div class="result-summary-label">TYPE</div><div class="result-summary-type-badge">${durationType.replace('_', ' ')}</div></div>
-            </div>
+                <div><div class="result-summary-label">Cost</div><div class="result-summary-value primary-neon">${cost.toLocaleString()}<span class="result-summary-cost-unit">NUMBERS</span></div></div>
+                <div><div class="result-summary-label">TYPE</div><div class="result-summary-type">${durationType.replace('_', ' ')}</div></div>
+            </header>
             <div class="result-summary-grid">
-                <div class="result-summary-stat-card result-summary-card-left"><div class="result-summary-label">SESSIONS</div><div class="result-summary-value">${challenge.totalSessions} Total</div></div>
-                <div class="result-summary-stat-card result-summary-card-right"><div class="result-summary-label">TIMELINE & PACING</div><div class="result-summary-pacing-detail">${cadenceDetail} <i class="fa-solid fa-calendar-check primary-neon"></i></div></div>
+                <div class="result-summary-stat-card result-summary-stat-primary"><div class="result-summary-label">SESSIONS</div><div class="result-summary-value">${challenge.totalSessions} Total</div></div>
+                <div class="result-summary-stat-card result-summary-stat-secondary"><div class="result-summary-label">TIMELINE & PACING</div><div class="result-summary-pacing-detail">${cadenceDetail} <i class="fa-solid fa-calendar-check primary-neon"></i></div></div>
             </div>
             <div class="result-summary-desc-wrapper"><div class="result-summary-label">CHALLENGE SPECS</div>${descriptionHTML}</div>
-            <div class="result-summary-footer"><span class="result-summary-label">Balance:</span><div class="result-balance-numbers"><span class="primary-neon">${userStats.currentBalance.toLocaleString()}</span><span class="primary-neon summary-cost-unit">NUMBERS</span></div></div>
+            <footer class="result-summary-footer"><span class="result-summary-label">Balance:</span><div class="result-summary-balance-value"><span class="primary-neon">${userStats.currentBalance.toLocaleString()}</span><span class="primary-neon result-summary-cost-unit">NUMBERS</span></div></footer>
         </div>`;
     };
 
@@ -1592,12 +1592,12 @@
 
         // 1. Kill the power
         resetBtn.disabled = true;
-        resetBtn.classList.add('btn-locked');
+        resetBtn.classList.add('reset-form-btn-locked');
 
         // 2. Wait 2.1s
         setTimeout(() => {
             resetBtn.disabled = false;
-            resetBtn.classList.remove('btn-locked');
+            resetBtn.classList.remove('reset-form-btn-locked');
 
             // 3. Trigger the mechanical flicker
             resetBtn.classList.add('power-on-flicker');
@@ -1618,10 +1618,10 @@
         const referencesList = document.getElementById('referencesList');
         if (referencesList) {
             referencesList.innerHTML = `
-            <div class="reference-item-block">
-                <div class="ref-row-top">
-                    <div class="ref-type-wrapper">
-                        <select class="ref-type-select">
+            <div class="reference-block">
+                <div class="reference-row-top">
+                    <div class="reference-type-wrapper">
+                        <select class="reference-type-select">
                             <option value="VIDEO">Video</option>
                             <option value="AUDIO">Audio</option>
                             <option value="WIKI">Wiki</option>
@@ -1633,20 +1633,20 @@
                             <span class="info-tooltip-text"></span>
                         </span>
                     </div>
-                    <div class="ref-url-wrapper">
-                        <input type="url" class="form-input ref-url-input" placeholder="Paste link (URL)...">
-                        <span class="fetch-indicator hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                    <div class="reference-url-wrapper">
+                        <input type="url" class="form-input reference-url-input" placeholder="Paste link (URL)...">
+                        <span class="reference-fetch-indicator hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
                     </div>
                 </div>
-                <div class="ref-row-bottom hidden">
-                    <input type="text" class="form-input ref-title-input" placeholder="Title">
-                    <input type="text" class="form-input ref-note-input hidden" placeholder="Add a specific note...">
+                <div class="reference-row-bottom hidden">
+                    <input type="text" class="form-input reference-title-input" placeholder="Title">
+                    <input type="text" class="form-input reference-note-input hidden" placeholder="Add a specific note...">
                 </div>
-                <div class="ref-warning-text hidden"></div>
+                <div class="reference-warning-text hidden"></div>
             </div>`;
             
             // Re-run the listener attachment for the newly created block
-            const newFirstBlock = referencesList.querySelector('.reference-item-block');
+            const newFirstBlock = referencesList.querySelector('.reference-block');
             setupReferenceBlockListeners(newFirstBlock);
         }
         challengeDurationTypeHidden.value = '';
