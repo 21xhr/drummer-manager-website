@@ -747,11 +747,11 @@
     };
 
     /**
-    * Fetches video metadata (like title) for known platforms to auto-populate the title field.
+    * Fetches the title of a reference URL using the API.
     */
     const fetchReferenceTitle = async (url) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/metadata/resolve-title?url=${encodeURIComponent(url)}`);
+            const response = await fetch(`${API_BASE_URL}/references/title?url=${encodeURIComponent(url)}`);
             if (!response.ok) return null;
 
             const data = await response.json();
@@ -841,6 +841,18 @@
         const warningText = block.querySelector('.ref-warning-text');
         const fetchIndicator = block.querySelector('.fetch-indicator');
 
+        const lockTitle = () => {
+            titleInput.readOnly = true;
+            titleInput.classList.add('title-locked');
+            titleInput.title = "🔒 Title auto-fetched";
+        };
+
+        const unlockTitle = () => {
+            titleInput.readOnly = false;
+            titleInput.classList.remove('title-locked');
+            titleInput.title = "";
+        };
+
         const updateTooltip = () => {
             if (!tooltipText || !typeSelect) return;
             const type = typeSelect.value;
@@ -860,11 +872,23 @@
 
         urlInput?.addEventListener('input', () => {
             const url = urlInput.value.trim();
+            const previousUrl = urlInput.dataset.lastUrl || "";
+
+            if (url !== previousUrl) {
+                unlockTitle();
+                titleInput.value = "";
+                noteInput?.classList.add('hidden');
+                warningText.classList.add('hidden');
+                warningText.textContent = "";
+            }
+
+            urlInput.dataset.lastUrl = url;
 
             if (!bottomRow || !warningText) return;
 
             if (url.length === 0) {
                 bottomRow.classList.add('hidden');
+                fetchIndicator?.classList.add('hidden');
                 warningText.classList.add('hidden');
                 warningText.textContent = "";
                 return;
@@ -876,17 +900,42 @@
 
             clearTimeout(fetchTimeout);
 
-            if (!titleInput.value.trim()) {
+            const type = typeSelect.value;
+            const trustedDomains = TRUSTED_SOURCES[type] || [];
+            const isTrusted = trustedDomains.some(domain => url.toLowerCase().includes(domain));
+
+            if (isTrusted && !titleInput.value.trim()) {
+                const requestedUrl = url;
+
                 fetchTimeout = setTimeout(async () => {
+                    const start = Date.now();
+
                     fetchIndicator?.classList.remove('hidden');
-                    const fetchedTitle = await fetchReferenceTitle(url);
+                    const fetchedTitle = await fetchReferenceTitle(requestedUrl);
+                    
+                    const elapsed = Date.now() - start;
+                    const minDuration = 1000;
+
+                    if (elapsed < minDuration) {
+                        await new Promise(r => setTimeout(r, minDuration - elapsed));
+                    }
+
                     fetchIndicator?.classList.add('hidden');
+
+                    if (urlInput.value.trim() !== requestedUrl) return;
 
                     if (fetchedTitle && !titleInput.value.trim()) {
                         titleInput.value = fetchedTitle;
+                        lockTitle();
+                        titleInput.classList.remove('title-flash');
+                        void titleInput.offsetWidth;
+                        titleInput.classList.add('title-flash');
                         titleInput.dispatchEvent(new Event('input', { bubbles: true }));
                     }
                 }, 500);
+            }
+            if (!isTrusted) {
+                fetchIndicator?.classList.add('hidden');
             }
         });
 
@@ -1213,7 +1262,7 @@
 
     // Initialize Lists and Interaction
     setupProgressiveList('constraintsList', 'constraint-item', generateConstraintInput, 7);
-    setupProgressiveList('referencesList', 'reference-item-block', generateReferenceRow);
+    setupProgressiveList('referencesList', 'reference-item-block', generateReferenceRow, 7);
 
     // Duration Type Selection Logic
     durationCards.forEach(card => {
@@ -1285,6 +1334,26 @@
             statusMessage2.style.color = 'var(--error-red)';
             statusMessage2.textContent = 'Error: Session key expired or missing. Please refresh the page.';
             return;
+        }
+
+        // FINAL VALIDATION: Ensure that every reference with a URL also has a title before allowing submission
+        const referenceBlocks = Array.from(document.querySelectorAll('.reference-item-block'));
+
+        for (const block of referenceBlocks) {
+            const url = block.querySelector('.ref-url-input')?.value.trim() || "";
+            const title = block.querySelector('.ref-title-input')?.value.trim() || "";
+            const warningText = block.querySelector('.ref-warning-text');
+
+            if (url && !title) {
+                if (warningText) {
+                    warningText.textContent = "⚠️ A title is required for every reference link.";
+                    warningText.classList.remove('hidden');
+                }
+                block.querySelector('.ref-title-input')?.focus();
+                statusMessage2.style.color = 'var(--error-red)';
+                statusMessage2.textContent = 'Submission blocked: complete all reference titles.';
+                return;
+            }
         }
 
         // 0. CAPTURE ORIGINAL STATE
@@ -1437,16 +1506,39 @@
 
         if (typeof data === 'object' && data !== null) {
             descriptionHTML = `<div class="summary-section">
-                <div class="summary-spec-item"><span class="spec-label">GOAL</span> ${data.goal || 'N/A'}</div>
-                <div class="summary-spec-item"><span class="spec-label">INSTRUCTIONS</span> ${data.instructions || 'N/A'}</div>
-                ${data.constraints?.length ? `<div class="summary-spec-item"><span class="spec-label">CONSTRAINTS</span><ul class="summary-spec-list">${data.constraints.map(c => `<li>${c}</li>`).join('')}</ul></div>` : ''}
-                ${data.references.map(r => `
-                    <li class="summary-spec-item">
-                        <span>[${r.type || 'LINK'}]</span> 
-                        <span>${r.title || 'Untitled Resource'}</span>
-                        ${r.note ? `<div class="ref-note">Note: ${r.note}</div>` : ''}
-                    </li>
-                `).join('')}
+                <div class="summary-spec-item">
+                    <span class="spec-label">GOAL</span>
+                    <div>${data.goal || 'N/A'}</div>
+                </div>
+
+                <div class="summary-spec-item">
+                    <span class="spec-label">INSTRUCTIONS</span>
+                    <div>${data.instructions || 'N/A'}</div>
+                </div>
+
+                ${data.constraints?.length ? `
+                    <div class="summary-spec-item">
+                        <span class="spec-label">CONSTRAINTS</span>
+                        <ul class="summary-spec-list">
+                            ${data.constraints.map(c => `<li>${c}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                ${data.references?.length ? `
+                    <div class="summary-spec-item">
+                        <span class="spec-label">REFERENCES</span>
+                        <ul class="summary-spec-list">
+                            ${data.references.map(r => `
+                                <li>
+                                    <strong class="summary-ref-type">[${r.type || 'LINK'}]</strong>
+                                    <span class="summary-ref-title">${r.title || 'Untitled resource'}</span>
+                                    ${r.note ? `<div class="summary-ref-note">Note: ${r.note}</div>` : ''}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
             </div>`;
         } else {
             descriptionHTML = `<div>${challenge.challengeText}</div>`;
