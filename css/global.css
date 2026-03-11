@@ -5,24 +5,25 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
 ------------------------------------------------------------------
 */
 
-/* ------------------------------------------------------------------
-   CSS VARIABLES
-   ------------------------------------------------------------------ */
+/* ==========================================================================
+   1. DESIGN TOKENS
+   Colors, timings, spacing, radius
+   ========================================================================== */
 :root {
     --background-color: rgb(12, 12, 12);
     --primary-neon: rgb(242, 189, 21);
     --primary-neon-rgb: 242, 189, 21;
     --text-color: rgb(242, 242, 242);
     --secondary-bg: rgb(21, 21, 21);
-    --subtext-color: rgba(242, 242, 242, 0.84); 
-    --disabled-color: #666; 
+    --subtext-color: rgba(242, 242, 242, 0.84);
+    --disabled-color: #666;
     --error-red: #d24242;
     --success-green: #39FF14;
     --platform-discord: #738ADB;
     --platform-kick: #00FF00;
     --platform-twitch: #9146FF;
     --platform-youtube: #FF0000;
-    
+
     /* Harmonized Timings */
     --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
     --anim-speed: 0.3s;
@@ -33,9 +34,10 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
     --radius-brand: 21px;
 }
 
-/* ------------------------------------------------------------------
-   GLOBAL ANIMATIONS
-   ------------------------------------------------------------------ */
+/* ==========================================================================
+   2. GLOBAL ANIMATIONS
+   Shared keyframes and animation helpers
+   ========================================================================== */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -56,13 +58,28 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
     50% { transform: translateX(6px); opacity: 1; }
 }
 
-.animate-fadeIn { animation: fadeIn 0.6s ease-out forwards; }
-.neon-text { animation: neon-text-pulse 2.5s infinite alternate; color: var(--primary-neon); }
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: var(--primary-neon); }
+}
 
+/* ==========================================================================
+   3. GLOBAL PRIMITIVES
+   Reset-like behavior, page foundation, typography
+   ========================================================================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
-/* ------------------------------------------------------------------
-   CORE LAYOUT
-   ------------------------------------------------------------------ */
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
 body {
     background-color: var(--background-color);
     font-family: 'DM Sans', sans-serif;
@@ -81,11 +98,6 @@ body {
     padding: var(--page-padding) var(--page-padding) var(--footer-height) var(--page-padding) !important;
 }
 
-/* Ensure all containers respect the box model */
-*, *::before, *::after {
-    box-sizing: border-box;
-}
-
 .container {
     max-width: 810px;
     width: 100%;
@@ -93,26 +105,65 @@ body {
     background-color: var(--secondary-bg);
     border-radius: 1rem;
     padding: 2.5rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-    position: relative;
+.dm-sans {
+    font-family: 'DM Sans', sans-serif;
 }
 
-.dm-sans { font-family: 'DM Sans', sans-serif; }
-.roboto { font-family: 'Roboto', sans-serif; }
+.roboto {
+    font-family: 'Roboto', sans-serif;
+}
 
+/* ==========================================================================
+   4. REUSABLE UTILITIES
+   Small cross-page helpers, state classes, visual utilities
+   ========================================================================== */
+.animate-fadeIn {
+    animation: fadeIn 0.6s ease-out forwards;
+}
 
-/* ------------------------------------------------------------------
-   GLOBAL TEXT & ELEMENTS
-   ------------------------------------------------------------------ */
+.animate-pulse-horizontal {
+    animation: pulse-horizontal 1.5s ease-in-out infinite;
+}
+
+.hidden {
+    display: none !important;
+}
+
 .neon-text {
     color: var(--primary-neon);
-    text-shadow: 0 0 3px var(--primary-neon), 0 0 7px var(--primary-neon), 0 0 21px var(--primary-neon);
+    text-shadow: 0 0 3px var(--primary-neon),
+                 0 0 7px var(--primary-neon),
+                 0 0 21px var(--primary-neon);
     animation: neon-text-pulse 2.1s infinite alternate;
+}
+
+.primary-neon {
+    color: var(--primary-neon) !important;
+}
+
+.platform-twitch {
+    color: var(--platform-twitch) !important;
+}
+
+.platform-youtube {
+    color: var(--platform-youtube) !important;
+}
+
+.platform-kick {
+    color: var(--platform-kick) !important;
+}
+
+.live {
+    background-color: var(--success-green);
+    box-shadow: 0 0 8px var(--success-green);
+}
+
+.offline {
+    background-color: var(--error-red);
 }
 
 .custom-list {
@@ -135,20 +186,24 @@ html, body {
     text-shadow: 0 0 3px var(--primary-neon), 0 0 5px var(--primary-neon);
 }
 
-.hidden { display: none !important; }
+/* ==========================================================================
+   5. SHARED INTERACTIVE ELEMENTS
+   Buttons, links, tooltips
+   ========================================================================== */
+.social-link {
+    color: var(--subtext-color);
+    transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease;
+}
 
-.platform-twitch { color: var(--platform-twitch) !important; }
-.platform-youtube { color: var(--platform-youtube) !important; }
-.platform-kick { color: var(--platform-kick) !important; }
-.primary-neon { color: var(--primary-neon) !important; }
+.social-link:hover {
+    color: var(--primary-neon);
+    transform: scale(1.1);
+    text-shadow: 0 0 5px var(--primary-neon);
+}
 
 /* ------------------------------------------------------------------
-   GLOBAL BUTTONS & INTERACTIVITY
-   ------------------------------------------------------------------ */
-/* ==========================================================================
    TOOLTIP SYSTEM (MODAL STYLE)
-   ========================================================================== */
-
+   ------------------------------------------------------------------ */
 .info-tooltip-container {
     display: inline-flex;
     align-items: center;
@@ -158,8 +213,8 @@ html, body {
 }
 
 .tooltip-icon {
-    font-size: 0.75rem; 
-    margin-left: 0.25rem; 
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
     text-transform: lowercase;
     opacity: 0.6;
     transition: opacity 0.2s ease;
@@ -170,21 +225,17 @@ html, body {
     color: var(--primary-neon);
 }
 
-/* The actual floating text box */
 .info-tooltip-text {
-    /* Hide by default */
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
-    
-    /* Layout: Fixed Centering */
+
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 99999;
-    
-    /* Box Styling */
+
     width: 280px;
     max-width: 85vw;
     padding: 24px;
@@ -194,26 +245,23 @@ html, body {
     border-radius: 12px;
     border: 2px solid var(--primary-neon);
     box-shadow: 0 0 100px rgba(0, 0, 0, 0.9);
-    
-    /* Typography */
+
     font-size: clamp(12px, 2.5vw, 16px);
     line-height: 1.6;
     font-weight: normal;
     text-transform: none;
-    
+
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Show only when the CONTAINER is hovered */
 .info-tooltip-container:hover .info-tooltip-text {
     visibility: visible;
     opacity: 1;
 }
 
-
-/* ==========================================================================
+/* ------------------------------------------------------------------
    PRIMARY BUTTON STYLE
-   ========================================================================== */
+   ------------------------------------------------------------------ */
 .primary-submit-btn {
     background-color: var(--primary-neon);
     color: var(--background-color);
@@ -240,31 +288,19 @@ html, body {
 .primary-submit-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    background-color: #555; 
+    background-color: #555;
     border-color: #555;
 }
 
-.social-link {
-    color: var(--subtext-color);
-    transition: color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease;
-}
-
-.social-link:hover {
-    color: var(--primary-neon);
-    transform: scale(1.1);
-    text-shadow: 0 0 5px var(--primary-neon);
-}
-
-
-
-/* ------------------------------------------------------------------
-    BRANDING COMPONENT
-    ------------------------------------------------------------------ */
+/* ==========================================================================
+   6. SHARED BRANDING
+   Brand title/subtitle system
+   ========================================================================== */
 .brand-group {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 10px; 
+    gap: 10px;
 }
 
 .brand-title {
@@ -285,13 +321,19 @@ html, body {
 }
 
 @media (max-width: 640px) {
-    .brand-title { font-size: 1.8rem; }
-    .brand-subtitle { font-size: 1rem; }
+    .brand-title {
+        font-size: 1.8rem;
+    }
+
+    .brand-subtitle {
+        font-size: 1rem;
+    }
 }
 
-/* ------------------------------------------------------------------
-    UNIFIED HEADER SYSTEM
-    ------------------------------------------------------------------ */
+/* ==========================================================================
+   7. SHARED HEADER SYSTEM
+   Site header, stream status, identity reminder
+   ========================================================================== */
 .app-header-main {
     padding: 21px 21px;
     border-bottom: 1px solid rgba(242, 189, 21, 0.2);
@@ -303,31 +345,31 @@ html, body {
     margin-bottom: 21px;
 }
 
-.header-status-column { 
-    display: flex; 
+.header-status-column {
+    display: flex;
     flex-direction: column;
-    justify-content: flex-end; 
-    align-items: flex-end; 
-    text-align: right; 
-    gap: 4px; 
+    justify-content: flex-end;
+    align-items: flex-end;
+    text-align: right;
+    gap: 4px;
 }
 
-.status-indicator-row { 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
-    margin-bottom: 8px; 
+.status-indicator-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
 }
 
-.mute-btn { 
-    background: none; 
-    border: none; 
-    color: #6b7280; 
-    cursor: pointer; 
+.mute-btn {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
 }
 
-.mute-btn:hover { 
-    color: var(--primary-neon); 
+.mute-btn:hover {
+    color: var(--primary-neon);
 }
 
 .mute-btn i {
@@ -342,32 +384,41 @@ html, body {
     color: #666 !important;
 }
 
-.stream-status-text { 
-    font-size: 10px; 
-    text-transform: uppercase; 
-    color: #9ca3af; 
+.stream-status-text {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #9ca3af;
 }
 
-.identity-flex { 
-    display: flex; 
-    flex-wrap: nowrap; 
-    align-items: baseline; 
-    justify-content: flex-end; 
+.stream-status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 3px;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+.identity-flex {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    justify-content: flex-end;
     gap: 3px;
 }
 
-.reminder-username { 
-    font-size: 14px; 
-    color: white; 
-    font-weight: bold; 
-    line-height: 1; 
+.reminder-username {
+    font-size: 14px;
+    color: white;
+    font-weight: bold;
+    line-height: 1;
 }
 
-.reminder-platform-label { 
-    font-size: 12px; 
+.reminder-platform-label {
+    font-size: 12px;
     color: var(--subtext-color);
-    letter-spacing: -0.025em; 
-    flex-shrink: 0; 
+    letter-spacing: -0.025em;
+    flex-shrink: 0;
 }
 
 #reminderPlatform {
@@ -375,11 +426,34 @@ html, body {
     font-weight: bold;
 }
 
+/* ==========================================================================
+   8. SHARED TYPEWRITER
+   Verification / terminal-style feedback
+   ========================================================================== */
+.typewriter-container {
+    min-width: 280px;
+    display: inline-block;
+    text-align: left;
+    width: 100%;
+    min-height: 1.5rem;
+}
 
+#typewriter {
+    font-family: 'Courier New', Courier, monospace;
+    display: inline-block;
+    color: var(--primary-neon);
+    font-size: 0.9rem;
+    white-space: nowrap;
+    border-right: 3px solid var(--primary-neon);
+    animation: blink-caret 0.5s step-end infinite;
+    min-width: 1ch;
+    vertical-align: bottom;
+}
 
-/* ------------------------------------------------------------------
-    FIXED SOCIAL LINKS COMPONENT
-   ------------------------------------------------------------------ */
+/* ==========================================================================
+   9. FIXED SOCIAL LINKS COMPONENT
+   Footer-level persistent social navigation
+   ========================================================================== */
 .fixed-social-links-container {
     position: fixed !important;
     box-sizing: border-box !important;
@@ -391,7 +465,7 @@ html, body {
     flex-direction: column !important;
     justify-content: center !important;
     align-items: center !important;
-    padding: 0 !important; 
+    padding: 0 !important;
     margin: 0 !important;
     z-index: 0 !important;
 }
@@ -416,7 +490,7 @@ html, body {
 .fixed-social-links-container .social-link {
     font-size: 20px !important;
     color: rgba(242, 242, 242, 1) !important;
-    width: 21px !important; 
+    width: 21px !important;
     height: 21px !important;
     display: inline-flex !important;
     justify-content: center !important;
@@ -429,7 +503,7 @@ html, body {
 }
 
 .fixed-social-links-container .social-link i {
-    display: inline-block !important; 
+    display: inline-block !important;
     line-height: 1 !important;
 }
 
@@ -445,46 +519,4 @@ html, body {
     text-decoration: none !important;
     color: var(--primary-neon) !important;
     transform: scale(1.1) !important;
-}
-
-/* ------------------------------------------------------------------
-   SPECIFIC COMPONENT STYLES
-   ------------------------------------------------------------------ */
-.stream-status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-left: 3px;
-    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
-}
-.live { background-color: var(--success-green); box-shadow: 0 0 8px var(--success-green); }
-.offline { background-color: var(--error-red) }
-
-/* ------------------------------------------------------------------
-   TYPEWRITER
-   ------------------------------------------------------------------ */
-.typewriter-container {
-    min-width: 280px; 
-    display: inline-block;
-    text-align: left;
-    width: 100%;
-    min-height: 1.5rem;
-}
-
-#typewriter {
-    font-family: 'Courier New', Courier, monospace;
-    display: inline-block;
-    color: var(--primary-neon);
-    font-size: 0.9rem;
-    white-space: nowrap;
-    border-right: 3px solid var(--primary-neon);
-    animation: blink-caret 0.5s step-end infinite;
-    min-width: 1ch; 
-    vertical-align: bottom;
-}
-
-@keyframes blink-caret {
-    from, to { border-color: transparent }
-    50% { border-color: var(--primary-neon) }
 }
