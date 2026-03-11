@@ -40,10 +40,10 @@
         <div class="explorer-content-grid">
             <aside class="explorer-sidebar" id="filterPane">
                 <button class="pane-toggle" onclick="togglePane('filterPane', event)"><i class="fa-solid fa-chevron-left"></i></button>
-                <div class="pane-content">
+                <div class="explorer-pane-content">
                     <h3 class="neon-text filter-pane-title">SYSTEM FILTERS</h3>
                     
-                    <div class="filter-group">
+                    <div class="explorer-filter-group">
                         <label class="label-accent">DAYS ACTIVE</label>
                         <div class="range-wrapper">
                             <div class="dual-range-container">
@@ -60,21 +60,21 @@
                         </div>
                     </div>
 
-                    <div class="filter-group">
+                    <div class="explorer-filter-group">
                         <label class="label-accent">CHALLENGE STATUS</label>
                         <div id="statusFilters" class="status-filter-stack">
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'ACTIVE')">ACTIVE</div>
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'ARCHIVED')">ARCHIVED</div>
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'AUCTIONED')">AUCTIONED</div>
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'COMPLETED')">COMPLETED</div>
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'FAILED')">FAILED</div>
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'IN_PROGRESS')">IN_PROGRESS</div>
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'REMOVED')">REMOVED</div>
-                            <div class="status-item active" onclick="toggleStatusFilter(this, 'UNDER_REVIEW')">UNDER_REVIEW</div>
+                            <div class="explorer-status-filter-item active" onclick="toggleStatusFilter(this, 'ACTIVE')">ACTIVE</div>
+                            <div class="explorer-status-filter-item active" onclick="toggleStatusFilter(this, 'ARCHIVED')">ARCHIVED</div>
+                            <div class="explorer-status-filter-item active" onclick="toggleStatusFilter(this, 'AUCTIONED')">AUCTIONED</div>
+                            <div class="explorer-status-filter-item active" onclick="toggleStatusFilter(this, 'COMPLETED')">COMPLETED</div>
+                            <div class="explorer-status-filter-item active" onclick="toggleStatusFilter(this, 'FAILED')">FAILED</div>
+                            <div class="explorer-status-filter-item active" onclick="toggleStatusFilter(this, 'IN_PROGRESS')">IN_PROGRESS</div>
+                            <div class="explorer-status-filter-item active" onclick="toggleStatusFilter(this, 'REMOVED')">REMOVED</div>
+                            <div class="explorer-status-filter-item active" onclick="toggleStatusFilter(this, 'UNDER_REVIEW')">UNDER_REVIEW</div>
                         </div>
                     </div>
 
-                    <div class="filter-group">
+                    <div class="explorer-filter-group">
                         <label class="label-accent">PUSH THRESHOLD</label>
                         <input type="number" id="minPushFilter" placeholder="MIN" class="filter-input-round push-filter-input">
                     </div>
@@ -82,16 +82,16 @@
             </aside>
 
             <main class="explorer-main">
-                <div class="list-controls">
-                    <div class="search-bar-wrapper">
-                        <span class="neon-text search-prompt">></span>
+                <div class="explorer-list-controls">
+                    <div class="explorer-search-bar">
+                        <span class="neon-text explorer-search-prompt">></span>
                         <input type="text" id="globalSearch" class="filter-input-round" placeholder="SEARCH DATABASE...">
                     </div>
-                    <div id="syncTimer" class="sync-status">SYNCING</div>
+                    <div id="syncTimer" class="explorer-sync-status">SYNCING</div>
                 </div>
 
                 <div id="challengeList">
-                    <div class="list-header">
+                    <div class="challenge-list-header">
                         <span>ID</span>
                         <span>STATUS</span>
                         <span>PROPOSER</span>
@@ -104,7 +104,7 @@
 
             <aside class="explorer-sidebar collapsed" id="detailPane">
                 <button class="pane-toggle" onclick="togglePane('detailPane')"><i class="fa-solid fa-chevron-left"></i></button>
-                <div class="pane-content">
+                <div class="explorer-pane-content">
                     <div id="detailContent" class="hidden"></div>
                 </div>
             </aside>
@@ -294,7 +294,7 @@
         
         challenges.forEach(c => {
             const row = document.createElement('div');
-            row.className = 'entry-row animate-fadeIn';
+            row.className = 'challenge-list-row animate-fadeIn';
             
             const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
             
@@ -310,7 +310,7 @@
                     <span class="status-badge status-${c.status.toLowerCase()}">${c.status}</span>
                 </div>
                 <span class="proposer-column">${proposerName}</span>
-                <div class="description-column">${textPreview}</div>
+                <div class="challenge-list-description">${textPreview}</div>
                 <span class="neon-text push-column">${pushCount}</span>
             `;
             
@@ -350,7 +350,7 @@
     function hydrateDetail(c) {
         const detailPane = document.getElementById('detailPane');
         const content = document.getElementById('detailContent');
-        const paneContent = detailPane.querySelector('.pane-content'); 
+        const paneContent = detailPane.querySelector('.explorer-pane-content'); 
 
         if (paneContent) paneContent.scrollTop = 0;
 
@@ -361,17 +361,17 @@
         const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
 
         content.innerHTML = `
-            <div class="details-header">
-                <h3 class="neon-text details-title">CHALLENGE DETAILS</h3>
-                <div class="details-id-sub roboto">ID: ${c.challengeId} | SEQ: ${new Date(c.timestampSubmitted).getTime()}</div>
+            <div class="detail-pane-header">
+                <h3 class="neon-text detail-pane-title">CHALLENGE DETAILS</h3>
+                <div class="detail-pane-meta roboto">ID: ${c.challengeId} | SEQ: ${new Date(c.timestampSubmitted).getTime()}</div>
             </div>
             <div class="challenge-data-grid">
-                <div class="challenge-field"><label>Proposer</label><span>${proposerName}</span></div>
-                <div class="challenge-field"><label>Status</label><span>${c.status}</span></div>
-                <div class="challenge-field"><label>Cadence</label><span>${c.sessionCadenceText || 'ONE-OFF'}</span></div>
-                <div class="challenge-field"><label>Pushes</label><span>${c.totalPush}</span></div>
+                <div class="detail-pane-field"><label>Proposer</label><span>${proposerName}</span></div>
+                <div class="detail-pane-field"><label>Status</label><span>${c.status}</span></div>
+                <div class="detail-pane-field"><label>Cadence</label><span>${c.sessionCadenceText || 'ONE-OFF'}</span></div>
+                <div class="detail-pane-field"><label>Pushes</label><span>${c.totalPush}</span></div>
             </div>
-            <div class="challenge-text-box roboto">
+            <div class="detail-challenge-text roboto">
                 <strong>GOAL:</strong><br>
                 ${c.challengeText?.goal || 'N/A'}
                 <br><br>
@@ -401,12 +401,12 @@
                 ` : ''}
             </div>
             ${c.status === 'FAILED' ? `
-            <div class="challenge-field challenge-failure-field">
+            <div class="detail-pane-field challenge-failure-field">
                 <label>Failure Reason</label>
                 <span class="failure-reason-val">${c.failureReason || 'NONE PROVIDED'}</span>
             </div>
         ` : ''}
-            <button onclick="copyToClipboard('${shareLink}')" class="primary-submit-btn share-btn">
+            <button onclick="copyToClipboard('${shareLink}')" class="primary-submit-btn detail-share-btn">
                 <i class="fa-solid fa-share-nodes"></i> COPY DEEP LINK
             </button>
         `;

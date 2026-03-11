@@ -1,6 +1,8 @@
-/* --- EXPLORER CORE --- */
+/* ==========================================================================
+   1. PAGE FOUNDATION
+   Global box sizing, body, shared visibility helpers
+   ========================================================================== */
 
-/* Global Box Sizing */
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -20,6 +22,12 @@ body {
 .hidden {
     display: none !important;
 }
+
+
+/* ==========================================================================
+   2. EXPLORER APP SHELL
+   Main app container and horizontal layout wrapper
+   ========================================================================== */
 
 .explorer-app-container {
     box-sizing: border-box !important;
@@ -69,52 +77,12 @@ body {
     scrollbar-color: var(--primary-neon) transparent;
 }
 
-/* DUAL RANGE SLIDER SYSTEM */
-.range-wrapper { padding: 0 10px; }
-.dual-range-container { position: relative; width: 100%; height: 6px; margin-top: 15px; }
-.range-track { position: absolute; width: 100%; height: 100%; background: #222; border-radius: 3px; }
-.range-highlight { position: absolute; height: 100%; background: var(--primary-neon); border-radius: 3px; box-shadow: 0 0 10px var(--primary-neon); }
-.range-input { 
-    position: absolute; 
-    width: 100%; 
-    top: 50%; 
-    transform: translateY(-50%); 
-    background: none; 
-    pointer-events: none; 
-    -webkit-appearance: none; 
-    appearance: none;
-    margin: 0; 
-}
-.range-input::-webkit-slider-thumb {
-    height: 16px; 
-    width: 16px; 
-    border-radius: 50%; 
-    background: white; 
-    pointer-events: auto; 
-    -webkit-appearance: none; 
-    appearance: none;
-    cursor: pointer; 
-    border: 2px solid var(--primary-neon); 
-    touch-action: none;
-}
-.range-inputs-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-.range-to-label { color: var(--subtext-color); font-size: 10px; }
 
-.small-num-input { width: 50px; height: 28px; background: var(--background-color); border: 1px solid var(--subtext-color); color: var(--text-color); font-size: 12px; border-radius: 4px; text-align: center; outline: none; }
+/* ==========================================================================
+   3. FILTER PANE
+   Left sidebar structure, collapsed state, and pane content
+   ========================================================================== */
 
-/* Main Content Area */
-.explorer-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: rgba(0,0,0,0.1);
-    min-width: 600px;
-    transition: flex 0.42s ease;
-    position: relative; 
-    z-index: 10;
-}
-
-/* Sidebar Specifics */
 .explorer-sidebar {
     transition: width 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
     background: rgba(5, 5, 5, 0.4);
@@ -141,7 +109,188 @@ body {
     display: none !important; 
 }
 
-/* Pane Toggle Logic */
+.explorer-sidebar.collapsed { 
+    width: 0px !important; 
+    min-width: 0px !important;
+    flex-basis: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important; 
+    opacity: 1; 
+    overflow: visible; 
+    pointer-events: none; 
+}
+
+.explorer-sidebar.collapsed .explorer-pane-content {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.explorer-pane-content {
+    min-width: 210px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-neon) transparent;
+    transition: opacity 0.3s ease;
+    min-width: 0 !important;
+    padding: 0px 42px 0px 42px !important;
+    overflow-x: hidden; 
+    box-sizing: border-box !important;
+}
+
+/* Custom Webkit Scrollbars for Chrome/Edge/Safari */
+.explorer-pane-content::-webkit-scrollbar,
+#challengeList::-webkit-scrollbar {
+    width: 4px;
+}
+
+.explorer-pane-content::-webkit-scrollbar-thumb,
+#challengeList::-webkit-scrollbar-thumb {
+    background-color: var(--primary-neon);
+    border-radius: 10px;
+}
+
+
+/* ==========================================================================
+   4. FILTER CONTROLS
+   Days active range, status filters, push threshold inputs
+   ========================================================================== */
+
+.filter-pane-title {
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.explorer-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+/* DUAL RANGE SLIDER SYSTEM */
+.range-wrapper {
+    padding: 0;
+}
+
+.dual-range-container {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    margin-top: 15px;
+}
+
+.range-track {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #222;
+    border-radius: 3px;
+}
+
+.range-highlight {
+    position: absolute;
+    height: 100%;
+    background: var(--primary-neon);
+    border-radius: 3px;
+    box-shadow: 0 0 10px var(--primary-neon);
+}
+
+.range-input { 
+    position: absolute; 
+    width: 100%; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    background: none; 
+    pointer-events: none; 
+    -webkit-appearance: none; 
+    appearance: none;
+    margin: 0; 
+}
+
+.range-input::-webkit-slider-thumb {
+    height: 16px; 
+    width: 16px; 
+    border-radius: 50%; 
+    background: white; 
+    pointer-events: auto; 
+    -webkit-appearance: none; 
+    appearance: none;
+    cursor: pointer; 
+    border: 2px solid var(--primary-neon); 
+    touch-action: none;
+}
+
+.range-inputs-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.range-to-label {
+    color: var(--subtext-color);
+    font-size: 10px;
+}
+
+.small-num-input {
+    width: 50px;
+    height: 28px;
+    background: var(--background-color);
+    border: 1px solid var(--subtext-color);
+    color: var(--text-color);
+    font-size: 12px;
+    border-radius: 4px;
+    text-align: center;
+    outline: none;
+}
+
+/* Interactive Status Filters */
+.status-filter-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.explorer-status-filter-item { 
+    font-size: 11px; 
+    color: var(--subtext-color);
+    cursor: pointer; 
+    text-transform: uppercase; 
+    font-weight: bold; 
+    transition: all 0.2s ease;
+}
+
+.explorer-status-filter-item.active {
+    color: var(--primary-neon);
+    text-shadow: 0 0 5px var(--primary-neon);
+}
+
+.push-filter-input {
+    width: 100% !important; 
+    margin-top: 5px;
+    display: block;
+}
+
+.filter-input-round {
+    width: 100%;
+    background: transparent;
+    color: var(--text-color);
+    border: none;
+    padding: 10px 5px;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+
+/* ==========================================================================
+   5. PANE TOGGLE CONTROLS
+   Shared pane toggle button logic and per-pane positioning
+   ========================================================================== */
+
 .pane-toggle {
     position: absolute; 
     top: 20px; 
@@ -189,82 +338,60 @@ body {
     display: none !important; 
 }
 
-/* Sidebar Collapsed State */
-.explorer-sidebar.collapsed { 
-    width: 0px !important; 
-    min-width: 0px !important;
-    flex-basis: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important; 
-    opacity: 1; 
-    overflow: visible; 
-    pointer-events: none; 
-}
 
-.explorer-sidebar.collapsed .pane-content {
-    display: none;
-    opacity: 0;
-    pointer-events: none;
-}
+/* ==========================================================================
+   6. MAIN LIST AREA
+   Main explorer column, top controls, search bar, sync status
+   ========================================================================== */
 
-.pane-content {
-    min-width: 210px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 100%;
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary-neon) transparent;
-    transition: opacity 0.3s ease;
-    min-width: 0 !important;
-    padding: 0px 42px 0px 42px !important;
-    overflow-x: hidden; 
-    box-sizing: border-box !important;
-
-}
-
-/* Custom Webkit Scrollbars for Chrome/Edge/Safari */
-.pane-content::-webkit-scrollbar, #challengeList::-webkit-scrollbar {
-    width: 4px;
-}
-.pane-content::-webkit-scrollbar-thumb, #challengeList::-webkit-scrollbar-thumb {
-    background-color: var(--primary-neon);
-    border-radius: 10px;
-}
-
-.filter-pane-title { font-size: 0.875rem; margin-bottom: 1rem; }
-.filter-group {
+.explorer-main {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 25px;
+    background: rgba(0,0,0,0.1);
+    min-width: 600px;
+    transition: flex 0.42s ease;
+    position: relative; 
+    z-index: 10;
 }
 
-/* Interactive Status Filters */
-.status-filter-stack { display: flex; flex-direction: column; gap: 8px; }
-.status-item { 
-    font-size: 11px; 
-    color: var(--subtext-color);
-    cursor: pointer; 
-    text-transform: uppercase; 
-    font-weight: bold; 
-    transition: all 0.2s ease;
-}
-.status-item.active { color: var(--primary-neon); text-shadow: 0 0 5px var(--primary-neon); }
-
-.push-filter-input {
-    width: 100% !important; 
-    margin-top: 5px;
-    display: block;
+.explorer-list-controls {
+    padding: 15px 45px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    flex-shrink: 0;
 }
 
-/* List Controls */
-.list-controls { padding: 15px 45px; display: flex; align-items: center; justify-content: flex-start; gap: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0; }
-.search-bar-wrapper { max-width: 280px; flex-grow: 0; display: flex; align-items: center; background: rgba(0,0,0,0.5); padding: 0 15px; border-radius: 21px; border: 1px solid #333; }
-.search-prompt { margin-right: 8px; }
-.sync-status { margin-left: 20px; min-width: 90px; font-size: 9px; opacity: 0.5; }
+.explorer-search-bar {
+    max-width: 280px;
+    flex-grow: 0;
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,0.5);
+    padding: 0 15px;
+    border-radius: 21px;
+    border: 1px solid #333;
+}
 
-.filter-input-round { width: 100%; background: transparent; color: var(--text-color); border: none; padding: 10px 5px; font-size: 0.85rem; outline: none; }
+.explorer-search-prompt {
+    margin-right: 8px;
+}
+
+.explorer-sync-status {
+    margin-left: 20px;
+    min-width: 90px;
+    font-size: 9px;
+    opacity: 0.5;
+}
+
+
+/* ==========================================================================
+   7. CHALLENGE LIST SHELL
+   Scroll container for the list and overall list structure
+   ========================================================================== */
 
 #challengeList {
     flex: 1;
@@ -275,10 +402,15 @@ body {
     flex-direction: column;
 }
 
-/* --- GRID TABLE --- */
-.list-header, .entry-row {
+
+/* ==========================================================================
+   8. CHALLENGE LIST GRID
+   Header row, entry rows, column layout, alignment
+   ========================================================================== */
+
+.challenge-list-header,
+.challenge-list-row {
     display: grid;
-    /* ID | Status | Proposer | Description | Pushes */
     grid-template-columns: 50px 90px 100px minmax(0, 1fr) 50px !important;
     gap: 15px;
     align-items: center !important; 
@@ -287,23 +419,23 @@ body {
     box-sizing: border-box;
 }
 
-.list-header > span:nth-child(-n+2),
-.entry-row > span:nth-child(-n+2) {
+.challenge-list-header > span:nth-child(-n+2),
+.challenge-list-row > span:nth-child(-n+2) {
     text-align: center !important;
     display: block !important; 
     width: 100% !important;
     justify-self: end;
 }
 
-.list-header > span:nth-child(5),
-.entry-row > span:nth-child(5) {
+.challenge-list-header > span:nth-child(5),
+.challenge-list-row > span:nth-child(5) {
     text-align: right !important;
     display: block !important; 
     width: 100% !important;
     justify-self: end;
 }
 
-.list-header {
+.challenge-list-header {
     padding: 10px 21px; 
     position: sticky; 
     top: 0; 
@@ -315,12 +447,12 @@ body {
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.list-header span {
+.challenge-list-header span {
     display: block;
     font-size: 15px;
 }
 
-.entry-row {
+.challenge-list-row {
     padding: 0px 21px; 
     background: rgba(255, 255, 255, 0.01);
     border: 1px solid rgba(255, 255, 255, 0.03); 
@@ -333,14 +465,34 @@ body {
     border: 1px solid rgb(242, 189, 21, 0.042)
 }
 
-.entry-row span {
+.challenge-list-row span {
     white-space: nowrap !important;
     text-overflow: ellipsis;
     min-width: 0 !important;
     line-height: 48px;
 }
 
-.entry-row .description-column {
+
+/* ==========================================================================
+   9. CHALLENGE LIST CONTENT
+   Proposer, description, truncation and row text behavior
+   ========================================================================== */
+
+.proposer-column,
+.challenge-list-description {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.proposer-column {
+    font-size: 0.84rem;
+    font-weight: bold;
+    color: var(--text-color);
+    white-space: nowrap;
+}
+
+.challenge-list-row .challenge-list-description {
     font-size: 0.63rem;
     display: block !important;
     scrollbar-width: none;
@@ -352,13 +504,16 @@ body {
     height: auto;
 }
 
-.entry-row .description-column::-webkit-scrollbar {
-    display: none; /* Hides scrollbar in Chrome/Safari for a cleaner look */
+.challenge-list-row .challenge-list-description::-webkit-scrollbar {
+    display: none;
 }
 
+
 /* ==========================================================================
-   STATUS BADGES
+   10. STATUS BADGES
+   Shared badge styles and per-status visual variants
    ========================================================================== */
+
 .status-badge-wrapper {
     display: flex;
     align-items: center;
@@ -378,7 +533,6 @@ body {
     font-size: 9px; 
     letter-spacing: 0.5px;
     background: rgba(255, 255, 255, 0.03);
-    
     line-height: normal !important; 
     margin: 0;
     padding: 0;
@@ -431,42 +585,57 @@ body {
     box-shadow: inset 3px 0 0 #f97316;
     background: rgba(249, 115, 22, 0.1);
 }
+
+
 /* ==========================================================================
-    
+   11. DETAIL PANE
+   Right sidebar panel, detail header, metadata, field grid
    ========================================================================== */
 
-.proposer-column,
-.description-column {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.proposer-column {
-    font-size: 0.84rem;
-    font-weight: bold;
-    color: var(--text-color);
-    white-space: nowrap;
-}
-
-/* Details Styling */
-.details-header { 
+.detail-pane-header { 
     margin-bottom: 1.2rem; 
     border-bottom: 1px solid var(--primary-neon); 
     padding-bottom: 8px;
     padding-left: 30px;
 }
-.details-title { 
+
+.detail-pane-title { 
     font-size: 1.1rem; 
     letter-spacing: 1px;
 }
-.details-id-sub { font-size: 10px; color: var(--subtext-color); }
 
-.challenge-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 1.2rem; }
-.challenge-field label { display: block; font-size: 9px; color: var(--subtext-color); text-transform: uppercase; }
-.challenge-field span { font-size: 14px; color: var(--text-color); font-weight: bold; }
+.detail-pane-meta {
+    font-size: 10px;
+    color: var(--subtext-color);
+}
 
-.challenge-text-box { 
+.challenge-data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 1.2rem;
+}
+
+.detail-pane-field label {
+    display: block;
+    font-size: 9px;
+    color: var(--subtext-color);
+    text-transform: uppercase;
+}
+
+.detail-pane-field span {
+    font-size: 14px;
+    color: var(--text-color);
+    font-weight: bold;
+}
+
+
+/* ==========================================================================
+   12. DETAIL CHALLENGE CONTENT
+   Full structured challenge text, failure reason, deep-link share button
+   ========================================================================== */
+
+.detail-challenge-text { 
     background: rgba(0,0,0,0.5); 
     padding: 20px; 
     border-radius: 8px; 
@@ -479,24 +648,77 @@ body {
     overflow: auto;
 }
 
-.challenge-failure-field { margin-bottom: 1rem; }
-.failure-reason-val { color: var(--error-color); font-size: 0.75rem; }
+.challenge-failure-field {
+    margin-bottom: 1rem;
+}
 
-.share-btn { width: 100%; margin-bottom: 25px; }
-.share-btn i { margin-right: 12px;}
+.failure-reason-val {
+    color: var(--error-color);
+    font-size: 0.75rem;
+}
 
-/* Lock Screen */
-.lock-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-.status-icon-main { font-size: 2rem; margin-bottom: 1rem; }
-.status-msg-text { font-size: 0.875rem; color: var(--subtext-color); }
-.typewriter-container { display: flex; justify-content: center; }
-.typewriter-cursor { font-family: monospace; color: var(--primary-neon); border-right: 3px solid var(--primary-neon); animation: blink-caret 0.5s step-end infinite; }
+.detail-share-btn {
+    width: 100%;
+    margin-bottom: 25px;
+}
 
-@keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--primary-neon) } }
+.detail-share-btn i {
+    margin-right: 12px;
+}
 
-/* Mobile-Specific Refinements */
+
+/* ==========================================================================
+   13. LOCK SCREEN
+   Explorer access gate, verification state, typewriter feedback
+   ========================================================================== */
+
+.lock-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-icon-main {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.status-msg-text {
+    font-size: 0.875rem;
+    color: var(--subtext-color);
+}
+
+.typewriter-container {
+    display: flex;
+    justify-content: center;
+}
+
+.typewriter-cursor {
+    font-family: monospace;
+    color: var(--primary-neon);
+    border-right: 3px solid var(--primary-neon);
+    animation: blink-caret 0.5s step-end infinite;
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: var(--primary-neon); }
+}
+
+
+/* ==========================================================================
+   14. MOBILE ADJUSTMENTS
+   Responsive layout refinements for narrow screens
+   ========================================================================== */
+
 @media (max-width: 768px) {
-    
     .explorer-content-grid {
         display: flex;
         flex-direction: row;
@@ -512,7 +734,7 @@ body {
         overflow-x: hidden; 
     }
 
-    .search-bar-wrapper {
+    .explorer-search-bar {
         min-width: 210px;
         flex-shrink: 0;
     }
@@ -528,7 +750,7 @@ body {
         overflow: hidden; 
     }
     
-    .details-header {
+    .detail-pane-header {
         padding-left: 0 !important;
         width: 100%;
     }
@@ -538,7 +760,7 @@ body {
         gap: 12px;
     }
 
-    .challenge-text-box {
+    .detail-challenge-text {
         width: 100%;
         word-break: break-all; 
     }
