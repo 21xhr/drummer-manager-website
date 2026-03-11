@@ -754,15 +754,13 @@ textarea.form-input {
 
 #resetFormBtn i {
     color: var(--primary-neon);
-    transition: all 0.3s ease;
-    filter: drop-shadow(0 0 2px var(--primary-neon));
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
 }
 
 #resetFormBtn:hover i {
     color: var(--primary-neon);
     transform: rotate(221deg); 
     transition: all 2.1s ease;
-    text-shadow: 0 0 10px var(--primary-neon);
 }
 
 .reset-form-btn-locked {
