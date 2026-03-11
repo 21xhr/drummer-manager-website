@@ -298,7 +298,9 @@
             
             const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
             
-            let textPreview = c.challengeText?.goal || c.challengeText || 'No Data';
+            let textPreview = c.challengeText?.goal
+            || c.challengeText?.instructions
+            || (typeof c.challengeText === 'string' ? c.challengeText : 'No Data');
 
             const pushCount = (c.totalPush !== undefined && c.totalPush !== null) ? c.totalPush : 0;
 
@@ -370,14 +372,40 @@
                 <div class="challenge-field"><label>Pushes</label><span>${c.totalPush}</span></div>
             </div>
             <div class="challenge-text-box roboto">
-                <strong>GOAL:</strong> ${c.challengeText?.goal || c.challengeText}<br><br>
-                <strong>INSTRUCTIONS:</strong> ${c.challengeText?.instructions || 'N/A'}<br><br>
-                <strong>REFERENCE:</strong> ${c.challengeText?.reference || 'N/A'}
+                <strong>GOAL:</strong><br>
+                ${c.challengeText?.goal || 'N/A'}
+                <br><br>
+
+                <strong>INSTRUCTIONS:</strong><br>
+                ${c.challengeText?.instructions || 'N/A'}
+                <br><br>
+
+                ${c.challengeText?.constraints?.length ? `
+                    <strong>CONSTRAINTS:</strong>
+                    <ul>
+                        ${c.challengeText.constraints.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                    <br>
+                ` : ''}
+
+                ${c.challengeText?.references?.length ? `
+                    <strong>REFERENCES:</strong>
+                    <ul>
+                        ${c.challengeText.references.map(ref => `
+                            <li>
+                                [${ref.type || 'LINK'}] ${ref.title || ref.label || 'Untitled'}
+                                ${ref.note ? `<br><small>${ref.note}</small>` : ''}
+                            </li>
+                        `).join('')}
+                    </ul>
+                ` : ''}
             </div>
+            ${c.status === 'FAILED' ? `
             <div class="challenge-field challenge-failure-field">
                 <label>Failure Reason</label>
-                <span class="failure-reason-val">${c.failureReason || 'NONE'}</span>
+                <span class="failure-reason-val">${c.failureReason || 'NONE PROVIDED'}</span>
             </div>
+        ` : ''}
             <button onclick="copyToClipboard('${shareLink}')" class="primary-submit-btn share-btn">
                 <i class="fa-solid fa-share-nodes"></i> COPY DEEP LINK
             </button>

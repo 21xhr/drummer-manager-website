@@ -287,8 +287,8 @@ body {
     box-sizing: border-box;
 }
 
-.list-header > span:nth-child(-n+3),
-.entry-row > span:nth-child(-n+3) {
+.list-header > span:nth-child(-n+2),
+.entry-row > span:nth-child(-n+2) {
     text-align: center !important;
     display: block !important; 
     width: 100% !important;
@@ -326,7 +326,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.03); 
     border-radius: 10px;
     height: 48px !important;    
-    overflow: visible !important; 
+    overflow: hidden; 
     position: relative; 
     z-index: 1;
     margin-bottom: 4px;
@@ -342,25 +342,36 @@ body {
 
 .entry-row .description-column {
     font-size: 0.63rem;
-    height: 79%;
-    display: block !important; 
-    overflow-y: auto !important; 
-    overflow-x: hidden;
+    display: block !important;
     scrollbar-width: none;
-    line-height: 1.42 !important;
-    color: var(--subtext-color); 
+    color: var(--subtext-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 48px !important;
+    height: auto;
 }
 
 .entry-row .description-column::-webkit-scrollbar {
     display: none; /* Hides scrollbar in Chrome/Safari for a cleaner look */
 }
 
+/* ==========================================================================
+   STATUS BADGES
+   ========================================================================== */
+.status-badge-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 !important; 
+}
+
 .status-badge { 
     height: 22px;
-    width: 80px;
+    width: 100% !important;
     display: grid !important;
     place-items: center; 
-    
     border-radius: 4px; 
     text-transform: uppercase; 
     font-weight: 800; 
@@ -373,30 +384,69 @@ body {
     padding: 0;
 }
 
-.status-badge-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 0 !important; 
+.status-active {
+    color: #3b82f6;
+    box-shadow: inset 3px 0 0 #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
 }
 
-/* Improved Glassmorphism glow */
-.status-active { 
-    color: #3b82f6; 
-    box-shadow: inset 2px 0 0 #3b82f6, 0 0 10px rgba(59, 130, 246, 0.2); 
-    background: rgba(59, 130, 246, 0.1); 
+.status-archived {
+    color: #94a3b8;
+    box-shadow: inset 3px 0 0 #94a3b8;
+    background: rgba(148, 163, 184, 0.1);
 }
 
-.status-completed { 
-    color: #10b981; 
-    box-shadow: inset 3px 0 0 #10b981; 
-    background: rgba(16, 185, 129, 0.1); 
+.status-auctioned {
+    color: #f59e0b;
+    box-shadow: inset 3px 0 0 #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.status-completed {
+    color: #10b981;
+    box-shadow: inset 3px 0 0 #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.status-failed {
+    color: var(--error-red);
+    box-shadow: inset 3px 0 0 var(--error-red);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.status-in_progress {
+    color: var(--primary-neon);
+    box-shadow: inset 3px 0 0 var(--primary-neon);
+    background: rgb(242, 189, 21, 0.1);
+}
+
+.status-removed {
+    color: #64748b;
+    box-shadow: inset 3px 0 0 #64748b;
+    background: rgba(100, 116, 139, 0.1);
+}
+
+.status-under_review {
+    color: #f97316;
+    box-shadow: inset 3px 0 0 #f97316;
+    background: rgba(249, 115, 22, 0.1);
+}
+/* ==========================================================================
+    
+   ========================================================================== */
+
+.proposer-column,
+.description-column {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .proposer-column {
+    font-size: 0.84rem;
     font-weight: bold;
     color: var(--text-color);
+    white-space: nowrap;
 }
 
 /* Details Styling */
