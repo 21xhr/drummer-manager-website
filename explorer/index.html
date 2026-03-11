@@ -105,7 +105,7 @@
             <aside class="explorer-sidebar collapsed" id="detailPane">
                 <button class="pane-toggle" onclick="togglePane('detailPane')"><i class="fa-solid fa-chevron-left"></i></button>
                 <div class="explorer-pane-content">
-                    <div id="detailContent" class="hidden"></div>
+                    <div id="detailContent" class="u-hidden"></div>
                 </div>
             </aside>
         </div>
@@ -222,7 +222,7 @@
     };
 
     function showLockScreen(msg) {
-        document.getElementById('lockScreen').classList.remove('hidden');
+        document.getElementById('lockScreen').classList.remove('u-hidden');
         document.getElementById('statusMessage1').innerHTML = msg;
         document.getElementById('statusIcon').className = "fa-solid fa-lock status-icon-main neon-text";
     }
@@ -260,9 +260,9 @@
                 statusMessage1.innerHTML = `<div class="typewriter-container"><div id="typewriter" class="typewriter-cursor"></div></div>`;
                 
                 typeWriter(document.getElementById('typewriter'), `> ACCESS GRANTED: ${data.username} @ ${data.platformName}`, 0, () => {
-                    document.getElementById('lockScreen').classList.add('hidden');
+                    document.getElementById('lockScreen').classList.add('u-hidden');
 
-                    if (identityReminder) identityReminder.classList.remove('hidden'); 
+                    if (identityReminder) identityReminder.classList.remove('u-hidden'); 
                     localStorage.setItem('explorer_token', token);
                     loadInitialData();
                     startPolling();
@@ -355,7 +355,7 @@
         if (paneContent) paneContent.scrollTop = 0;
 
         detailPane.classList.remove('collapsed');
-        content.classList.remove('hidden');
+        content.classList.remove('u-hidden');
         
         const shareLink = `${window.location.origin}/explorer/index.html?id=${c.challengeId}`;
         const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';

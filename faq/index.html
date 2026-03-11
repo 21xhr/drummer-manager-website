@@ -33,10 +33,10 @@
             <div id="faq" class="tab-content">
                 <div class="interactive-question-container">
                     <div id="question-container" class="faq-question-box"></div>
-                    <div id="answer-container" class="faq-answer-box hidden"></div>
-                    <div id="buttons-container" class="faq-buttons-box hidden"></div>
+                    <div id="answer-container" class="faq-answer-box u-hidden"></div>
+                    <div id="buttons-container" class="faq-buttons-box u-hidden"></div>
                     
-                    <div id="cta-container" class="cta-box hidden">
+                    <div id="cta-container" class="cta-box u-hidden">
                         <h3>Ready to Get Involved?</h3>
                         <p class="roboto">Join our community or support the stream to help shape the future of Drummer Manager!</p>
                         <div class="cta-social-links">
@@ -63,7 +63,7 @@
                 </div>
             </div>
 
-            <div id="missions" class="tab-content hidden">
+            <div id="missions" class="tab-content u-hidden">
                 <div class="under-construction-box">
                     <h3>THE FUTURE IS UNDER CONSTRUCTION</h3>
                     <p class="roboto">We're building the suggestion system and community missions!</p>
@@ -127,11 +127,11 @@
                 if (index < 0) {
                     currentFaqIndex = 0;
                 } else if (index >= faqs.length) {
-                    questionContainer.classList.add('hidden');
-                    answerContainer.classList.add('hidden');
-                    buttonsContainer.classList.add('hidden');
-                    ctaContainer.classList.remove('hidden');
-                    pageIndicator.classList.add('hidden');
+                    questionContainer.classList.add('u-hidden');
+                    answerContainer.classList.add('u-hidden');
+                    buttonsContainer.classList.add('u-hidden');
+                    ctaContainer.classList.remove('u-hidden');
+                    pageIndicator.classList.add('u-hidden');
                     prevBtn.style.display = 'flex';
                     return;
                 } else {
@@ -140,7 +140,7 @@
                 
                 const faqItem = faqs[currentFaqIndex];
                 pageIndicator.textContent = `${currentFaqIndex + 1} of ${totalFaqs}`;
-                pageIndicator.classList.remove('hidden');
+                pageIndicator.classList.remove('u-hidden');
                 
                 prevBtn.style.display = currentFaqIndex > 0 ? 'flex' : 'none';
                 
@@ -169,11 +169,11 @@
                     answerContainer.appendChild(para);
                 }
                 
-                answerContainer.classList.remove('hidden');
-                buttonsContainer.classList.remove('hidden');
-                navigationContainer.classList.remove('hidden');
-                ctaContainer.classList.add('hidden');
-                questionContainer.classList.remove('hidden');
+                answerContainer.classList.remove('u-hidden');
+                buttonsContainer.classList.remove('u-hidden');
+                navigationContainer.classList.remove('u-hidden');
+                ctaContainer.classList.add('u-hidden');
+                questionContainer.classList.remove('u-hidden');
 
                 buttonsContainer.innerHTML = '';
                 const button = document.createElement('button');
@@ -187,9 +187,9 @@
                 tab.addEventListener('click', () => {
                     const target = tab.dataset.tab;
                     tabs.forEach(t => t.classList.remove('active'));
-                    tabContents.forEach(content => content.classList.add('hidden'));
+                    tabContents.forEach(content => content.classList.add('u-hidden'));
                     tab.classList.add('active');
-                    document.getElementById(target).classList.remove('hidden');
+                    document.getElementById(target).classList.remove('u-hidden');
                 });
             });
 
