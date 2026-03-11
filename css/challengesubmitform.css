@@ -1,36 +1,6 @@
 /* ==========================================================================
    STYLES FOR CHALLENGE SUBMISSION FORM
    ========================================================================== */
-
-/* ------------------------------------------------------------------
-   REUSABLE GLOBAL STYLES
-   ------------------------------------------------------------------ */
-.typewriter-container {
-    min-width: 280px; 
-    display: inline-block;
-    text-align: left;
-    width: 100%;
-    min-height: 1.5rem;
-}
-
-#typewriter {
-    font-family: 'Courier New', Courier, monospace;
-    display: inline-block;
-    color: var(--primary-neon);
-    font-size: 0.9rem;
-    white-space: nowrap;
-    border-right: 3px solid var(--primary-neon);
-    animation: blink-caret 0.5s step-end infinite;
-    min-width: 1ch; 
-    vertical-align: bottom;
-}
-
-@keyframes blink-caret {
-    from, to { border-color: transparent }
-    50% { border-color: var(--primary-neon) }
-}
-
-
 /* ==========================================================================
    CORE LAYOUT & STRUCTURE
    ========================================================================== */
