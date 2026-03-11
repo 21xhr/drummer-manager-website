@@ -641,12 +641,12 @@
 
             if (streamStatusIndicator && streamStatusText) {
                 if (isStreamLive) {
-                    streamStatusIndicator.classList.remove('offline');
-                    streamStatusIndicator.classList.add('live');
+                    streamStatusIndicator.classList.remove('is-offline');
+                    streamStatusIndicator.classList.add('is-live');
                     streamStatusText.textContent = 'LIVE (21% Discount)';
                 } else {
-                    streamStatusIndicator.classList.remove('live');
-                    streamStatusIndicator.classList.add('offline');
+                    streamStatusIndicator.classList.remove('is-live');
+                    streamStatusIndicator.classList.add('is-offline');
                     streamStatusText.textContent = 'OFFLINE';
                 }
             }

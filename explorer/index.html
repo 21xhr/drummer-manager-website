@@ -463,7 +463,7 @@
             const data = await res.json();
             
             if (indicator && text) {
-                indicator.className = `stream-status-indicator ${data.isStreamLive ? 'live' : 'offline'}`;
+                indicator.className = `stream-status-indicator ${data.isStreamLive ? 'is-live' : 'is-offline'}`;
                 text.textContent = data.isStreamLive ? 'LIVE' : 'OFFLINE';
             }
         } catch (err) {
