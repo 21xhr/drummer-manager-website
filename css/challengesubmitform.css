@@ -749,12 +749,13 @@ textarea.form-input {
 }
 
 #resetFormBtn:hover {
-    opacity: 0.79;
+    opacity: 0.84;
 }
 
 #resetFormBtn i {
+    color: var(--primary-neon);
     transition: all 0.3s ease;
-    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+    filter: drop-shadow(0 0 2px var(--primary-neon));
 }
 
 #resetFormBtn:hover i {
