@@ -1491,6 +1491,16 @@
     }
 
     /// --- CHALLENGE SUMMARY GENERATION (POST-SUBMISSION) ---
+    const renderSummarySpecBlock = (label, content) => {
+        if (!content) return '';
+        return `
+            <div class="result-summary-spec-item">
+                <span class="result-summary-spec-label">${label}</span>
+                ${content}
+            </div>
+        `;
+    };
+
     const generateChallengeSummary = (challenge, cost, userStats) => {
         if (!challenge || !userStats) return `<p>Error</p>`;
         const challengeUrl = `https://drummer-manager-website.vercel.app/challenge/${challenge.challengeId}`;
@@ -1505,41 +1515,32 @@
         if (typeof data === 'string' && data.startsWith('{')) { try { data = JSON.parse(data); } catch (e) { data = challenge.challengeText; } }
 
         if (typeof data === 'object' && data !== null) {
-            descriptionHTML = `<div class="result-summary-specs-group">
-                <div class="result-summary-spec-item">
-                    <span class="result-summary-spec-label">GOAL</span>
-                    <div>${data.goal || 'N/A'}</div>
+            const constraintsHtml = data.constraints?.length
+                ? `<ul class="result-summary-spec-list">
+                    ${data.constraints.map(c => `<li>${c}</li>`).join('')}
+                </ul>`
+                : '';
+
+            const referencesHtml = data.references?.length
+                ? `<ul class="result-summary-spec-list">
+                    ${data.references.map(r => `
+                        <li>
+                            <strong class="result-summary-reference-type">[${r.type || 'LINK'}]</strong>
+                            <span class="result-summary-reference-title">${r.title || 'Untitled resource'}</span>
+                            ${r.note ? `<div class="result-summary-reference-note">Note: ${r.note}</div>` : ''}
+                        </li>
+                    `).join('')}
+                </ul>`
+                : '';
+
+            descriptionHTML = `
+                <div class="result-summary-specs-group">
+                    ${renderSummarySpecBlock('GOAL', `<div>${data.goal || 'N/A'}</div>`)}
+                    ${renderSummarySpecBlock('INSTRUCTIONS', `<div>${data.instructions || 'N/A'}</div>`)}
+                    ${renderSummarySpecBlock('CONSTRAINTS', constraintsHtml)}
+                    ${renderSummarySpecBlock('REFERENCES', referencesHtml)}
                 </div>
-
-                <div class="result-summary-spec-item">
-                    <span class="result-summary-spec-label">INSTRUCTIONS</span>
-                    <div>${data.instructions || 'N/A'}</div>
-                </div>
-
-                ${data.constraints?.length ? `
-                    <div class="result-summary-spec-item">
-                        <span class="result-summary-spec-label">CONSTRAINTS</span>
-                        <ul class="result-summary-spec-list">
-                            ${data.constraints.map(c => `<li>${c}</li>`).join('')}
-                        </ul>
-                    </div>
-                ` : ''}
-
-                ${data.references?.length ? `
-                    <div class="result-summary-spec-item">
-                        <span class="result-summary-spec-label">REFERENCES</span>
-                        <ul class="result-summary-spec-list">
-                            ${data.references.map(r => `
-                                <li>
-                                    <strong class="result-summary-reference-type">[${r.type || 'LINK'}]</strong>
-                                    <span class="result-summary-reference-title">${r.title || 'Untitled resource'}</span>
-                                    ${r.note ? `<div class="result-summary-reference-note">Note: ${r.note}</div>` : ''}
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                ` : ''}
-            </div>`;
+            `;
         } else {
             descriptionHTML = `<div>${challenge.challengeText}</div>`;
         }
