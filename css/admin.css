@@ -1,67 +1,54 @@
-/* ------------------------------------------------------------------
-   ADMIN / GAME STATE MONITOR DASHBOARD STYLESHEET
-   ------------------------------------------------------------------ */
-
-/* 1. Base Admin Layout - Force Centering */
+/* ==========================================================================
+   1. PAGE FOUNDATION
+   Admin page body, viewport behavior, main wrapper visibility
+   ========================================================================== */
 body.admin-body {
     background-color: var(--background-color);
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    align-items: center; 
+    align-items: center;
     font-family: 'DM Sans', sans-serif;
     color: var(--text-color);
-    height: 100vh; /* Changed from min-height to lock viewport */
-    overflow: hidden; /* Prevent vertical scroll */
+    height: 100vh;
+    overflow: hidden;
 }
 
-/* Replaces inline style for the main wrapper */
-#admin-content {
+.admin-dashboard-shell {
     width: 95%;
-    max-width: 1600px; 
-    padding: 2vh 0; /* Reduced from 60px to scale with height */
+    max-width: 1600px;
+    height: 100vh;
+    padding: 2vh 0;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
-    box-sizing: border-box;
     justify-content: center;
 }
 
-/* Logic for toggling visibility without Tailwind 'hidden' */
-.admin-content-hidden {
-    display: none !important;
+/* ==========================================================================
+   2. LOGIN OVERLAY
+   Locked state before dashboard access
+   ========================================================================== */
+#login-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(12, 12, 12, 0.99);
 }
 
-/* Replaces inline style for h1 */
-.dashboard-title {
-    font-size: 2.5rem; /* Reduced from 4rem for single viewport fit */
-    text-align: center;
-    width: 100%;
-    letter-spacing: 6px;
-    margin: 0 0 2vh 0 !important; /* Tightened margins */
-}
-
-/* 2. Login Overlay & Card */
-#login-overlay { 
-    position: fixed; 
-    inset: 0; 
-    background: rgba(12, 12, 12, 0.99); 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    z-index: 999; 
-}
-
-/* Support for the JS hidden class */
-#login-overlay.hidden {
+/* Legacy compatibility */
+#login-overlay.u-hidden {
     display: none;
 }
 
-.login-box {
+.admin-login-card {
     width: 90%;
-    max-width: 550px; 
+    max-width: 550px;
     padding: 50px;
     text-align: center;
     background: var(--secondary-bg);
@@ -70,46 +57,64 @@ body.admin-body {
 
 .admin-input {
     width: 100%;
-    box-sizing: border-box; 
+    box-sizing: border-box;
     padding: 21px;
     margin-bottom: 21px;
     background: var(--background-color) !important;
     border: 1px solid #333;
-    color: var(--primary-neon);
-    font-size: 1.2rem; 
-    text-align: center;
     border-radius: 8px;
+    color: var(--primary-neon);
+    font-size: 1.2rem;
+    text-align: center;
     letter-spacing: 4px;
 }
 
 .admin-feedback {
+    min-height: 1.2rem;
+    margin-bottom: 12px;
     color: var(--error-red);
     font-size: 0.9rem;
     font-weight: bold;
-    margin-bottom: 12px;
-    min-height: 1.2rem;
     text-transform: uppercase;
 }
 
-/* 3. The Monitor Grid */
-.admin-grid { 
-    display: grid; 
-    grid-template-columns: repeat(4, 1fr); 
-    gap: 20px; /* Reduced from 35px to save vertical space */
+/* ==========================================================================
+   3. DASHBOARD HEADER
+   Main title above the monitoring grid
+   ========================================================================== */
+.dashboard-title {
+    width: 100%;
+    margin: 0 0 2vh 0 !important;
+    text-align: center;
+    font-size: 2.5rem;
+    letter-spacing: 6px;
+}
+
+/* ==========================================================================
+   4. DASHBOARD GRID
+   Main monitor layout
+   ========================================================================== */
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
     width: 100%;
 }
 
-/* 4. Individual Monitor Cards */
-.admin-card { 
-    background: var(--secondary-bg); 
-    border: 3px solid #222; 
-    border-radius: 20px; 
-    padding: 2vh 20px; /* Changed from 35px to 2vh */
+/* ==========================================================================
+   5. DASHBOARD CARDS
+   Card shell and section headers
+   ========================================================================== */
+.admin-card {
     display: flex;
     flex-direction: column;
-    align-items: center; 
+    align-items: center;
+    padding: 2vh 20px;
+    background: var(--secondary-bg);
+    border: 3px solid #222;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
     transition: all 0.3s ease;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
 }
 
 .admin-card:hover {
@@ -118,178 +123,194 @@ body.admin-body {
 }
 
 .admin-card h2 {
-    height: 3.5rem; /* Reduced from 5rem to fit content */
-    display: flex;
-    align-items: center; 
-    justify-content: center;
-    font-size: 1.3rem; /* Reduced from 1.8rem */
-    font-weight: bold;
     width: 100%;
-    text-align: center;
+    height: 3.5rem;
     margin-top: 0;
-    margin-bottom: 20px; /* Reduced from 30px */
-    padding-bottom: 10px; /* Reduced from 15px */
-    border-bottom: 3px solid #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 3px solid #333;
+    text-align: center;
     color: var(--primary-neon);
+    font-size: 1.3rem;
+    font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 2px;
 }
 
-/* 5. Data Alignment & Metrics (PC Desktop View) */
-.data-row {
+/* ==========================================================================
+   6. METRIC ROWS
+   Label/value structure inside each dashboard card
+   ========================================================================== */
+.admin-metric-row {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
-    margin-bottom: 15px; /* Reduced from 25px */
+    margin-bottom: 15px;
 }
 
-.metric-label {
-    font-size: 0.9rem; /* Reduced from 1.1rem */
-    color: var(--subtext-color); 
-    text-align: center;
-    width: 100%;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 5px;
-}
-
-.admin-metric, .data-value, .status-up, .status-down {
-    text-align: center;
-    font-size: 1.6rem; /* Reduced from 2.2rem */
-    line-height: 1.1;
-    font-weight: 900;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    color: var(--primary-neon);
-}
-
-/* Replaces inline style for refunded text */
-.economy-red {
-    color: var(--error-red) !important;
-}
-
-/* HR Styles extracted from inline */
-.admin-hr {
-    border: 0; 
-    border-top: 1px solid #333; 
-    margin: 10px 0;
-    width: 100%;
-}
-
-.admin-hr-dashed {
-    border: 0; 
-    border-top: 1px dashed #444; 
-    margin: 15px 0;
-    width: 100%;
-}
-
-.status-up, .status-down {
-    font-size: 1.4rem; /* Reduced from 1.8rem */
-}
-
-.data-row:last-of-type {
+.admin-metric-row:last-of-type {
     margin-bottom: 0;
 }
 
-/* 6. High-Scaling Responsive Fix (Redmi / Mobile View) */
+.admin-metric-label {
+    width: 100%;
+    margin-bottom: 5px;
+    color: var(--subtext-color);
+    font-size: 0.9rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.admin-metric,
+.admin-metric-value,
+.is-up,
+.is-down {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    color: var(--primary-neon);
+    font-size: 1.6rem;
+    line-height: 1.1;
+    font-weight: 900;
+    text-align: center;
+}
+
+.is-up,
+.is-down {
+    font-size: 1.4rem;
+}
+
+.admin-metric-negative {
+    color: var(--error-red) !important;
+}
+
+/* ==========================================================================
+   7. DIVIDERS
+   Horizontal separators used inside cards
+   ========================================================================== */
+.admin-hr {
+    width: 100%;
+    margin: 10px 0;
+    border: 0;
+    border-top: 1px solid #333;
+}
+
+.admin-hr-dashed {
+    width: 100%;
+    margin: 15px 0;
+    border: 0;
+    border-top: 1px dashed #444;
+}
+
+/* ==========================================================================
+   8. RESPONSIVE LAYOUT
+   Tablet/mobile scaling and stacked monitor layout
+   ========================================================================== */
 @media (max-width: 1100px) {
     body.admin-body {
+        height: auto;
         padding: 10px;
-        height: auto; /* Allow height to grow on mobile */
-        overflow-y: auto; /* Restore scroll for mobile only */
+        overflow-y: auto;
     }
 
-    #admin-content {
+    .admin-dashboard-shell {
         width: 100%;
-        padding: 15px 0;
         height: auto;
+        padding: 15px 0;
     }
 
     h1.neon-text {
-        font-size: 8vw; 
+        font-size: 8vw;
         margin-bottom: 30px;
     }
 
     .admin-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 20px; 
+        gap: 20px;
         width: 100%;
-        padding: 0 5px; 
+        padding: 0 5px;
     }
 
     .admin-card {
-        border: 2px solid #333 !important; 
-        background: #0f0f0f;
-        padding: 25px 10px; 
-        border-radius: 12px;
         display: flex;
         flex-direction: column;
-        align-items: center; 
+        align-items: center;
+        padding: 25px 10px;
+        background: #0f0f0f;
+        border: 2px solid #333 !important;
+        border-radius: 12px;
     }
 
     .admin-card h2 {
-        height: 12vw; 
-        display: flex;
-        align-items: center; 
-        justify-content: center;
-        font-size: 4vw;
         width: 100%;
-        text-align: center;
+        height: 12vw;
         margin-top: 0;
-        margin-bottom: 25px; 
+        margin-bottom: 25px;
         padding-bottom: 10px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         border-bottom: 1px solid #222;
-        box-sizing: border-box; 
+        text-align: center;
+        font-size: 4vw;
     }
 
-    .data-row {
+    .admin-metric-row {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         width: 100%;
-        margin-bottom: 30px; 
+        margin-bottom: 30px;
     }
 
-    .metric-label {
-        font-size: 2.8vw; 
-        color: var(--subtext-color); 
-        text-align: center;
+    .admin-metric-label {
         width: 100%;
+        margin-bottom: 2px;
+        color: var(--subtext-color);
+        font-size: 2.8vw;
+        text-align: center;
         text-transform: uppercase;
         letter-spacing: 2px;
-        margin-bottom: 2px;
     }
 
-    .admin-metric, .data-value, .status-up, .status-down {
-        text-align: center;
-        font-size: 6.5vw; 
-        line-height: 1.1;
-        font-weight: 900;
+    .admin-metric,
+    .admin-metric-value,
+    .is-up,
+    .is-down {
+        width: 100%;
         margin: 0;
         padding: 0;
-        width: 100%;
+        text-align: center;
+        font-size: 6.5vw;
+        line-height: 1.1;
+        font-weight: 900;
     }
 
-    .status-up, .status-down {
-        font-size: 4.5vw;
+    .is-up,
+    .is-down {
         margin-top: 5px;
+        font-size: 4.5vw;
     }
 
-    .data-row:last-of-type {
+    .admin-metric-row:last-of-type {
         margin-bottom: 0;
     }
 
     #last-maint {
-        font-size: 2.8vw !important;
         margin-top: 8px;
         color: var(--primary-neon);
         opacity: 0.8;
         font-family: monospace;
+        font-size: 2.8vw !important;
         word-break: break-all;
     }
 }

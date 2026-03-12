@@ -18,7 +18,7 @@
 </head>
 <body class="admin-body">
     <div id="login-overlay">
-        <form id="login-form" class="admin-card login-box" onsubmit="unlock(event)">
+        <form id="login-form" class="admin-card admin-login-card" onsubmit="unlock(event)">
             
             <h3 class="neon-text dm-sans">ADMIN ACCESS</h3>
             
@@ -35,69 +35,69 @@
         </form>
     </div>
 
-    <div id="admin-content" class="admin-content-hidden">
+    <div id="admin-content" class="admin-dashboard-shell u-hidden">
         <h1 class="neon-text dashboard-title">GAME STATE MONITOR</h1>
         
         <div class="admin-grid">
             <div class="admin-card">
                 <h2>System Status</h2>
-                <div class="data-row">
-                    <span class="metric-label">Supabase</span>
-                    <span id="db-status" class="status-up">--</span>
+                <div class="admin-metric-row">
+                    <span class="admin-metric-label">Supabase</span>
+                    <span id="db-status" class="is-up">--</span>
                 </div>
-                <div class="data-row">
-                    <span class="metric-label">Upstash</span>
-                    <span id="redis-status" class="status-up">--</span>
+                <div class="admin-metric-row">
+                    <span class="admin-metric-label">Upstash</span>
+                    <span id="redis-status" class="is-up">--</span>
                 </div>
             </div>
             
             <div class="admin-card">
                 <h2>Operational Clocks</h2>
-                <div class="data-row">
-                    <span class="metric-label">Days Live</span>
+                <div class="admin-metric-row">
+                    <span class="admin-metric-label">Days Live</span>
                     <span id="real-day" class="admin-metric">0</span>
                 </div>
-                <div class="data-row">
-                    <span class="metric-label">Stream Days</span>
+                <div class="admin-metric-row">
+                    <span class="admin-metric-label">Stream Days</span>
                     <span id="stream-day" class="admin-metric">0</span>
                 </div>
-                <div class="data-row">
-                    <span class="metric-label">Last Maintenance</span>
-                    <span id="last-maint" class="data-value">--</span>
+                <div class="admin-metric-row">
+                    <span class="admin-metric-label">Last Maintenance</span>
+                    <span id="last-maint" class="admin-metric-value">--</span>
                 </div>
             </div>
 
             <div class="admin-card">
                 <h2>Global Economy</h2>
-                <div class="data-row">
-                    <span class="metric-label">Gross Spent</span>
-                    <span id="gross-spent" class="data-value">0</span>
+                <div class="admin-metric-row">
+                    <span class="admin-metric-label">Gross Spent</span>
+                    <span id="gross-spent" class="admin-metric-value">0</span>
                 </div>
-                <div class="data-row">
-                    <span class="metric-label">Total Refunded</span>
-                    <span id="refunded" class="data-value economy-red">0</span>
+                <div class="admin-metric-row">
+                    <span class="admin-metric-label">Total Refunded</span>
+                    <span id="refunded" class="admin-metric-value admin-metric-negative">0</span>
                 </div>
                 <hr class="admin-hr">
-                <div class="data-row">
-                    <span class="neon-text metric-label">Net Flow</span>
+                <div class="admin-metric-row">
+                    <span class="neon-text admin-metric-label">Net Flow</span>
                     <span id="net-economy" class="admin-metric">0</span>
                 </div>
             </div>
 
            <div class="admin-card">
                 <h2>Asset Allocation</h2>
-                <div class="data-row">
-                    <span class="metric-label">Community Chest</span>
+                <div class="admin-metric-row">
+                    <span class="admin-metric-label">Community Chest</span>
                     <span id="chest" class="admin-metric">0</span>
                 </div>
-                <div class="data-row">
-                    <span class="metric-label">Returned to Pushers</span>
+                <div class="admin-metric-row">
+                    <span class="admin-metric-label">Returned to Pushers</span>
                     <span id="returned-to-pushers" class="admin-metric">0</span>
                 </div>
                 <hr class="admin-hr-dashed">
-                <div class="data-row">
-                    <span class="metric-label">Removal Redistribution</span>
-                    <span id="removal-redistribution-total" class="data-value">0</span>
+                <div class="admin-metric-row">
+                    <span class="admin-metric-label">Removal Redistribution</span>
+                    <span id="removal-redistribution-total" class="admin-metric-value">0</span>
                 </div>
             </div>
         </div>
@@ -145,16 +145,16 @@ async function updateDashboard() {
         
         // Use class toggle instead of inline display
         document.getElementById('login-overlay').classList.add('u-hidden');
-        document.getElementById('admin-content').classList.remove('admin-content-hidden');
+        document.getElementById('admin-content').classList.remove('u-hidden');
 
         const { systems, financials, maintenance } = data;
 
         const db = document.getElementById('db-status');
         const rd = document.getElementById('redis-status');
         db.textContent = systems.supabase;
-        db.className = systems.supabase === 'UP' ? 'status-up' : 'status-down';
+        db.className = systems.supabase === 'UP' ? 'is-up' : 'is-down';
         rd.textContent = systems.upstash;
-        rd.className = systems.upstash === 'UP' ? 'status-up' : 'status-down';
+        rd.className = systems.upstash === 'UP' ? 'is-up' : 'is-down';
 
         document.getElementById('real-day').textContent = maintenance.realDay;
         document.getElementById('stream-day').textContent = maintenance.streamDay;
