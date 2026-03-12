@@ -24,22 +24,22 @@
             HOW TO PLAY
         </h1>
 
-        <div class="tab-navigation-container">
-            <button class="tab-button active" data-tab="faq">FAQ</button>
-            <button class="tab-button" data-tab="missions">MISSIONS</button>
+        <div class="faq-tab-navigation">
+            <button class="faq-tab-button is-active" data-tab="faq">FAQ</button>
+            <button class="faq-tab-button" data-tab="missions">MISSIONS</button>
         </div>
         
         <div class="faq-content-wrapper">
-            <div id="faq" class="tab-content">
-                <div class="interactive-question-container">
+            <div id="faq" class="faq-tab-panel">
+                <div class="faq-interaction-panel">
                     <div id="question-container" class="faq-question-box"></div>
                     <div id="answer-container" class="faq-answer-box u-hidden"></div>
                     <div id="buttons-container" class="faq-buttons-box u-hidden"></div>
                     
-                    <div id="cta-container" class="cta-box u-hidden">
+                    <div id="cta-container" class="faq-cta-box u-hidden">
                         <h3>Ready to Get Involved?</h3>
                         <p class="roboto">Join our community or support the stream to help shape the future of Drummer Manager!</p>
-                        <div class="cta-social-links">
+                        <div class="faq-cta-links">
                             <a href="https://discord.gg/av9bpn6Zhp" target="_blank" aria-label="Join Discord" class="social-link">
                                 <i class="fab fa-discord"></i>
                             </a>
@@ -50,21 +50,21 @@
                     </div>
 
                     <div id="navigation-container" class="faq-nav-container">
-                         <div class="nav-arrows">
-                             <a href="https://drummer-manager-website.vercel.app/" id="home-btn" class="arrow-button">
+                         <div class="faq-nav-arrows">
+                             <a href="https://drummer-manager-website.vercel.app/" id="home-btn" class="faq-nav-button">
                                  <i class="fa-solid fa-house"></i>
                              </a>
-                             <button id="prev-btn" class="arrow-button">
+                             <button id="prev-btn" class="faq-nav-button">
                                  <i class="fa-solid fa-arrow-left"></i>
                              </a>
                          </div>
-                         <div id="page-indicator" class="page-count"></div>
+                         <div id="page-indicator" class="faq-page-indicator"></div>
                     </div>
                 </div>
             </div>
 
-            <div id="missions" class="tab-content u-hidden">
-                <div class="under-construction-box">
+            <div id="missions" class="faq-tab-panel u-hidden">
+                <div class="faq-missions-placeholder">
                     <h3>THE FUTURE IS UNDER CONSTRUCTION</h3>
                     <p class="roboto">We're building the suggestion system and community missions!</p>
                     <a href="https://discord.gg/av9bpn6Zhp" target="_blank" class="primary-submit-btn">
@@ -79,8 +79,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const tabs = document.querySelectorAll('.tab-button');
-            const tabContents = document.querySelectorAll('.tab-content');
+            const tabs = document.querySelectorAll('.faq-tab-button');
+            const tabContents = document.querySelectorAll('.faq-tab-panel');
             const questionContainer = document.getElementById('question-container');
             const answerContainer = document.getElementById('answer-container');
             const buttonsContainer = document.getElementById('buttons-container');
@@ -186,9 +186,9 @@
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     const target = tab.dataset.tab;
-                    tabs.forEach(t => t.classList.remove('active'));
+                    tabs.forEach(t => t.classList.remove('is-active'));
                     tabContents.forEach(content => content.classList.add('u-hidden'));
-                    tab.classList.add('active');
+                    tab.classList.add('is-active');
                     document.getElementById(target).classList.remove('u-hidden');
                 });
             });
