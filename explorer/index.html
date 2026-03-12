@@ -360,10 +360,14 @@
         const shareLink = `${window.location.origin}/explorer/index.html?id=${c.challengeId}`;
         const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
 
+        const submittedAt = c.timestampSubmitted
+            ? new Date(c.timestampSubmitted).toLocaleString()
+            : 'Unknown';
+
         content.innerHTML = `
             <div class="detail-pane-header">
                 <h3 class="neon-text detail-pane-title">CHALLENGE DETAILS</h3>
-                <div class="detail-pane-meta roboto">ID: ${c.challengeId} | SEQ: ${new Date(c.timestampSubmitted).getTime()}</div>
+                <div class="detail-pane-meta roboto">ID: ${c.challengeId} | Submitted: ${submittedAt}</div>
             </div>
             <div class="challenge-data-grid">
                 <div class="detail-pane-field"><label>Proposer</label><span>${proposerName}</span></div>
