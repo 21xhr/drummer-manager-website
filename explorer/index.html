@@ -34,12 +34,14 @@
     </div>
 
     <div class="explorer-app-container">
-        
         <site-header></site-header>
 
         <div class="explorer-content-grid">
             <aside class="explorer-sidebar" id="filterPane">
-                <button class="pane-toggle" onclick="togglePane('filterPane', event)"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="pane-toggle" onclick="togglePane('filterPane', event)">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
                 <div class="explorer-pane-content">
                     <h3 class="neon-text filter-pane-title">SYSTEM FILTERS</h3>
                     
@@ -53,9 +55,9 @@
                                 <input type="range" id="maxDays" min="0" max="21" value="21" class="range-input">
                             </div>
                             <div class="range-inputs-row">
-                                <input type="number" id="minDaysInput" value="0" min="0" max="21" class="small-num-input">
+                                <input type="number" id="minDaysInput" min="0" max="21" value="0" class="small-num-input">
                                 <span class="range-to-label roboto">TO</span>
-                                <input type="number" id="maxDaysInput" value="21" min="0" max="21" class="small-num-input">
+                                <input type="number" id="maxDaysInput" min="0" max="21" value="21" class="small-num-input">
                             </div>
                         </div>
                     </div>
@@ -76,7 +78,19 @@
 
                     <div class="explorer-filter-group">
                         <label class="label-accent">PUSH THRESHOLD</label>
-                        <input type="number" id="minPushFilter" placeholder="MIN" class="filter-input-round push-filter-input">
+                        <div class="range-wrapper">
+                            <div class="dual-range-container">
+                                <div class="range-track"></div>
+                                <div id="pushRangeHighlight" class="range-highlight"></div>
+                                <input type="range" id="minPush" min="0" max="1000" value="0" class="range-input">
+                                <input type="range" id="maxPush" min="0" max="1000" value="1000" class="range-input">
+                            </div>
+                            <div class="range-inputs-row">
+                                <input type="number" id="minPushInput" min="0" max="1000" value="0" class="small-num-input">
+                                <span class="range-to-label roboto">TO</span>
+                                <input type="number" id="maxPushInput" min="0" max="1000" value="1000" class="small-num-input">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </aside>
@@ -103,7 +117,9 @@
             </main>
 
             <aside class="explorer-sidebar collapsed" id="detailPane">
-                <button class="pane-toggle" onclick="togglePane('detailPane')"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="pane-toggle" onclick="togglePane('detailPane')">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
                 <div class="explorer-pane-content">
                     <div id="detailContent" class="u-hidden"></div>
                 </div>
@@ -112,41 +128,79 @@
     </div>
 
     <social-links></social-links>
-</body>
+
 <script>
+    /* ==========================================================================
+       1. STATE
+       ========================================================================== */
     let allChallenges = [];
     let lastSyncTimestamp = new Date().toISOString();
-    let activeStatusFilters = ['ACTIVE', 'ARCHIVED', 'AUCTIONED', 'COMPLETED', 'FAILED', 'IN_PROGRESS', 'REMOVED', 'UNDER_REVIEW'];
+    let activeStatusFilters = [
+        'ACTIVE',
+        'ARCHIVED',
+        'AUCTIONED',
+        'COMPLETED',
+        'FAILED',
+        'IN_PROGRESS',
+        'REMOVED',
+        'UNDER_REVIEW'
+    ];
 
-    const IS_DEV = true; 
+    const IS_DEV = true;
     const TYPE_PAUSE = IS_DEV ? 10 : 420;
 
+    /* ==========================================================================
+       2. CONFIG
+       ========================================================================== */
     const getApiBaseUrl = () => {
         const hostname = window.location.hostname;
+
         if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
-            return 'http://127.0.0.1:3000/api/v1'; 
+            return 'http://127.0.0.1:3000/api/v1';
         }
+
         if (hostname.startsWith('192.168.')) {
-            return `http://${hostname}:3000/api/v1`; 
+            return `http://${hostname}:3000/api/v1`;
         }
+
         return 'https://drummer-manager-api.vercel.app/api/v1';
     };
+
     const API_BASE_URL = getApiBaseUrl();
 
+    /* ==========================================================================
+       3. DOM REFERENCES
+       ========================================================================== */
     const minDaysRange = document.getElementById('minDays');
     const maxDaysRange = document.getElementById('maxDays');
     const minDaysInput = document.getElementById('minDaysInput');
     const maxDaysInput = document.getElementById('maxDaysInput');
     const rangeHighlight = document.getElementById('rangeHighlight');
 
-    function syncRange() {
+    const minPushRange = document.getElementById('minPush');
+    const maxPushRange = document.getElementById('maxPush');
+    const minPushInput = document.getElementById('minPushInput');
+    const maxPushInput = document.getElementById('maxPushInput');
+    const pushRangeHighlight = document.getElementById('pushRangeHighlight');
+
+    const globalSearchInput = document.getElementById('globalSearch');
+    const lockScreen = document.getElementById('lockScreen');
+    const statusIcon = document.getElementById('statusIcon');
+    const statusMessage1 = document.getElementById('statusMessage1');
+    const listEntries = document.getElementById('listEntries');
+    const detailPane = document.getElementById('detailPane');
+    const detailContent = document.getElementById('detailContent');
+    const syncTimer = document.getElementById('syncTimer');
+
+    /* ==========================================================================
+       4. FILTER RANGE HELPERS
+       ========================================================================== */
+    function syncActiveDaysRange() {
         let minVal = parseInt(minDaysRange.value);
         let maxVal = parseInt(maxDaysRange.value);
 
         if (minVal > maxVal) {
-            let temp = minVal;
-            minVal = maxVal;
-            maxVal = temp;
+            [minVal, maxVal] = [maxVal, minVal];
         }
 
         minDaysInput.value = minVal;
@@ -154,44 +208,98 @@
 
         const left = (minVal / 21) * 100;
         const right = 100 - (maxVal / 21) * 100;
-        rangeHighlight.style.left = left + "%";
-        rangeHighlight.style.right = right + "%";
-        
+
+        rangeHighlight.style.left = `${left}%`;
+        rangeHighlight.style.right = `${right}%`;
+
+        applyFilters();
+    }
+
+    function syncPushRange() {
+        let minVal = parseInt(minPushRange.value);
+        let maxVal = parseInt(maxPushRange.value);
+
+        if (minVal > maxVal) {
+            [minVal, maxVal] = [maxVal, minVal];
+        }
+
+        minPushInput.value = minVal;
+        maxPushInput.value = maxVal;
+
+        const maxLimit = parseInt(minPushRange.max);
+        const left = (minVal / maxLimit) * 100;
+        const right = 100 - (maxVal / maxLimit) * 100;
+
+        pushRangeHighlight.style.left = `${left}%`;
+        pushRangeHighlight.style.right = `${right}%`;
+
         applyFilters();
     }
 
     function toggleStatusFilter(element, status) {
         element.classList.toggle('active');
+
         if (activeStatusFilters.includes(status)) {
             activeStatusFilters = activeStatusFilters.filter(s => s !== status);
         } else {
             activeStatusFilters.push(status);
         }
+
         applyFilters();
     }
 
-    [minDaysRange, maxDaysRange].forEach(el => el.addEventListener('input', syncRange));
-    [minDaysInput, maxDaysInput].forEach(el => el.addEventListener('change', (e) => {
-        if(e.target.id === 'minDaysInput') minDaysRange.value = e.target.value;
-        else maxDaysRange.value = e.target.value;
-        syncRange();
-    }));
+    /* ==========================================================================
+       5. FILTER APPLICATION
+       ========================================================================== */
+    function applyFilters() {
+        const search = globalSearchInput.value.toLowerCase();
+        const minD = parseInt(minDaysRange.value);
+        const maxD = parseInt(maxDaysRange.value);
+        const minP = parseInt(minPushRange.value) || 0;
+        const maxP = parseInt(maxPushRange.value) || 1000;
 
+        const filtered = allChallenges.filter(c => {
+            const days = c.streamDaysSinceActivation || 0;
+            const pushCount = c.totalPush || 0;
+
+            const dateMatch = days >= minD && days <= maxD;
+            const pushMatch = pushCount >= minP && pushCount <= maxP;
+            const statusMatch = activeStatusFilters.includes(c.status.toUpperCase());
+
+            const proposerName = (c.proposer?.accounts?.[0]?.username || c.proposer?.username || '').toLowerCase();
+            const textMatch =
+                proposerName.includes(search) ||
+                c.challengeId.toString().includes(search) ||
+                String(c.challengeText).toLowerCase().includes(search);
+
+            return dateMatch && pushMatch && statusMatch && textMatch;
+        });
+
+        renderList(filtered);
+    }
+
+    /* ==========================================================================
+       6. TYPEWRITER / LOCK SCREEN
+       ========================================================================== */
     const typeWriter = (element, text, n, callback) => {
         if (n < text.length) {
-            const typoIndex = text.indexOf('@') - 1; 
+            const typoIndex = text.indexOf('@') - 1;
             const hasTypoOccurred = element.getAttribute('data-typo') === 'true';
 
-            let delay = IS_DEV ? 1 : (Math.floor(Math.random() * 63) + 42); 
-            if (text.charAt(n) === ' ' || text.charAt(n) === ':') delay = IS_DEV ? 5 : 210;
+            let delay = IS_DEV ? 1 : (Math.floor(Math.random() * 63) + 42);
+            if (text.charAt(n) === ' ' || text.charAt(n) === ':') {
+                delay = IS_DEV ? 5 : 210;
+            }
 
             if (n === typoIndex && !hasTypoOccurred) {
-                element.innerHTML = text.substring(0, n) + "q"; 
+                element.innerHTML = text.substring(0, n) + "q";
                 element.setAttribute('data-typo', 'true');
+
                 setTimeout(() => {
                     element.innerHTML = text.substring(0, n);
-                    setTimeout(() => typeWriter(element, text, n, callback), TYPE_PAUSE); 
+                    setTimeout(() => typeWriter(element, text, n, callback), TYPE_PAUSE);
                 }, IS_DEV ? 5 : 210);
+
                 return;
             }
 
@@ -203,106 +311,138 @@
         }
     };
 
-    window.onload = () => {
-        if (window.innerWidth <= 768) {
-            document.getElementById('filterPane').classList.add('collapsed');
-        }
-        fetchStreamStatus();
-        syncRange();
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlToken = urlParams.get('token');
-        const savedToken = localStorage.getItem('explorer_token');
-        const tokenToVerify = urlToken || savedToken;
-
-        if (tokenToVerify) {
-            verifyExplorerAccess(tokenToVerify);
-        } else {
-            showLockScreen("ACCESS DENIED<br><span style='font-size:11px'>Use !challengeexplorer in chat.</span>");
-        }
-    };
-
-    function showLockScreen(msg) {
-        document.getElementById('lockScreen').classList.remove('u-hidden');
-        document.getElementById('statusMessage1').innerHTML = msg;
-        document.getElementById('statusIcon').className = "fa-solid fa-lock status-icon-main neon-text";
+    function showLockScreen(message) {
+        lockScreen.classList.remove('u-hidden');
+        statusMessage1.innerHTML = message;
+        statusIcon.className = "fa-solid fa-lock status-icon-main neon-text";
     }
 
-    const verifyExplorerAccess = async (token) => {
-        const statusIcon = document.getElementById('statusIcon');
-        const statusMessage1 = document.getElementById('statusMessage1');
-        
+    async function verifyExplorerAccess(token) {
         try {
             const response = await fetch(`${API_BASE_URL}/token/verify-explorer`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token })
             });
+
             const data = await response.json();
 
-            if (response.ok) {
-                const userSpan = document.getElementById('reminderUsername');
-                const platSpan = document.getElementById('reminderPlatform');
-                const identityReminder = document.getElementById('identityReminder');
-
-                if (userSpan && platSpan) {
-                    userSpan.textContent = data.username;
-                    platSpan.textContent = data.platformName;
-                    
-                    // Add dynamic platform color while keeping global.css roboto/font-bold
-                    const platClass = `platform-${data.platformName.toLowerCase()}`;
-                    userSpan.classList.add(platClass);
-                    platSpan.classList.add(platClass);
-                }
-
-                statusIcon.classList.remove('fa-spinner', 'fa-spin');
-                statusIcon.classList.add('fa-circle-check', 'text-success-green');
-                
-                statusMessage1.innerHTML = `<div class="typewriter-container"><div id="typewriter" class="typewriter-cursor"></div></div>`;
-                
-                typeWriter(document.getElementById('typewriter'), `> ACCESS GRANTED: ${data.username} @ ${data.platformName}`, 0, () => {
-                    document.getElementById('lockScreen').classList.add('u-hidden');
-
-                    if (identityReminder) identityReminder.classList.remove('u-hidden'); 
-                    localStorage.setItem('explorer_token', token);
-                    loadInitialData();
-                    startPolling();
-                });
-            } else {
+            if (!response.ok) {
                 statusIcon.classList.remove('fa-spinner', 'fa-spin');
                 statusIcon.classList.add('fa-lock', 'text-red-500');
                 statusMessage1.innerHTML = `ACCESS DENIED<br><span style='font-size:11px'>${data.message || 'Invalid Token'}</span>`;
+                return;
             }
+
+            const userSpan = document.getElementById('reminderUsername');
+            const platSpan = document.getElementById('reminderPlatform');
+            const identityReminder = document.getElementById('identityReminder');
+
+            if (userSpan && platSpan) {
+                userSpan.textContent = data.username;
+                platSpan.textContent = data.platformName;
+
+                const platClass = `platform-${data.platformName.toLowerCase()}`;
+                userSpan.classList.add(platClass);
+                platSpan.classList.add(platClass);
+            }
+
+            statusIcon.classList.remove('fa-spinner', 'fa-spin');
+            statusIcon.classList.add('fa-circle-check', 'text-success-green');
+
+            statusMessage1.innerHTML = `<div class="typewriter-container"><div id="typewriter" class="typewriter-cursor"></div></div>`;
+
+            typeWriter(
+                document.getElementById('typewriter'),
+                `> ACCESS GRANTED: ${data.username} @ ${data.platformName}`,
+                0,
+                () => {
+                    lockScreen.classList.add('u-hidden');
+
+                    if (identityReminder) {
+                        identityReminder.classList.remove('u-hidden');
+                    }
+
+                    localStorage.setItem('explorer_token', token);
+                    loadInitialData();
+                    startPolling();
+                }
+            );
         } catch (err) {
             statusIcon.classList.remove('fa-spinner', 'fa-spin');
             statusIcon.classList.add('fa-triangle-exclamation', 'text-red-500');
             statusMessage1.innerHTML = "CONNECTION ERROR<br>System offline.";
         }
-    };
-
-    async function loadInitialData() {
-        try {
-            const res = await fetch(`${API_BASE_URL}/challenge`); 
-            if (!res.ok) throw new Error("Database offline");
-            allChallenges = await res.json();
-            renderList(allChallenges);
-        } catch (err) { console.error("Fetch error", err); }
     }
 
+    /* ==========================================================================
+       7. DATA LOADING / POLLING
+       ========================================================================== */
+    async function loadInitialData() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/challenge`);
+            if (!response.ok) throw new Error("Database offline");
+
+            allChallenges = await response.json();
+            renderList(allChallenges);
+        } catch (err) {
+            console.error("Fetch error", err);
+        }
+    }
+
+    async function startPolling() {
+        setInterval(async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/challenge/delta?since=${lastSyncTimestamp}`);
+                if (!response.ok) return;
+
+                const updates = await response.json();
+
+                if (updates.length > 0) {
+                    updates.forEach(updatedChallenge => {
+                        const index = allChallenges.findIndex(c => c.challengeId === updatedChallenge.challengeId);
+
+                        if (index !== -1) {
+                            allChallenges[index] = updatedChallenge;
+                        } else {
+                            allChallenges.unshift(updatedChallenge);
+                        }
+                    });
+
+                    applyFilters();
+                    lastSyncTimestamp = new Date().toISOString();
+
+                    syncTimer.textContent = "DATABASE UPDATED";
+                    syncTimer.style.color = "var(--primary-neon)";
+
+                    setTimeout(() => {
+                        syncTimer.textContent = "SYNCING";
+                        syncTimer.style.color = "";
+                    }, 2000);
+                }
+            } catch (err) {
+                console.warn("Poll failed", err);
+            }
+        }, 21000);
+    }
+
+    /* ==========================================================================
+       8. LIST RENDERING
+       ========================================================================== */
     function renderList(challenges) {
-        const container = document.getElementById('listEntries');
-        container.innerHTML = '';
-        
+        listEntries.innerHTML = '';
+
         challenges.forEach(c => {
             const row = document.createElement('div');
             row.className = 'challenge-list-row animate-fadeIn';
-            
-            const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
-            
-            let textPreview = c.challengeText?.goal
-            || c.challengeText?.instructions
-            || (typeof c.challengeText === 'string' ? c.challengeText : 'No Data');
 
-            const pushCount = (c.totalPush !== undefined && c.totalPush !== null) ? c.totalPush : 0;
+            const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
+            const textPreview =
+                c.challengeText?.goal ||
+                c.challengeText?.instructions ||
+                (typeof c.challengeText === 'string' ? c.challengeText : 'No Data');
+
+            const pushCount = c.totalPush !== undefined && c.totalPush !== null ? c.totalPush : 0;
 
             row.innerHTML = `
                 <span class="neon-text id-column">${c.challengeId}</span>
@@ -313,58 +453,32 @@
                 <div class="challenge-list-description">${textPreview}</div>
                 <span class="neon-text push-column">${pushCount}</span>
             `;
-            
+
             row.onclick = () => hydrateDetail(c);
-            container.appendChild(row);
+            listEntries.appendChild(row);
         });
     }
 
-    async function startPolling() {
-        setInterval(async () => {
-            try {
-                const response = await fetch(`${API_BASE_URL}/challenge/delta?since=${lastSyncTimestamp}`);
-                if (!response.ok) return;
-                
-                const updates = await response.json();
-                if (updates.length > 0) {
-                    updates.forEach(updatedChallenge => {
-                        const index = allChallenges.findIndex(c => c.challengeId === updatedChallenge.challengeId);
-                        if (index !== -1) { allChallenges[index] = updatedChallenge; } 
-                        else { allChallenges.unshift(updatedChallenge); }
-                    });
-                    applyFilters(); 
-                    lastSyncTimestamp = new Date().toISOString();
-                    
-                    const syncTimer = document.getElementById('syncTimer');
-                    syncTimer.textContent = "DATABASE UPDATED";
-                    syncTimer.style.color = "var(--primary-neon)";
-                    setTimeout(() => {
-                        syncTimer.textContent = "SYNCING";
-                        syncTimer.style.color = "";
-                    }, 2000);
-                }
-            } catch (err) { console.warn("Poll failed", err); }
-        }, 21000);
-    }
-
+    /* ==========================================================================
+       9. DETAIL PANE
+       ========================================================================== */
     function hydrateDetail(c) {
-        const detailPane = document.getElementById('detailPane');
-        const content = document.getElementById('detailContent');
-        const paneContent = detailPane.querySelector('.explorer-pane-content'); 
+        const paneContent = detailPane.querySelector('.explorer-pane-content');
 
-        if (paneContent) paneContent.scrollTop = 0;
+        if (paneContent) {
+            paneContent.scrollTop = 0;
+        }
 
         detailPane.classList.remove('collapsed');
-        content.classList.remove('u-hidden');
-        
+        detailContent.classList.remove('u-hidden');
+
         const shareLink = `${window.location.origin}/explorer/index.html?id=${c.challengeId}`;
         const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
-
         const submittedAt = c.timestampSubmitted
             ? new Date(c.timestampSubmitted).toLocaleString()
             : 'Unknown';
 
-        content.innerHTML = `
+        detailContent.innerHTML = `
             <div class="detail-pane-header">
                 <h3 class="neon-text detail-pane-title">CHALLENGE DETAILS</h3>
                 <div class="detail-pane-meta roboto">ID: ${c.challengeId} | Submitted: ${submittedAt}</div>
@@ -405,67 +519,47 @@
                 ` : ''}
             </div>
             ${c.status === 'FAILED' ? `
-            <div class="detail-pane-field challenge-failure-field">
-                <label>Failure Reason</label>
-                <span class="failure-reason-val">${c.failureReason || 'NONE PROVIDED'}</span>
-            </div>
-        ` : ''}
+                <div class="detail-pane-field challenge-failure-field">
+                    <label>Failure Reason</label>
+                    <span class="failure-reason-val">${c.failureReason || 'NONE PROVIDED'}</span>
+                </div>
+            ` : ''}
             <button onclick="copyToClipboard('${shareLink}')" class="primary-submit-btn detail-share-btn">
                 <i class="fa-solid fa-share-nodes"></i> COPY DEEP LINK
             </button>
         `;
 
+        setTimeout(() => {
+            const grid = document.querySelector('.explorer-content-grid');
 
-            setTimeout(() => {
-                const grid = document.querySelector('.explorer-content-grid');
-                
-                if (paneContent) paneContent.scrollTop = 0;
+            if (paneContent) {
+                paneContent.scrollTop = 0;
+            }
 
-                grid.scrollTo({
-                    top: 0,
-                    left: detailPane.offsetLeft,
-                    behavior: 'smooth'
-                });
-            }, 21);
+            grid.scrollTo({
+                top: 0,
+                left: detailPane.offsetLeft,
+                behavior: 'smooth'
+            });
+        }, 21);
     }
 
-    const applyFilters = () => {
-        const search = document.getElementById('globalSearch').value.toLowerCase();
-        const minPush = parseInt(document.getElementById('minPushFilter').value) || 0;
-        const minD = parseInt(minDaysRange.value);
-        const maxD = parseInt(maxDaysRange.value);
-
-        const filtered = allChallenges.filter(c => {
-            const days = c.streamDaysSinceActivation || 0;
-            const dateMatch = days >= minD && days <= maxD;
-            
-            const statusMatch = activeStatusFilters.includes(c.status.toUpperCase());
-            
-            const proposerName = (c.proposer?.accounts?.[0]?.username || c.proposer?.username || '').toLowerCase();
-            const textMatch = proposerName.includes(search) || 
-                                c.challengeId.toString().includes(search) ||
-                                String(c.challengeText).toLowerCase().includes(search);
-            
-            const pushMatch = c.totalPush >= minPush;
-            
-            return dateMatch && statusMatch && textMatch && pushMatch;
-        });
-        renderList(filtered);
-    };
-
+    /* ==========================================================================
+       10. SHARED UI INTERACTIONS
+       ========================================================================== */
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text);
         alert("Challenge Link Copied to Clipboard");
     }
 
-    const fetchStreamStatus = async () => {
+    async function fetchStreamStatus() {
         const indicator = document.getElementById('streamStatusIndicator');
         const text = document.getElementById('streamStatusText');
-        
+
         try {
-            const res = await fetch(`${API_BASE_URL}/stream/stats`);
-            const data = await res.json();
-            
+            const response = await fetch(`${API_BASE_URL}/stream/stats`);
+            const data = await response.json();
+
             if (indicator && text) {
                 indicator.className = `stream-status-indicator ${data.isStreamLive ? 'is-live' : 'is-offline'}`;
                 text.textContent = data.isStreamLive ? 'LIVE' : 'OFFLINE';
@@ -473,38 +567,83 @@
         } catch (err) {
             console.error("Stream status sync failed");
         }
-    };
+    }
 
-    function togglePane(id, event) { 
+    function togglePane(id, event) {
         if (event) event.stopPropagation();
-        
-        const pane = document.getElementById(id);
 
+        const pane = document.getElementById(id);
         pane.classList.toggle('collapsed');
 
         if (id === 'detailPane' && !pane.classList.contains('collapsed')) {
             setTimeout(() => {
-                pane.scrollIntoView({ 
-                    behavior: 'smooth', 
+                pane.scrollIntoView({
+                    behavior: 'smooth',
                     inline: 'end',
-                    block: 'nearest' 
+                    block: 'nearest'
                 });
             }, 21);
-        } 
-        else if (id === 'detailPane' && pane.classList.contains('collapsed')) {
-            const mainList = document.querySelector('.explorer-main');
-            mainList.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+        } else if (id === 'detailPane' && pane.classList.contains('collapsed')) {
+            document.querySelector('.explorer-main').scrollIntoView({
+                behavior: 'smooth',
+                inline: 'start'
+            });
         }
     }
 
-    document.getElementById('globalSearch').addEventListener('input', applyFilters);
-    document.getElementById('minPushFilter').addEventListener('input', applyFilters);
+    /* ==========================================================================
+       11. EVENT BINDINGS
+       ========================================================================== */
+    [minDaysRange, maxDaysRange].forEach(el => el.addEventListener('input', syncActiveDaysRange));
+    [minDaysInput, maxDaysInput].forEach(el => el.addEventListener('change', (e) => {
+        if (e.target.id === 'minDaysInput') {
+            minDaysRange.value = e.target.value;
+        } else {
+            maxDaysRange.value = e.target.value;
+        }
+        syncActiveDaysRange();
+    }));
 
-    
-    // --- THE BOOTSTRAP ---
+    [minPushRange, maxPushRange].forEach(el => el.addEventListener('input', syncPushRange));
+    [minPushInput, maxPushInput].forEach(el => el.addEventListener('change', (e) => {
+        if (e.target.id === 'minPushInput') {
+            minPushRange.value = e.target.value;
+        } else {
+            maxPushRange.value = e.target.value;
+        }
+        syncPushRange();
+    }));
+
+    globalSearchInput.addEventListener('input', applyFilters);
+
+    /* ==========================================================================
+       12. BOOTSTRAP
+       ========================================================================== */
+    window.onload = () => {
+        if (window.innerWidth <= 768) {
+            document.getElementById('filterPane').classList.add('collapsed');
+        }
+
+        fetchStreamStatus();
+        syncActiveDaysRange();
+        syncPushRange();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('token');
+        const savedToken = localStorage.getItem('explorer_token');
+        const tokenToVerify = urlToken || savedToken;
+
+        if (tokenToVerify) {
+            verifyExplorerAccess(tokenToVerify);
+        } else {
+            showLockScreen("ACCESS DENIED<br><span style='font-size:11px'>Use !challengeexplorer in chat.</span>");
+        }
+    };
+
     document.addEventListener('header-ready', () => {
         console.log("✅ Explorer Header Ready");
         fetchStreamStatus();
     });
 </script>
+</body>
 </html>
