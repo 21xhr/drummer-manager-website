@@ -215,20 +215,52 @@
         applyFilters();
     }
 
+    function getPushRangeMax() {
+        if (!Array.isArray(allChallenges) || allChallenges.length === 0) return 10;
+
+        return Math.max(
+            ...allChallenges.map(c => Number(c.totalPush) || 0),
+            10
+        );
+    }
+
+    function initializePushRange() {
+        const dynamicMax = getPushRangeMax();
+        const currentMax = parseInt(maxPushRange.max);
+
+        if (currentMax === dynamicMax) return; // avoid useless DOM updates
+
+        minPushRange.max = dynamicMax;
+        maxPushRange.max = dynamicMax;
+        minPushInput.max = dynamicMax;
+        maxPushInput.max = dynamicMax;
+
+        if (parseInt(minPushRange.value) > dynamicMax) minPushRange.value = dynamicMax;
+        if (parseInt(maxPushRange.value) > dynamicMax) maxPushRange.value = dynamicMax;
+        if (parseInt(minPushInput.value) > dynamicMax) minPushInput.value = dynamicMax;
+        if (parseInt(maxPushInput.value) > dynamicMax) maxPushInput.value = dynamicMax;
+
+        syncPushRange();
+    }
+
     function syncPushRange() {
-        let minVal = parseInt(minPushRange.value);
-        let maxVal = parseInt(maxPushRange.value);
+        const dynamicMax = getPushRangeMax();
 
-        if (minVal > maxVal) {
-            [minVal, maxVal] = [maxVal, minVal];
-        }
+        let minVal = parseInt(minPushRange.value) || 0;
+        let maxVal = parseInt(maxPushRange.value) || dynamicMax;
 
+        minVal = Math.max(0, Math.min(minVal, dynamicMax));
+        maxVal = Math.max(0, Math.min(maxVal, dynamicMax));
+
+        if (minVal > maxVal) [minVal, maxVal] = [maxVal, minVal];
+
+        minPushRange.value = minVal;
+        maxPushRange.value = maxVal;
         minPushInput.value = minVal;
         maxPushInput.value = maxVal;
 
-        const maxLimit = parseInt(minPushRange.max);
-        const left = (minVal / maxLimit) * 100;
-        const right = 100 - (maxVal / maxLimit) * 100;
+        const left = (minVal / dynamicMax) * 100;
+        const right = 100 - (maxVal / dynamicMax) * 100;
 
         pushRangeHighlight.style.left = `${left}%`;
         pushRangeHighlight.style.right = `${right}%`;
@@ -256,7 +288,7 @@
         const minD = parseInt(minDaysRange.value);
         const maxD = parseInt(maxDaysRange.value);
         const minP = parseInt(minPushRange.value) || 0;
-        const maxP = parseInt(maxPushRange.value) || 1000;
+        const maxP = parseInt(maxPushRange.value) || getPushRangeMax();
 
         const filtered = allChallenges.filter(c => {
             const days = c.streamDaysSinceActivation || 0;
@@ -380,10 +412,13 @@
        ========================================================================== */
     async function loadInitialData() {
         try {
-            const response = await fetch(`${API_BASE_URL}/challenge`);
-            if (!response.ok) throw new Error("Database offline");
+            const res = await fetch(`${API_BASE_URL}/challenge`);
+            if (!res.ok) throw new Error("Database offline");
 
-            allChallenges = await response.json();
+            const payload = await res.json();
+            allChallenges = Array.isArray(payload) ? payload : (payload.data || []);
+
+            initializePushRange();
             renderList(allChallenges);
         } catch (err) {
             console.error("Fetch error", err);
@@ -397,8 +432,9 @@
                 if (!response.ok) return;
 
                 const updates = await response.json();
-
+                
                 if (updates.length > 0) {
+                    console.log("Polling updates:", updates);
                     updates.forEach(updatedChallenge => {
                         const index = allChallenges.findIndex(c => c.challengeId === updatedChallenge.challengeId);
 
@@ -409,7 +445,9 @@
                         }
                     });
 
+                    initializePushRange();
                     applyFilters();
+
                     lastSyncTimestamp = new Date().toISOString();
 
                     syncTimer.textContent = "DATABASE UPDATED";
@@ -626,7 +664,6 @@
 
         fetchStreamStatus();
         syncActiveDaysRange();
-        syncPushRange();
 
         const urlParams = new URLSearchParams(window.location.search);
         const urlToken = urlParams.get('token');
