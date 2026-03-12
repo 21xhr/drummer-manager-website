@@ -1,6 +1,7 @@
-/* donation.css */
-
-/* Professional Best Practice: Apply border-box to everything */
+/* ==========================================================================
+   1. PAGE FOUNDATION
+   Viewport lock, body centering, safe spacing above fixed social links
+   ========================================================================== */
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -11,79 +12,105 @@ body {
     height: 100vh;
     height: 100svh;
     display: flex;
-    flex-direction: column; /* Changed to column for vertical centering */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    overflow: hidden; 
+    overflow: hidden;
     background-color: var(--background-color);
 
-    /* NEW LOGIC: Consistent safe zone for social links and glow */
-    padding-bottom: 80px; 
+    padding-bottom: 80px;
     padding-left: 16px;
     padding-right: 16px;
 }
 
+/* ==========================================================================
+   2. DONATION APP SHELL
+   Main centered card containing title, subtitle, and embedded widget
+   ========================================================================== */
 .donation-app-container {
     box-sizing: border-box !important;
-    max-width: 600px; 
-    width: 100%; /* Changed to 100% since body padding handles gutters */
-    
-    /* NEW LOGIC: Dynamic centering and height control */
+    max-width: 600px;
+    width: 100%;
+
     margin: auto 0;
     align-self: center;
-    max-height: calc(100vh - 120px); 
+
+    max-height: calc(100vh - 120px);
     min-height: 80vh;
     flex-shrink: 1;
 
     background-color: var(--secondary-bg);
     border-radius: 21px;
-    padding: 1rem 1.5rem 1rem 1.5rem; 
+
+    padding: 1rem 1.5rem 1rem 1.5rem;
     position: relative;
     text-align: center;
-    
-    display: flex; /* Using flex to manage internal title/text/iframe stack */
+
+    display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden; 
+
+    overflow: hidden;
     animation: neon-border-pulse 4s ease-in-out infinite alternate;
 }
 
-/* --- TYPOGRAPHY --- */
-
-.header-title {
+/* ==========================================================================
+   3. TYPOGRAPHY
+   Donation page heading and subtitle
+   ========================================================================== */
+.donation-title {
     color: var(--primary-neon);
     font-family: 'DM Sans', sans-serif;
-    font-size: clamp(1.2rem, 6.5vw, 2.5rem); 
+    font-size: clamp(1.2rem, 6.5vw, 2.5rem);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: -0.02em;
     line-height: 1.1;
     margin: 0.5rem 0;
-    white-space: nowrap; 
+    white-space: nowrap;
+
     animation: neon-text-pulse 2.5s infinite alternate;
 }
 
-.main-text {
+.donation-subtitle {
     font-family: 'Roboto', sans-serif;
     color: var(--subtext-color);
     text-transform: uppercase;
-    font-size: 10px; 
+    font-size: 10px;
     letter-spacing: 0.15em;
-    margin-bottom: 1rem; /* Space before iframe */
+    margin-bottom: 1rem;
     opacity: 0.7;
 }
 
-/* --- IFRAME (The only scrollable part) --- */
-
-.iframe-container {
-    position: relative; 
+/* ==========================================================================
+   4. EMBED AREA
+   Ko-fi iframe container filling remaining vertical space
+   ========================================================================== */
+.donation-embed-shell {
+    position: relative;
     width: 100%;
     max-width: 420px;
-    /* NEW LOGIC: Fills remaining space in the container */
-    flex: 1; 
+
+    flex: 1;
+
     border-radius: 12px;
     overflow: hidden;
-    background: #f9f9f9;
-    touch-action: pan-y; 
+
+    touch-action: pan-y;
     -webkit-overflow-scrolling: touch;
+}
+
+/* ==========================================================================
+   5. SCROLL INDICATOR
+   Overlay hint indicating the embedded feed is scrollable
+   ========================================================================== */
+.donation-scroll-indicator {
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 21px;
+    color: var(--background-color);
+    opacity: 0.63;
+    pointer-events: none;
 }
