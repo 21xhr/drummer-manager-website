@@ -436,13 +436,8 @@
                 if (updates.length > 0) {
                     console.log("Polling updates:", updates);
                     updates.forEach(updatedChallenge => {
-                        const index = allChallenges.findIndex(c => c.challengeId === updatedChallenge.challengeId);
-
-                        if (index !== -1) {
-                            allChallenges[index] = updatedChallenge;
-                        } else {
-                            allChallenges.unshift(updatedChallenge);
-                        }
+                        allChallenges = allChallenges.filter(c => c.challengeId !== updatedChallenge.challengeId);
+                        allChallenges.unshift(updatedChallenge);
                     });
 
                     initializePushRange();
