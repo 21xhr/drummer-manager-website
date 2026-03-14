@@ -39,8 +39,8 @@
 
             <div id="step1" class="step-container step-loading-view">
                 <div class="form-group">
-                    <i id="statusIcon" class="fa-solid fa-spinner status-icon-main"></i>
-                    <p id="statusMessage1" class="roboto status-msg-text">
+                    <i id="formAccessStatusIcon" class="fa-solid fa-spinner form-access-status-icon"></i>
+                    <p id="formAccessStatusText" class="roboto form-access-status-text">
                         Verifying secure link...
                     </p>
                 </div>
@@ -233,7 +233,7 @@
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
                     </button>
-                    <p id="statusMessage2" class="roboto form-status-message"></p>
+                    <p id="formSubmissionStatusText" class="roboto form-submission-status-message"></p>
                 </div>
             </div>
 
@@ -343,11 +343,11 @@
     const formWrapper = document.getElementById('form-wrapper');
     const formTitle = document.getElementById('formTitle');
     const step1 = document.getElementById('step1');
-    const statusIcon = document.getElementById('statusIcon');
+    const formAccessStatusIcon = document.getElementById('formAccessStatusIcon');
     const step2 = document.getElementById('step2');
     const step3 = document.getElementById('step3');
 
-    const statusMessage1 = document.getElementById('statusMessage1');
+    const formAccessStatusText = document.getElementById('formAccessStatusText');
     const resetFormBtn = document.getElementById('resetFormBtn');
 
     const durationTypeGroup = document.getElementById('durationTypeGroup');
@@ -373,7 +373,7 @@
     const durationGroup = document.getElementById('durationGroup');
     const durationLeadInText = document.getElementById('durationLeadInText');
     const submitButton = document.getElementById('submitButton');
-    const statusMessage2 = document.getElementById('statusMessage2');
+    const formSubmissionStatusText = document.getElementById('formSubmissionStatusText');
     const calculatedCostInput = document.getElementById('calculatedCost');
     const summaryDetailsWrapper = document.getElementById('summaryDetailsWrapper');
     const highDemandWarningBanner = document.getElementById('highDemandWarningBanner');
@@ -472,8 +472,8 @@
         }
 
         // 3. UI Cleanup when moving back to Step 2
-        if (step === 2 && statusMessage2) {
-            statusMessage2.textContent = '';
+        if (step === 2 && formSubmissionStatusText) {
+            formSubmissionStatusText.textContent = '';
         }
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -496,11 +496,11 @@
         const token = urlParams.get('token');
 
         if (!token) {
-            statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-            statusIcon.classList.add('fa-lock');
-            statusIcon.style.color = 'var(--error-red)';
-            statusMessage1.style.color = 'var(--error-red)';
-            statusMessage1.innerHTML = `
+            formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
+            formAccessStatusIcon.classList.add('fa-lock');
+            formAccessStatusIcon.style.color = 'var(--error-red)';
+            formAccessStatusText.style.color = 'var(--error-red)';
+            formAccessStatusText.innerHTML = `
                 ACCESS DENIED <br> This page must be accessed via a secure link generated from the chat. 
                 <br>Please use the command ** !challengesubmit ** in chat to get a valid link.
             `;
@@ -509,8 +509,8 @@
 
         submissionToken = token;
 
-        statusIcon.classList.add('fa-spinner', 'fa-spin');
-        statusIcon.classList.remove(
+        formAccessStatusIcon.classList.add('fa-spinner', 'fa-spin');
+        formAccessStatusIcon.classList.remove(
             'fa-lock',
             'fa-triangle-exclamation',
             'fa-hourglass-half',
@@ -519,11 +519,11 @@
             'error-red'
         );
 
-        statusIcon.style.color = 'var(--primary-neon)';
-        statusIcon.style.textShadow = 'var(--primary-neon)';
+        formAccessStatusIcon.style.color = 'var(--primary-neon)';
+        formAccessStatusIcon.style.textShadow = 'var(--primary-neon)';
 
-        statusMessage1.style.color = 'var(--text-color)';
-        statusMessage1.textContent = 'Verifying your Producer credentials via secure link...';
+        formAccessStatusText.style.color = 'var(--text-color)';
+        formAccessStatusText.textContent = 'Verifying your Producer credentials via secure link...';
 
         try {
             const MIN_VERIFY_DELAY_MS = 100;
@@ -569,16 +569,16 @@
                 }
 
                 // --- UI TRANSITION ---
-                statusIcon.classList.remove('fa-spinner', 'fa-spin');
-                statusIcon.classList.add('fa-circle-check');
-                statusIcon.style.color = 'var(--primary-neon)';
+                formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin');
+                formAccessStatusIcon.classList.add('fa-circle-check');
+                formAccessStatusIcon.style.color = 'var(--primary-neon)';
 
                 runTypewriter({
-                    container: statusMessage1,
+                    container: formAccessStatusText,
                     text: `> ACCESS GRANTED: ${selectedPlatformId} @ ${selectedPlatform}`,
                     onComplete: () => {
                         renderStep(2);
-                        statusMessage1.innerHTML = '';
+                        formAccessStatusText.innerHTML = '';
                         updateDynamicFields();
                     }
                 });
@@ -591,25 +591,25 @@
                         ? 'LINK INVALID/MALFORMED'
                         : 'AUTHENTICATION FAILED';
 
-                statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-                statusIcon.classList.add('fa-hourglass-half');
-                statusIcon.style.color = 'var(--primary-neon)';
-                statusMessage1.style.color = 'var(--primary-neon)';
+                formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
+                formAccessStatusIcon.classList.add('fa-hourglass-half');
+                formAccessStatusIcon.style.color = 'var(--primary-neon)';
+                formAccessStatusText.style.color = 'var(--primary-neon)';
 
                 // Inject the specific error message from the API response
-                statusMessage1.innerHTML = `
-                    <div class="status-alert">
-                        <span class="status-alert-title">${title}</span>
+                formAccessStatusText.innerHTML = `
+                    <div class="form-access-alert">
+                        <span class="form-access-alert-title">${title}</span>
                         <p class="roboto">${apiMessage}</p>
                     </div>
                 `; // 3. Fall back (Display static error)
             } else {
                 // Generic Verification Failure (e.g., 500 server error)
-                statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-                statusIcon.classList.add('fa-triangle-exclamation');
-                statusIcon.style.color = 'var(--error-red)';
-                statusMessage1.style.color = 'var(--error-red)';
-                statusMessage1.innerHTML = `
+                formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
+                formAccessStatusIcon.classList.add('fa-triangle-exclamation');
+                formAccessStatusIcon.style.color = 'var(--error-red)';
+                formAccessStatusText.style.color = 'var(--error-red)';
+                formAccessStatusText.innerHTML = `
                     <strong class="error-text">Verification Failed!</strong> An unknown server error occurred...
                     <br>Please try again or check the server status.
                 `;
@@ -617,11 +617,11 @@
 
         } catch (error) {
             // TRUE NETWORK ERROR (Client cannot physically reach the server)
-            statusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-            statusIcon.classList.add('fa-server');
-            statusIcon.style.color = 'var(--error-red)';
-            statusMessage1.style.color = 'var(--error-red)';
-            statusMessage1.textContent = `CRITICAL ERROR: Could not connect to the API server (${API_BASE_URL}). Check server status.`;
+            formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
+            formAccessStatusIcon.classList.add('fa-server');
+            formAccessStatusIcon.style.color = 'var(--error-red)';
+            formAccessStatusText.style.color = 'var(--error-red)';
+            formAccessStatusText.textContent = `CRITICAL ERROR: Could not connect to the API server (${API_BASE_URL}). Check server status.`;
             console.error('Verification Network Error:', error);
         }
     };
@@ -1295,8 +1295,8 @@
         e.preventDefault();
 
         if (!submissionToken) {
-            statusMessage2.style.color = 'var(--error-red)';
-            statusMessage2.textContent = 'Error: Session key expired or missing. Please refresh the page.';
+            formSubmissionStatusText.style.color = 'var(--error-red)';
+            formSubmissionStatusText.textContent = 'Error: Session key expired or missing. Please refresh the page.';
             return;
         }
 
@@ -1314,8 +1314,8 @@
                     warningText.classList.remove('u-hidden');
                 }
                 block.querySelector('.reference-title-input')?.focus();
-                statusMessage2.style.color = 'var(--error-red)';
-                statusMessage2.textContent = 'Submission blocked: complete all reference titles.';
+                formSubmissionStatusText.style.color = 'var(--error-red)';
+                formSubmissionStatusText.textContent = 'Submission blocked: complete all reference titles.';
                 return;
             }
         }
@@ -1330,7 +1330,7 @@
         // 2. HERO BUTTON STATUS
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> TRANSMITTING...';
-        statusMessage2.textContent = '';
+        formSubmissionStatusText.textContent = '';
 
         const submissionData = {
             token: submissionToken,
@@ -1414,16 +1414,16 @@
             } else {
                 // Server Error (e.g. 400 or 500)
                 formFields.forEach(field => field.classList.remove('form-content-fade'));
-                statusMessage2.style.color = 'var(--error-red)';
-                statusMessage2.textContent = `Error: ${data.message || 'Request Denied'}`;
+                formSubmissionStatusText.style.color = 'var(--error-red)';
+                formSubmissionStatusText.textContent = `Error: ${data.message || 'Request Denied'}`;
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalBtnText;
             }
         } catch (error) {
             formFields.forEach(field => field.classList.remove('form-content-fade'));
             console.error('Submission Network Error:', error);
-            statusMessage2.style.color = 'var(--error-red)';
-            statusMessage2.textContent = `COMMUNICATIONS FAILURE: Check your connection.`;
+            formSubmissionStatusText.style.color = 'var(--error-red)';
+            formSubmissionStatusText.textContent = `COMMUNICATIONS FAILURE: Check your connection.`;
             submitButton.disabled = false;
             submitButton.innerHTML = originalBtnText;
         }
@@ -1577,7 +1577,7 @@
     /// --- FORM RESET LOGIC (After submission or when going back to Step 1) ---
     const resetForm = () => {
         form.reset();
-        if (statusMessage2) { statusMessage2.textContent = ''; statusMessage2.className = 'roboto form-status-message'; }
+        if (formSubmissionStatusText) { formSubmissionStatusText.textContent = ''; formSubmissionStatusText.className = 'roboto form-submission-status-message'; }
         const constraintsList = document.getElementById('constraintsList');
         if (constraintsList) { constraintsList.innerHTML = '<input type="text" class="form-input constraint-item" placeholder="Add a constraint or rule...">'; }
         const referencesList = document.getElementById('referencesList');

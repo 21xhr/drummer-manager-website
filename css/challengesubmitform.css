@@ -96,19 +96,19 @@
     min-height: 200px;
 }
 
-.status-icon-main {
+.form-access-status-icon {
     font-size: 1.875rem;
     margin-bottom: 1rem;
     color: var(--primary-neon);
 }
 
-.status-msg-text {
+.form-access-status-text {
     font-size: 0.875rem;
     color: var(--subtext-color);
     text-align: center;
 }
 
-.status-alert-title {
+.form-access-alert-title {
     font-weight: bold;
     font-size: 1.1rem;
     display: block;
@@ -487,7 +487,7 @@ textarea.form-input {
     gap: 0;
 }
 
-.form-footer-actions:has(#statusMessage2:not(:empty)) {
+.form-footer-actions:has(#formSubmissionStatusText:not(:empty)) {
     grid-template-rows: auto 1fr;
     gap: 7px;
 }
@@ -631,7 +631,7 @@ textarea.form-input {
     transform: translateY(var(--travel-distance, -100px)) scale(1.1);
 }
 
-#statusMessage2 {
+#formSubmissionStatusText {
     overflow: hidden;
     margin: 0 !important;
     padding: 0 !important;
@@ -661,7 +661,7 @@ textarea.form-input {
 /* ==========================================================================
    FORM STATUS MESSAGES
    ========================================================================== */
-.form-status-message {
+.form-submission-status-message {
     font-family: 'Roboto', sans-serif;
     font-size: 0.875rem;
     text-align: center;
