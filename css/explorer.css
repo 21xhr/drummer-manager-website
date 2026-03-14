@@ -668,7 +668,7 @@ body {
    Explorer access gate, verification state, typewriter feedback
    ========================================================================== */
 
-.lock-overlay {
+.lock-screen-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -681,12 +681,12 @@ body {
     justify-content: center;
 }
 
-.status-icon-main {
+.lock-screen-status-icon {
     font-size: 2rem;
     margin-bottom: 1rem;
 }
 
-.status-msg-text {
+.lock-screen-status-text {
     font-size: 0.875rem;
     color: var(--subtext-color);
 }

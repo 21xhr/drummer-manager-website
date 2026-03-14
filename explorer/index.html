@@ -24,11 +24,11 @@
 </head>
 <body>
 
-    <div id="lockScreen" class="lock-overlay">
+    <div id="lockScreenOverlay" class="lock-screen-overlay">
         <div class="form-container terminal-card">
-            <i id="statusIcon" class="fa-solid fa-spinner fa-spin status-icon-main neon-text"></i>
+            <i id="lockScreenStatusIcon" class="fa-solid fa-spinner fa-spin lock-screen-status-icon neon-text"></i>
             <h2 class="neon-text">SYSTEM ENCRYPTED</h2>
-            <div id="statusMessage1" class="roboto status-msg-text">
+            <div id="lockScreenStatusText" class="roboto lock-screen-status-text">
                 Verifying secure link...
             </div>
         </div>
@@ -182,9 +182,9 @@
     const pushRangeHighlight = document.getElementById('pushRangeHighlight');
 
     const globalSearchInput = document.getElementById('globalSearch');
-    const lockScreen = document.getElementById('lockScreen');
-    const statusIcon = document.getElementById('statusIcon');
-    const statusMessage1 = document.getElementById('statusMessage1');
+    const lockScreenOverlay = document.getElementById('lockScreenOverlay');
+    const lockScreenStatusIcon = document.getElementById('lockScreenStatusIcon');
+    const lockScreenStatusText = document.getElementById('lockScreenStatusText');
     const listEntries = document.getElementById('listEntries');
     const detailPane = document.getElementById('detailPane');
     const detailContent = document.getElementById('detailContent');
@@ -312,9 +312,9 @@
        6. LOCK SCREEN
        ========================================================================== */
     function showLockScreen(message) {
-        lockScreen.classList.remove('u-hidden');
-        statusMessage1.innerHTML = message;
-        statusIcon.className = "fa-solid fa-lock status-icon-main neon-text";
+        lockScreenOverlay.classList.remove('u-hidden');
+        lockScreenStatusText.innerHTML = message;
+        lockScreenStatusIcon.className = "fa-solid fa-lock lock-screen-status-icon neon-text";
     }
 
     async function verifyExplorerAccess(token) {
@@ -328,9 +328,9 @@
             const data = await response.json();
 
             if (!response.ok) {
-                statusIcon.classList.remove('fa-spinner', 'fa-spin');
-                statusIcon.classList.add('fa-lock', 'text-red-500');
-                statusMessage1.innerHTML = `ACCESS DENIED<br><span style='font-size:11px'>${data.message || 'Invalid Token'}</span>`;
+                lockScreenStatusIcon.classList.remove('fa-spinner', 'fa-spin');
+                lockScreenStatusIcon.classList.add('fa-lock', 'text-red-500');
+                lockScreenStatusText.innerHTML = `ACCESS DENIED<br><span style='font-size:11px'>${data.message || 'Invalid Token'}</span>`;
                 return;
             }
 
@@ -347,16 +347,16 @@
                 platSpan.classList.add(platClass);
             }
 
-            statusIcon.classList.remove('fa-spinner', 'fa-spin');
-            statusIcon.classList.add('fa-circle-check', 'text-success-green');
+            lockScreenStatusIcon.classList.remove('fa-spinner', 'fa-spin');
+            lockScreenStatusIcon.classList.add('fa-circle-check', 'text-success-green');
 
-            statusMessage1.innerHTML = '';
+            lockScreenStatusText.innerHTML = '';
 
             runTypewriter({
-                container: statusMessage1,
+                container: lockScreenStatusText,
                 text: `> ACCESS GRANTED: ${data.username} @ ${data.platformName}`,
                 onComplete: () => {
-                    lockScreen.classList.add('u-hidden');
+                    lockScreenOverlay.classList.add('u-hidden');
 
                     if (identityReminder) {
                         identityReminder.classList.remove('u-hidden');
@@ -368,9 +368,9 @@
                 }
             });
         } catch (err) {
-            statusIcon.classList.remove('fa-spinner', 'fa-spin');
-            statusIcon.classList.add('fa-triangle-exclamation', 'text-red-500');
-            statusMessage1.innerHTML = "CONNECTION ERROR<br>System offline.";
+            lockScreenStatusIcon.classList.remove('fa-spinner', 'fa-spin');
+            lockScreenStatusIcon.classList.add('fa-triangle-exclamation', 'text-red-500');
+            lockScreenStatusText.innerHTML = "CONNECTION ERROR<br>System offline.";
         }
     }
 
