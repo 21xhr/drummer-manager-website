@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
+
+    <title>Challenge | Drummer Manager</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/challengepublic.css">
+
+    <script src="/js/app-config.js" defer></script>
+    <script src="/js/brand-logo.js" defer></script>
+    <script src="/js/identity-reminder.js" defer></script>
+    <script src="/js/site-header.js" defer></script>
+    <script src="/js/social-links.js" defer></script>
+</head>
+<body>
+    <div class="challenge-public-page">
+        <site-header></site-header>
+
+        <main class="challenge-public-main">
+            <div id="challengePublicCard" class="challenge-public-card">
+                <div id="challengePublicStatus" class="challenge-public-status roboto">Loading challenge...</div>
+                <div id="challengePublicContent" class="u-hidden"></div>
+            </div>
+        </main>
+    </div>
+
+    <social-links></social-links>
+
+    <script>
+        const getApiBaseUrl = () => {
+            const hostname = window.location.hostname;
+
+            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+                return 'http://127.0.0.1:3000/api/v1';
+            }
+
+            if (hostname.startsWith('192.168.')) {
+                return `http://${hostname}:3000/api/v1`;
+            }
+
+            return 'https://drummer-manager-api.vercel.app/api/v1';
+        };
+
+        const API_BASE_URL = getApiBaseUrl();
+
+        const challengePublicStatus = document.getElementById('challengePublicStatus');
+        const challengePublicContent = document.getElementById('challengePublicContent');
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatDate(value, fallback = 'Unknown') {
+            return value ? new Date(value).toLocaleString() : fallback;
+        }
+
+        function getStatusBadge(status) {
+            const safeStatus = String(status || 'UNKNOWN').toUpperCase();
+            const statusClass = `status-${safeStatus.toLowerCase()}`;
+            return `<span class="status-badge ${statusClass}">${safeStatus}</span>`;
+        }
+
+        function renderChallengePublicPage(c) {
+            const proposerName = c.proposerUsernameSnapshot || 'Unknown';
+            const proposerPlatform = c.proposerPlatformNameSnapshot || '';
+            const submittedAt = formatDate(c.timestampSubmitted);
+            const lastActivityAt = formatDate(c.timestampLastActivityAt);
+            const cadencePeriodStart = formatDate(c.cadencePeriodStart, 'Not started');
+
+            const challengeText = (c.challengeText && typeof c.challengeText === 'object') ? c.challengeText : {};
+            const constraints = Array.isArray(challengeText.constraints) ? challengeText.constraints : [];
+            const references = Array.isArray(challengeText.references) ? challengeText.references : [];
+
+            const recurringBlock = c.durationType === 'RECURRING' ? `
+                <div class="challenge-public-grid">
+                    <div class="detail-pane-field"><label>Cadence</label><span>${escapeHtml(c.sessionCadenceText || 'N/A')}</span></div>
+                    <div class="detail-pane-field"><label>Cadence Unit</label><span>${escapeHtml(c.cadenceUnit || 'N/A')}</span></div>
+                    <div class="detail-pane-field"><label>Cadence Progress</label><span>${c.cadenceProgressCounter ?? 0} / ${c.cadenceRequiredCount ?? 0}</span></div>
+                    <div class="detail-pane-field"><label>Cadence Period Start</label><span>${escapeHtml(cadencePeriodStart)}</span></div>
+                </div>
+            ` : '';
+
+            const lifecycleBlock = `
+                ${(c.isExecuting || c.status === 'FAILED') ? `
+                    <div class="challenge-public-grid">
+                        ${c.isExecuting ? `
+                            <div class="detail-pane-field">
+                                <label>Executing</label>
+                                <span>YES</span>
+                            </div>
+                        ` : ''}
+                        ${c.status === 'FAILED' ? `
+                            <div class="detail-pane-field">
+                                <label>Failure Reason</label>
+                                <span class="failure-reason-val">${escapeHtml(c.failureReason || 'NONE PROVIDED')}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                ` : ''}
+            `;
+
+            const historyBlock = `
+                ${(c.hasBeenAuctioned || c.numbersRaised || c.auctionCost || c.hasBeenDiggedOut) ? `
+                    <div class="challenge-public-grid">
+                        ${c.hasBeenAuctioned ? `<div class="detail-pane-field"><label>Has Been Auctioned</label><span>YES</span></div>` : ''}
+                        ${c.numbersRaised ? `<div class="detail-pane-field"><label>Numbers Raised</label><span>${c.numbersRaised}</span></div>` : ''}
+                        ${c.auctionCost ? `<div class="detail-pane-field"><label>Auction Cost</label><span>${c.auctionCost}</span></div>` : ''}
+                        ${c.hasBeenDiggedOut ? `<div class="detail-pane-field"><label>Has Been Dug Out</label><span>YES</span></div>` : ''}
+                    </div>
+                ` : ''}
+            `;
+
+            challengePublicContent.innerHTML = `
+                <div class="challenge-public-header">
+                    <h1 class="neon-text challenge-public-title">CHALLENGE #${c.challengeId}</h1>
+                    <div class="challenge-public-meta roboto">Submitted: ${escapeHtml(submittedAt)}</div>
+                </div>
+
+                <div class="challenge-public-grid">
+                    <div class="detail-pane-field"><label>Status</label><div class="detail-status-badge-wrap">${getStatusBadge(c.status)}</div></div>
+                    <div class="detail-pane-field"><label>Category</label><span>${escapeHtml(c.category || 'General')}</span></div>
+                    <div class="detail-pane-field"><label>Proposer</label><span>${escapeHtml(proposerName)}${proposerPlatform ? ` @ ${escapeHtml(proposerPlatform)}` : ''}</span></div>
+                    <div class="detail-pane-field"><label>Duration Type</label><span>${escapeHtml(c.durationType || 'N/A')}</span></div>
+                    <div class="detail-pane-field"><label>Progression</label><span>${c.currentSessionCount ?? 0} / ${c.totalSessions ?? 0}</span></div>
+                    <div class="detail-pane-field"><label>Pushes</label><span>${c.totalPush ?? 0}</span></div>
+                    <div class="detail-pane-field"><label>Unique Pushers</label><span>${c.uniquePusher ?? 0}</span></div>
+                    <div class="detail-pane-field"><label>Stream Days Active</label><span>${c.streamDaysSinceActivation ?? 0}</span></div>
+                    <div class="detail-pane-field"><label>Submission Cost</label><span>${c.submissionCost ?? 0}</span></div>
+                    <div class="detail-pane-field"><label>Last Activity</label><span>${escapeHtml(lastActivityAt)}</span></div>
+                </div>
+
+                ${recurringBlock}
+                ${lifecycleBlock}
+                ${historyBlock}
+
+                <div class="detail-challenge-text roboto">
+                    <strong>GOAL:</strong><br>
+                    ${escapeHtml(challengeText.goal || 'N/A')}
+                    <br><br>
+
+                    <strong>INSTRUCTIONS:</strong><br>
+                    ${escapeHtml(challengeText.instructions || 'N/A')}
+                    <br><br>
+
+                    ${constraints.length ? `
+                        <strong>CONSTRAINTS:</strong>
+                        <ul>
+                            ${constraints.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+                        </ul>
+                        <br>
+                    ` : ''}
+
+                    ${references.length ? `
+                        <strong>REFERENCES:</strong>
+                        <ul>
+                            ${references.map(ref => `
+                                <li>
+                                    [${escapeHtml(ref?.type || 'LINK')}] ${escapeHtml(ref?.title || 'Untitled')}
+                                    ${ref?.url ? `<br><small>${escapeHtml(ref.url)}</small>` : ''}
+                                    ${ref?.note ? `<br><small>${escapeHtml(ref.note)}</small>` : ''}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    ` : ''}
+                </div>
+
+                <div class="challenge-public-actions">
+                    <button type="button" class="primary-submit-btn" onclick="copyChallengeLink()">
+                        <i class="fa-solid fa-share-nodes"></i> SHARE
+                    </button>
+                    <a href="/explorer/index.html" class="primary-submit-btn challenge-public-secondary-btn">
+                        UNLOCK EXPLORER ACCESS
+                    </a>
+                </div>
+            `;
+
+            challengePublicStatus.classList.add('u-hidden');
+            challengePublicContent.classList.remove('u-hidden');
+        }
+
+        function copyChallengeLink() {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Challenge link copied');
+        }
+
+        async function loadChallengePage() {
+            const params = new URLSearchParams(window.location.search);
+            const challengeId = params.get('id');
+
+            if (!challengeId) {
+                challengePublicStatus.textContent = 'Missing challenge id.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/challenges/${challengeId}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    challengePublicStatus.textContent = data.message || 'Challenge not found.';
+                    return;
+                }
+
+                renderChallengePublicPage(data);
+            } catch (error) {
+                console.error(error);
+                challengePublicStatus.textContent = 'Failed to load challenge.';
+            }
+        }
+
+        window.addEventListener('load', loadChallengePage);
+    </script>
+</body>
+</html>
