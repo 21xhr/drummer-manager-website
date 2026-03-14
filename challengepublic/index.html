@@ -23,7 +23,7 @@
     <script src="/js/social-links.js" defer></script>
 </head>
 <body>
-    <div class="challenge-public-page">
+    <div class="challenge-public-app-container">
         <site-header></site-header>
 
         <main class="challenge-public-main">
@@ -75,6 +75,11 @@
             return `<span class="status-badge ${statusClass}">${safeStatus}</span>`;
         }
 
+        function copyChallengeLink() {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Challenge link copied');
+        }
+
         function renderChallengePublicPage(c) {
             const proposerName = c.proposerUsernameSnapshot || 'Unknown';
             const proposerPlatform = c.proposerPlatformNameSnapshot || '';
@@ -95,35 +100,31 @@
                 </div>
             ` : '';
 
-            const lifecycleBlock = `
-                ${(c.isExecuting || c.status === 'FAILED') ? `
-                    <div class="challenge-public-grid">
-                        ${c.isExecuting ? `
-                            <div class="detail-pane-field">
-                                <label>Executing</label>
-                                <span>YES</span>
-                            </div>
-                        ` : ''}
-                        ${c.status === 'FAILED' ? `
-                            <div class="detail-pane-field">
-                                <label>Failure Reason</label>
-                                <span class="failure-reason-val">${escapeHtml(c.failureReason || 'NONE PROVIDED')}</span>
-                            </div>
-                        ` : ''}
-                    </div>
-                ` : ''}
-            `;
+            const lifecycleBlock = (c.isExecuting || c.status === 'FAILED') ? `
+                <div class="challenge-public-grid">
+                    ${c.isExecuting ? `
+                        <div class="detail-pane-field">
+                            <label>Executing</label>
+                            <span>YES</span>
+                        </div>
+                    ` : ''}
+                    ${c.status === 'FAILED' ? `
+                        <div class="detail-pane-field">
+                            <label>Failure Reason</label>
+                            <span class="failure-reason-val">${escapeHtml(c.failureReason || 'NONE PROVIDED')}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            ` : '';
 
-            const historyBlock = `
-                ${(c.hasBeenAuctioned || c.numbersRaised || c.auctionCost || c.hasBeenDiggedOut) ? `
-                    <div class="challenge-public-grid">
-                        ${c.hasBeenAuctioned ? `<div class="detail-pane-field"><label>Has Been Auctioned</label><span>YES</span></div>` : ''}
-                        ${c.numbersRaised ? `<div class="detail-pane-field"><label>Numbers Raised</label><span>${c.numbersRaised}</span></div>` : ''}
-                        ${c.auctionCost ? `<div class="detail-pane-field"><label>Auction Cost</label><span>${c.auctionCost}</span></div>` : ''}
-                        ${c.hasBeenDiggedOut ? `<div class="detail-pane-field"><label>Has Been Dug Out</label><span>YES</span></div>` : ''}
-                    </div>
-                ` : ''}
-            `;
+            const historyBlock = (c.hasBeenAuctioned || c.numbersRaised || c.auctionCost || c.hasBeenDiggedOut) ? `
+                <div class="challenge-public-grid">
+                    ${c.hasBeenAuctioned ? `<div class="detail-pane-field"><label>Has Been Auctioned</label><span>YES</span></div>` : ''}
+                    ${c.numbersRaised ? `<div class="detail-pane-field"><label>Numbers Raised</label><span>${c.numbersRaised}</span></div>` : ''}
+                    ${c.auctionCost ? `<div class="detail-pane-field"><label>Auction Cost</label><span>${c.auctionCost}</span></div>` : ''}
+                    ${c.hasBeenDiggedOut ? `<div class="detail-pane-field"><label>Has Been Dug Out</label><span>YES</span></div>` : ''}
+                </div>
+            ` : '';
 
             challengePublicContent.innerHTML = `
                 <div class="challenge-public-header">
@@ -132,7 +133,10 @@
                 </div>
 
                 <div class="challenge-public-grid">
-                    <div class="detail-pane-field"><label>Status</label><div class="detail-status-badge-wrap">${getStatusBadge(c.status)}</div></div>
+                    <div class="detail-pane-field">
+                        <label>Status</label>
+                        <div class="detail-status-badge-wrap">${getStatusBadge(c.status)}</div>
+                    </div>
                     <div class="detail-pane-field"><label>Category</label><span>${escapeHtml(c.category || 'General')}</span></div>
                     <div class="detail-pane-field"><label>Proposer</label><span>${escapeHtml(proposerName)}${proposerPlatform ? ` @ ${escapeHtml(proposerPlatform)}` : ''}</span></div>
                     <div class="detail-pane-field"><label>Duration Type</label><span>${escapeHtml(c.durationType || 'N/A')}</span></div>
@@ -193,11 +197,6 @@
             challengePublicContent.classList.remove('u-hidden');
         }
 
-        function copyChallengeLink() {
-            navigator.clipboard.writeText(window.location.href);
-            alert('Challenge link copied');
-        }
-
         async function loadChallengePage() {
             const params = new URLSearchParams(window.location.search);
             const challengeId = params.get('id');
@@ -223,7 +222,34 @@
             }
         }
 
-        window.addEventListener('load', loadChallengePage);
+        function initializePublicHeader() {
+            const streamStatusText = document.getElementById('streamStatusText');
+            const streamStatusIndicator = document.getElementById('streamStatusIndicator');
+            const identityReminder = document.getElementById('identityReminder');
+            const reminderUsername = document.getElementById('reminderUsername');
+            const reminderPlatform = document.getElementById('reminderPlatform');
+
+            if (identityReminder) identityReminder.classList.remove('hidden', 'u-hidden');
+            if (reminderUsername) reminderUsername.textContent = 'VISITOR';
+            if (reminderPlatform) reminderPlatform.textContent = 'PUBLIC VIEW';
+
+            if (streamStatusText && streamStatusIndicator) {
+                fetch(`${API_BASE_URL}/stream/stats`)
+                    .then(r => r.json())
+                    .then(data => {
+                        streamStatusIndicator.className = `stream-status-indicator ${data.isStreamLive ? 'is-live' : 'is-offline'}`;
+                        streamStatusText.textContent = data.isStreamLive ? 'LIVE' : 'OFFLINE';
+                    })
+                    .catch(() => {
+                        streamStatusText.textContent = 'OFFLINE';
+                    });
+            }
+        }
+
+        document.addEventListener('header-ready', () => {
+            initializePublicHeader();
+            loadChallengePage();
+        });
     </script>
 </body>
 </html>

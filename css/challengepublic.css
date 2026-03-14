@@ -1,32 +1,86 @@
+/*
+------------------------------------------------------------------
+STYLES FOR CHALLENGE PUBLIC PAGE
+------------------------------------------------------------------
+*/
+/* ==========================================================================
+   1. PAGE FOUNDATION
+   Global box sizing, body, shared visibility helpers
+   ========================================================================== */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
     background-color: var(--background-color);
-    min-height: 100vh;
+    height: 100vh;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
     margin: 0;
 }
 
-.challenge-public-page {
+
+/* ==========================================================================
+   2. PUBLIC APP SHELL
+   Main app container and internal scroll layout
+   ========================================================================== */
+
+.challenge-public-app-container {
+    box-sizing: border-box !important;
     width: 100%;
-    min-height: 100vh;
+    max-width: 800px;
+    max-height: calc(100vh - (var(--page-padding) + var(--footer-height) + 20px)) !important;
+    flex: 1;
+    background-color: var(--secondary-bg);
+    border-radius: 21px;
     display: flex;
     flex-direction: column;
+    position: relative;
+    animation: neon-border-pulse 4s ease-in-out infinite alternate;
+    box-shadow: 0 0 20px rgba(242, 189, 21, 0.15);
+    z-index: 5;
+    margin: auto 0;
+    overflow: hidden;
 }
 
 .challenge-public-main {
-    width: 100%;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 21px;
     flex: 1;
-    display: flex;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    padding: 21px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-neon) transparent;
 }
+
+.challenge-public-main::-webkit-scrollbar {
+    width: 6px;
+}
+
+.challenge-public-main::-webkit-scrollbar-thumb {
+    background: var(--primary-neon);
+    border-radius: 10px;
+}
+
+
+/* ==========================================================================
+   3. PUBLIC CARD
+   Main challenge container and loading state
+   ========================================================================== */
 
 .challenge-public-card {
     width: 100%;
-    background: var(--secondary-bg);
+    max-width: 1000px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.18);
     border-radius: 21px;
-    box-shadow: 0 0 20px rgba(242, 189, 21, 0.15);
+    box-shadow: 0 0 20px rgba(242, 189, 21, 0.08);
     padding: 21px;
-    animation: neon-border-pulse 4s ease-in-out infinite alternate;
 }
 
 .challenge-public-status {
@@ -34,6 +88,12 @@ body {
     color: var(--subtext-color);
     padding: 42px 0;
 }
+
+
+/* ==========================================================================
+   4. HEADER BLOCK
+   Public page title and metadata
+   ========================================================================== */
 
 .challenge-public-header {
     margin-bottom: 21px;
@@ -50,8 +110,13 @@ body {
     color: var(--subtext-color);
 }
 
-.challenge-public-grid,
-.challenge-data-grid {
+
+/* ==========================================================================
+   5. INFO GRIDS
+   Shared data layout blocks
+   ========================================================================== */
+
+.challenge-public-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
@@ -65,10 +130,14 @@ body {
     text-transform: uppercase;
 }
 
-.detail-pane-field span {
+.detail-pane-field > span {
     font-size: 14px;
     color: var(--text-color);
     font-weight: bold;
+}
+
+.detail-pane-field .failure-reason-val {
+    color: var(--error-red) !important;
 }
 
 .detail-status-badge-wrap {
@@ -78,11 +147,17 @@ body {
 .detail-status-badge-wrap .status-badge {
     width: fit-content !important;
     min-width: 110px;
-    justify-items: center;
+    padding: 0 12px;
 }
 
+
+/* ==========================================================================
+   6. CHALLENGE CONTENT
+   Goal, instructions, constraints, references
+   ========================================================================== */
+
 .detail-challenge-text {
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     padding: 20px;
     border-radius: 8px;
     border-left: 3px solid var(--primary-neon);
@@ -94,12 +169,21 @@ body {
     overflow: auto;
 }
 
-.failure-reason-val {
-    color: var(--error-red) !important;
+.detail-challenge-text ul {
+    margin: 8px 0 0 18px;
+    padding: 0;
 }
+
+
+/* ==========================================================================
+   7. ACTIONS
+   Share and unlock explorer CTA row
+   ========================================================================== */
 
 .challenge-public-actions {
     display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
     gap: 12px;
     flex-wrap: wrap;
 }
@@ -108,17 +192,14 @@ body {
     text-decoration: none;
 }
 
-.status-badge-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 0 !important;
-}
+
+/* ==========================================================================
+   8. STATUS BADGES
+   Shared badge styles and per-status visual variants
+   ========================================================================== */
 
 .status-badge {
     height: 22px;
-    width: 100% !important;
     display: grid !important;
     place-items: center;
     border-radius: 4px;
@@ -129,7 +210,6 @@ body {
     background: rgba(255, 255, 255, 0.03);
     line-height: normal !important;
     margin: 0;
-    padding: 0 12px;
 }
 
 .status-active {
@@ -180,9 +260,26 @@ body {
     background: rgba(249, 115, 22, 0.1);
 }
 
+
+/* ==========================================================================
+   9. MOBILE ADJUSTMENTS
+   Responsive layout refinements for narrow screens
+   ========================================================================== */
+
 @media (max-width: 768px) {
-    .challenge-public-grid,
-    .challenge-data-grid {
+    .challenge-public-main {
+        padding: 12px;
+    }
+
+    .challenge-public-card {
+        padding: 16px;
+    }
+
+    .challenge-public-grid {
         grid-template-columns: 1fr;
+    }
+
+    .challenge-public-actions {
+        flex-direction: column;
     }
 }
