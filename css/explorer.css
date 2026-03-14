@@ -652,8 +652,8 @@ body {
     margin-bottom: 1rem;
 }
 
-.failure-reason-val {
-    color: var(--error-color);
+.detail-pane-field .failure-reason-val {
+    color: var(--error-red) !important;
     font-size: 0.75rem;
 }
 
