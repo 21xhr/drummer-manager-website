@@ -1,3 +1,8 @@
+/*
+------------------------------------------------------------------
+STYLES FOR EXPLORER APP
+------------------------------------------------------------------
+*/
 /* ==========================================================================
    1. PAGE FOUNDATION
    Global box sizing, body, shared visibility helpers
@@ -625,10 +630,17 @@ body {
     font-weight: bold;
 }
 
+.detail-pane-field .status-badge-wrapper {
+    justify-content: flex-start;
+}
+
 .detail-pane-field .status-badge {
     color: inherit !important;
     font-weight: 800;
+    width: fit-content !important;
+    padding: 0 12px;
 }
+
 
 /* ==========================================================================
    12. DETAIL CHALLENGE CONTENT

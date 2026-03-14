@@ -1,5 +1,8 @@
-/* index.css - Main Hub Specific Styles */
-
+/*
+------------------------------------------------------------------
+STYLES FOR MAIN HUB PAGE
+------------------------------------------------------------------
+*/
 *, *::before, *::after {
     box-sizing: border-box;
 }

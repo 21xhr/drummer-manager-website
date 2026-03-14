@@ -1,5 +1,8 @@
-/* faq.css */
-
+/*
+------------------------------------------------------------------
+STYLES FOR FAQ PAGE
+------------------------------------------------------------------
+*/
 /* Professional Best Practice: Apply border-box to everything */
 *, *::before, *::after {
     box-sizing: border-box;
