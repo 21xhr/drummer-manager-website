@@ -272,16 +272,19 @@
                                 <i class="fa-brands fa-discord"></i> Discord
                             </a>
 
-                            <div class="share-row">
-                                <a href="#" id="shareX" target="_blank" class="share-btn">
-                                    <i class="fa-brands fa-x-twitter"></i>
-                                </a>
-                                <a href="#" id="shareFB" class="share-btn">
-                                    <i class="fa-brands fa-facebook-f"></i>
-                                </a>
-                                <button type="button" id="copyLink" class="share-btn">
-                                    <i class="fa-solid fa-link"></i>
-                                </button>
+                            <div class="share-block">
+                                <label class="roboto share-label">SHARE THIS CHALLENGE</label>
+                                <div class="share-row">
+                                    <a href="#" id="shareChallengeXBtn" target="_blank" class="share-btn">
+                                        <i class="fa-brands fa-x-twitter"></i>
+                                    </a>
+                                    <a href="#" id="shareChallengeFacebookBtn" class="share-btn">
+                                        <i class="fa-brands fa-facebook-f"></i>
+                                    </a>
+                                    <button type="button" id="copyChallengeLinkBtn" class="share-btn">
+                                        <i class="fa-solid fa-link"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -1470,7 +1473,7 @@
         if (!challenge || !userStats) return `<p>Error</p>`;
         const challengeUrl = `https://drummer-manager-website.vercel.app/challenges/${challenge.challengeId}`;
         const shareText = encodeURIComponent(`🥁 DROPPED Challenge #${challenge.challengeId} to @21xhr!\n\nPowering this with ${cost.toLocaleString()} NUMBERS. ⚡\nProduce with me, enter the manager deck and take control:\n\n#DMG #TwentyOne`);
-        const xButton = document.getElementById('shareX');
+        const xButton = document.getElementById('shareChallengeXBtn');
         if (xButton) xButton.href = `https://x.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(challengeUrl)}`;
 
         const durationType = challenge?.durationType || 'ONE_OFF';
@@ -1629,7 +1632,7 @@
 
     // --- COPY LINK HANDLER WITH FULL FALLBACK ---
     function handleCopyLink() {
-        const copyBtn = document.getElementById('copyLink');
+        const copyBtn = document.getElementById('copyChallengeLinkBtn');
         if (!copyBtn || copyBtn.dataset.initialized === "true") return;
 
         copyBtn.addEventListener('click', function (e) {
@@ -1672,7 +1675,7 @@
 
     // --- SOCIAL FEEDBACK HANDLER (X & FB) WITH VISUAL FEEDBACK ---
     function handleSocialFeedback() {
-        ['shareX', 'shareFB'].forEach(id => {
+        ['shareChallengeXBtn', 'shareChallengeFacebookBtn'].forEach(id => {
             const btn = document.getElementById(id);
             if (!btn || btn.dataset.initialized === "true") return;
 

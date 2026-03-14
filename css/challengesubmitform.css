@@ -930,9 +930,30 @@ textarea.form-input {
 }
 
 /* Container for the share buttons */
+.share-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.42rem;
+    width: 100%;
+    margin-top: 0.25rem;
+}
+
+.share-label {
+    font-size: 0.65rem;
+    color: var(--subtext-color);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    text-align: left;
+    margin: 0;
+    opacity: 0.9;
+}
+
 .share-row {
     display: flex;
-    justify-content: center;
+    align-items: center;
+    justify-content: stretch;
     gap: 0.25rem;
     width: 100%;
 }
@@ -943,6 +964,7 @@ textarea.form-input {
     justify-content: center;
     flex: 1;
     height: 40px;
+    min-width: 0;
     position: relative;
     overflow: hidden !important;
     border: 1px solid var(--subtext-color);
@@ -957,7 +979,7 @@ textarea.form-input {
 }
 
 /* Base State for Social/Copy Buttons */
-#shareX, #shareFB, #copyLink {
+#shareChallengeXBtn, #shareChallengeFacebookBtn, #copyChallengeLinkBtn {
     position: relative;
     display: flex;
     align-items: center;
@@ -973,8 +995,8 @@ textarea.form-input {
 }
 
 /* Unified "Active" State (Hover OR Badge Visible) */
-#shareX:hover, #shareFB:hover, #copyLink:hover,
-#shareX:has(.copy-badge), #shareFB:has(.copy-badge), #copyLink:has(.copy-badge) {
+#shareChallengeXBtn:hover, #shareChallengeFacebookBtn:hover, #copyChallengeLinkBtn:hover,
+#shareChallengeXBtn:has(.copy-badge), #shareChallengeFacebookBtn:has(.copy-badge), #copyChallengeLinkBtn:has(.copy-badge) {
     border-radius: 21px !important;
     border-color: var(--primary-neon) !important;
     background-color: rgba(242, 189, 21, 0.05) !important;
@@ -982,8 +1004,8 @@ textarea.form-input {
 }
 
 /* Icon Color Change on Active */
-#shareX:hover i, #shareFB:hover i, #copyLink:hover i,
-#shareX:has(.copy-badge) i, #shareFB:has(.copy-badge) i, #copyLink:has(.copy-badge) i {
+#shareChallengeXBtn:hover i, #shareChallengeFacebookBtn:hover i, #copyChallengeLinkBtn:hover i,
+#shareChallengeXBtn:has(.copy-badge) i, #shareChallengeFacebookBtn:has(.copy-badge) i, #copyChallengeLinkBtn:has(.copy-badge) i {
     color: #fff !important;
 }
 
@@ -1008,7 +1030,7 @@ textarea.form-input {
     animation: badgeOverlay 2.1s ease-in-out forwards;
 }
 
-#copyLink.copied {
+#copyChallengeLinkBtn.copied {
     filter: grayscale(0.6);
     opacity: 0.7;
     pointer-events: none;
