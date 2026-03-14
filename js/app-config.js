@@ -5,5 +5,5 @@ window.APP_CONFIG = {
     IS_DEV: true,
     FAST_VERIFICATION: true,
     TYPEWRITER_DEBUG: true,
-    LIVE_MODE: false
+    EXPLORER_LIVE_MODE: true // control only two things: Explorer polling + Explorer reorder updates
 };

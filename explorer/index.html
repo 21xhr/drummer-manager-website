@@ -394,13 +394,17 @@
     }
 
     async function startPolling() {
+        const isLiveMode = window.APP_CONFIG?.EXPLORER_LIVE_MODE === true;
+        console.log(`Explorer Live Mode: ${isLiveMode ? 'ENABLED' : 'DISABLED'}`);
+        if (!isLiveMode) return;
+
         setInterval(async () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/challenges/delta?since=${lastSyncTimestamp}`);
                 if (!response.ok) return;
 
                 const updates = await response.json();
-                
+
                 if (updates.length > 0) {
                     console.log("Polling updates:", updates);
                     updates.forEach(updatedChallenge => {
