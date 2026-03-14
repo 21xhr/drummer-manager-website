@@ -18,10 +18,11 @@
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="../css/challengesubmitform.css">
 
-    <script src="/js/social-links.js" defer></script>
     <script src="/js/brand-logo.js" defer></script>
     <script src="/js/identity-reminder.js" defer></script>
+    <script src="/js/typewriter.js" defer></script>
     <script src="/js/site-header.js" defer></script>
+    <script src="/js/social-links.js" defer></script>
 
 </head>
 
@@ -572,18 +573,14 @@
                 statusIcon.classList.add('fa-circle-check');
                 statusIcon.style.color = 'var(--primary-neon)';
 
-                // Guard: Clear existing content before injecting the typewriter structure
-                statusMessage1.innerHTML = '';
-                statusMessage1.innerHTML = `<div class="typewriter-container status-typewriter"><div id="typewriter"></div></div>`;
-
-                const target = document.getElementById('typewriter');
-                const fullText = `> ACCESS GRANTED: ${selectedPlatformId} @ ${selectedPlatform}`;
-
-                // Execute typewriter then advance to the form
-                typeWriter(target, fullText, 0, () => {
-                    renderStep(2);
-                    statusMessage1.innerHTML = '';
-                    updateDynamicFields();
+                runTypewriter({
+                    container: statusMessage1,
+                    text: `> ACCESS GRANTED: ${selectedPlatformId} @ ${selectedPlatform}`,
+                    onComplete: () => {
+                        renderStep(2);
+                        statusMessage1.innerHTML = '';
+                        updateDynamicFields();
+                    }
                 });
             } else if (response.status === 401 || response.status === 400) {
                 const apiMessage = data.message || 'The secure link you used is no longer valid. Please get a new token.';
@@ -659,40 +656,7 @@
     };
 
 
-    // --- HUMANIZED TYPEWRITER LOGIC ---
-    const typeWriter = (element, text, n, callback) => {
-        if (n < text.length) {
-            // 1. Logic: Identify Typo Spot (around the '@' symbol)
-            const typoIndex = text.indexOf('@') - 1;
-            const hasTypoOccurred = element.getAttribute('data-typo') === 'true';
 
-            // 2. Human Timing: Base speed + random variance
-            let delay = Math.floor(Math.random() * 63) + 42;
-            if (text.charAt(n) === ' ' || text.charAt(n) === ':') delay += 120;
-
-            // 3. The "Human Error": Type a wrong character at the typoIndex
-            if (n === typoIndex && !hasTypoOccurred) {
-                element.innerHTML = text.substring(0, n) + "q"; // Common pinky-finger slip
-                element.setAttribute('data-typo', 'true');
-
-                setTimeout(() => {
-                    // Backspace the slip-up
-                    element.innerHTML = text.substring(0, n);
-                    // Pause for "frustration" then resume
-                    setTimeout(() => typeWriter(element, text, n, callback), 420);
-                }, 210);
-                return;
-            }
-
-            // 4. Progress
-            element.innerHTML = text.substring(0, n + 1);
-            n++;
-            setTimeout(() => typeWriter(element, text, n, callback), delay);
-        } else if (callback) {
-            // 5. Done: Slight delay before the callback to let the user read
-            setTimeout(callback, 420);
-        }
-    };
 
 
 
@@ -1503,7 +1467,7 @@
 
     const generateChallengeSummary = (challenge, cost, userStats) => {
         if (!challenge || !userStats) return `<p>Error</p>`;
-        const challengeUrl = `https://drummer-manager-website.vercel.app/challenge/${challenge.challengeId}`;
+        const challengeUrl = `https://drummer-manager-website.vercel.app/challenges/${challenge.challengeId}`;
         const shareText = encodeURIComponent(`🥁 DROPPED Challenge #${challenge.challengeId} to @21xhr!\n\nPowering this with ${cost.toLocaleString()} NUMBERS. ⚡\nProduce with me, enter the manager deck and take control:\n\n#DMG #TwentyOne`);
         const xButton = document.getElementById('shareX');
         if (xButton) xButton.href = `https://x.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(challengeUrl)}`;

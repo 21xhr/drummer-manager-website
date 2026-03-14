@@ -691,23 +691,6 @@ body {
     color: var(--subtext-color);
 }
 
-.typewriter-container {
-    display: flex;
-    justify-content: center;
-}
-
-.typewriter-cursor {
-    font-family: monospace;
-    color: var(--primary-neon);
-    border-right: 3px solid var(--primary-neon);
-    animation: blink-caret 0.5s step-end infinite;
-}
-
-@keyframes blink-caret {
-    from, to { border-color: transparent; }
-    50% { border-color: var(--primary-neon); }
-}
-
 
 /* ==========================================================================
    14. MOBILE ADJUSTMENTS

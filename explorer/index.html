@@ -18,6 +18,7 @@
 
     <script src="/js/brand-logo.js" defer></script>
     <script src="/js/identity-reminder.js" defer></script>
+    <script src="/js/typewriter.js" defer></script>
     <script src="/js/site-header.js" defer></script>
     <script src="/js/social-links.js" defer></script>
 </head>
@@ -145,9 +146,6 @@
         'REMOVED',
         'UNDER_REVIEW'
     ];
-
-    const IS_DEV = true;
-    const TYPE_PAUSE = IS_DEV ? 10 : 420;
 
     /* ==========================================================================
        2. CONFIG
@@ -311,38 +309,8 @@
     }
 
     /* ==========================================================================
-       6. TYPEWRITER / LOCK SCREEN
+       6. LOCK SCREEN
        ========================================================================== */
-    const typeWriter = (element, text, n, callback) => {
-        if (n < text.length) {
-            const typoIndex = text.indexOf('@') - 1;
-            const hasTypoOccurred = element.getAttribute('data-typo') === 'true';
-
-            let delay = IS_DEV ? 1 : (Math.floor(Math.random() * 63) + 42);
-            if (text.charAt(n) === ' ' || text.charAt(n) === ':') {
-                delay = IS_DEV ? 5 : 210;
-            }
-
-            if (n === typoIndex && !hasTypoOccurred) {
-                element.innerHTML = text.substring(0, n) + "q";
-                element.setAttribute('data-typo', 'true');
-
-                setTimeout(() => {
-                    element.innerHTML = text.substring(0, n);
-                    setTimeout(() => typeWriter(element, text, n, callback), TYPE_PAUSE);
-                }, IS_DEV ? 5 : 210);
-
-                return;
-            }
-
-            element.innerHTML = text.substring(0, n + 1);
-            n++;
-            setTimeout(() => typeWriter(element, text, n, callback), delay);
-        } else if (callback) {
-            setTimeout(callback, TYPE_PAUSE);
-        }
-    };
-
     function showLockScreen(message) {
         lockScreen.classList.remove('u-hidden');
         statusMessage1.innerHTML = message;
@@ -382,13 +350,12 @@
             statusIcon.classList.remove('fa-spinner', 'fa-spin');
             statusIcon.classList.add('fa-circle-check', 'text-success-green');
 
-            statusMessage1.innerHTML = `<div class="typewriter-container"><div id="typewriter" class="typewriter-cursor"></div></div>`;
+            statusMessage1.innerHTML = '';
 
-            typeWriter(
-                document.getElementById('typewriter'),
-                `> ACCESS GRANTED: ${data.username} @ ${data.platformName}`,
-                0,
-                () => {
+            runTypewriter({
+                container: statusMessage1,
+                text: `> ACCESS GRANTED: ${data.username} @ ${data.platformName}`,
+                onComplete: () => {
                     lockScreen.classList.add('u-hidden');
 
                     if (identityReminder) {
@@ -399,7 +366,7 @@
                     loadInitialData();
                     startPolling();
                 }
-            );
+            });
         } catch (err) {
             statusIcon.classList.remove('fa-spinner', 'fa-spin');
             statusIcon.classList.add('fa-triangle-exclamation', 'text-red-500');
@@ -412,7 +379,7 @@
        ========================================================================== */
     async function loadInitialData() {
         try {
-            const res = await fetch(`${API_BASE_URL}/challenge`);
+            const res = await fetch(`${API_BASE_URL}/challenges`);
             if (!res.ok) throw new Error("Database offline");
 
             const payload = await res.json();
@@ -428,7 +395,7 @@
     async function startPolling() {
         setInterval(async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/challenge/delta?since=${lastSyncTimestamp}`);
+                const response = await fetch(`${API_BASE_URL}/challenges/delta?since=${lastSyncTimestamp}`);
                 if (!response.ok) return;
 
                 const updates = await response.json();
@@ -558,7 +525,7 @@
                 </div>
             ` : ''}
             <button onclick="copyToClipboard('${shareLink}')" class="primary-submit-btn detail-share-btn">
-                <i class="fa-solid fa-share-nodes"></i> COPY DEEP LINK
+                <i class="fa-solid fa-share-nodes"></i> COPY CHALLENGE LINK
             </button>
         `;
 
@@ -668,7 +635,12 @@
         if (tokenToVerify) {
             verifyExplorerAccess(tokenToVerify);
         } else {
-            showLockScreen("ACCESS DENIED<br><span style='font-size:11px'>Use !challengeexplorer in chat.</span>");
+            showLockScreen(`
+                Private Feature<br>
+                The Explorer is a paid access tool for browsing the full challenge database.<br>
+                Get an access link through chat, or open a public challenge page instead.<br>
+                <span style="font-size:11px">Use !challengeexplorer in chat.</span>
+            `);
         }
     };
 
