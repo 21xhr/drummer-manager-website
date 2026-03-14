@@ -442,10 +442,9 @@
             row.className = 'challenge-list-row animate-fadeIn';
 
             const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
-            const textPreview =
-                c.challengeText?.goal ||
-                c.challengeText?.instructions ||
-                (typeof c.challengeText === 'string' ? c.challengeText : 'No Data');
+            
+            const challengeText = (c.challengeText && typeof c.challengeText === 'object') ? c.challengeText : {};
+            const textPreview = challengeText.goal || challengeText.instructions || 'No Data';
 
             const pushCount = c.totalPush !== undefined && c.totalPush !== null ? c.totalPush : 0;
 
@@ -478,57 +477,131 @@
         detailContent.classList.remove('u-hidden');
 
         const shareLink = `${window.location.origin}/explorer/index.html?id=${c.challengeId}`;
-        const proposerName = c.proposer?.accounts?.[0]?.username || c.proposer?.username || 'Unknown';
+        
+        const proposerName = c.proposerUsernameSnapshot || 'Unknown';
+        const proposerPlatform = c.proposerPlatformNameSnapshot || '';
+
         const submittedAt = c.timestampSubmitted
             ? new Date(c.timestampSubmitted).toLocaleString()
             : 'Unknown';
+        
+        const challengeText = (c.challengeText && typeof c.challengeText === 'object') ? c.challengeText : {};
+        const constraints = Array.isArray(challengeText.constraints) ? challengeText.constraints : [];
+        const references = Array.isArray(challengeText.references) ? challengeText.references : [];
 
-        detailContent.innerHTML = `
-            <div class="detail-pane-header">
-                <h3 class="neon-text detail-pane-title">CHALLENGE DETAILS</h3>
-                <div class="detail-pane-meta roboto">ID: ${c.challengeId} | Submitted: ${submittedAt}</div>
-            </div>
-            <div class="challenge-data-grid">
-                <div class="detail-pane-field"><label>Proposer</label><span>${proposerName}</span></div>
-                <div class="detail-pane-field"><label>Status</label><span>${c.status}</span></div>
-                <div class="detail-pane-field"><label>Cadence</label><span>${c.sessionCadenceText || 'ONE-OFF'}</span></div>
-                <div class="detail-pane-field"><label>Pushes</label><span>${c.totalPush}</span></div>
-            </div>
-            <div class="detail-challenge-text roboto">
-                <strong>GOAL:</strong><br>
-                ${c.challengeText?.goal || 'N/A'}
-                <br><br>
+        const lastActivityAt = c.timestampLastActivityAt
+            ? new Date(c.timestampLastActivityAt).toLocaleString()
+            : 'Unknown';
 
-                <strong>INSTRUCTIONS:</strong><br>
-                ${c.challengeText?.instructions || 'N/A'}
-                <br><br>
+        const cadencePeriodStart = c.cadencePeriodStart
+            ? new Date(c.cadencePeriodStart).toLocaleString()
+            : 'Not started';
 
-                ${c.challengeText?.constraints?.length ? `
-                    <strong>CONSTRAINTS:</strong>
-                    <ul>
-                        ${c.challengeText.constraints.map(item => `<li>${item}</li>`).join('')}
-                    </ul>
-                    <br>
-                ` : ''}
-
-                ${c.challengeText?.references?.length ? `
-                    <strong>REFERENCES:</strong>
-                    <ul>
-                        ${c.challengeText.references.map(ref => `
-                            <li>
-                                [${ref.type || 'LINK'}] ${ref.title || ref.label || 'Untitled'}
-                                ${ref.note ? `<br><small>${ref.note}</small>` : ''}
-                            </li>
-                        `).join('')}
-                    </ul>
-                ` : ''}
-            </div>
+        const lifecycleBlock = `
+            ${c.isExecuting ? `
+                <div class="detail-pane-field">
+                    <label>Executing</label>
+                    <span>YES</span>
+                </div>
+            ` : ''}
             ${c.status === 'FAILED' ? `
                 <div class="detail-pane-field challenge-failure-field">
                     <label>Failure Reason</label>
                     <span class="failure-reason-val">${c.failureReason || 'NONE PROVIDED'}</span>
                 </div>
             ` : ''}
+        `;
+
+        const recurringBlock = c.durationType === 'RECURRING' ? `
+            <div class="challenge-data-grid">
+                <div class="detail-pane-field"><label>Cadence</label><span>${c.sessionCadenceText || 'N/A'}</span></div>
+                <div class="detail-pane-field"><label>Cadence Unit</label><span>${c.cadenceUnit || 'N/A'}</span></div>
+                <div class="detail-pane-field"><label>Cadence Progress</label><span>${c.cadenceProgressCounter ?? 0} / ${c.cadenceRequiredCount ?? 0}</span></div>
+                <div class="detail-pane-field"><label>Cadence Period Start</label><span>${cadencePeriodStart}</span></div>
+            </div>
+        ` : '';
+
+        const historyBlock = `
+            ${(c.hasBeenAuctioned || c.numbersRaised || c.auctionCost) ? `
+                <div class="challenge-data-grid">
+                    <div class="detail-pane-field"><label>Has Been Auctioned</label><span>${c.hasBeenAuctioned ? 'YES' : 'NO'}</span></div>
+                    ${c.numbersRaised ? `<div class="detail-pane-field"><label>Numbers Raised</label><span>${c.numbersRaised}</span></div>` : ''}
+                    ${c.auctionCost ? `<div class="detail-pane-field"><label>Auction Cost</label><span>${c.auctionCost}</span></div>` : ''}
+                </div>
+            ` : ''}
+            ${c.hasBeenDiggedOut ? `
+                <div class="detail-pane-field">
+                    <label>Has Been Dug Out</label>
+                    <span>YES</span>
+                </div>
+            ` : ''}
+        `;
+
+        detailContent.innerHTML = `
+            <div class="detail-pane-header">
+                <h3 class="neon-text detail-pane-title">CHALLENGE DETAILS</h3>
+                <div class="detail-pane-meta roboto">ID: ${c.challengeId} | Submitted: ${submittedAt}</div>
+            </div>
+
+            <div class="challenge-data-grid">
+                <div class="detail-pane-field"><label>Challenge ID</label><span>${c.challengeId}</span></div>
+                <div class="detail-pane-field">
+                    <label>Status</label>
+                    <div class="status-badge-wrapper">
+                        <span class="status-badge status-${String(c.status || '').toLowerCase()}">${c.status || 'UNKNOWN'}</span>
+                    </div>
+                </div>
+                <div class="detail-pane-field"><label>Category</label><span>${c.category || 'General'}</span></div>
+                <div class="detail-pane-field"><label>Proposer</label><span>${proposerName}${proposerPlatform ? ` @ ${proposerPlatform}` : ''}</span></div>
+                <div class="detail-pane-field"><label>Submitted</label><span>${submittedAt}</span></div>
+                <div class="detail-pane-field"><label>Last Activity</label><span>${lastActivityAt}</span></div>
+                <div class="detail-pane-field"><label>Stream Days Active</label><span>${c.streamDaysSinceActivation ?? 0}</span></div>
+                <div class="detail-pane-field"><label>Duration Type</label><span>${c.durationType || 'N/A'}</span></div>
+            </div>
+
+            <div class="challenge-data-grid">
+                <div class="detail-pane-field"><label>Progression</label><span>${c.currentSessionCount ?? 0} / ${c.totalSessions ?? 0}</span></div>
+                <div class="detail-pane-field"><label>Pushes</label><span>${c.totalPush ?? 0}</span></div>
+                <div class="detail-pane-field"><label>Unique Pushers</label><span>${c.uniquePusher ?? 0}</span></div>
+                <div class="detail-pane-field"><label>Submission Cost</label><span>${c.submissionCost ?? 0}</span></div>
+            </div>
+
+            ${recurringBlock}
+            ${lifecycleBlock}
+            ${historyBlock}
+
+            <div class="detail-challenge-text roboto">
+                <strong>GOAL:</strong><br>
+                ${challengeText.goal || 'N/A'}
+                <br><br>
+
+                <strong>INSTRUCTIONS:</strong><br>
+                ${challengeText.instructions || 'N/A'}
+                <br><br>
+
+                ${constraints.length ? `
+                    <strong>CONSTRAINTS:</strong>
+                    <ul>
+                        ${constraints.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                    <br>
+                ` : ''}
+
+                ${references.length ? `
+                    <strong>REFERENCES:</strong>
+                    <ul>
+                        ${references.map(ref => `
+                            <li>
+                                [${ref?.type || 'LINK'}] ${ref?.title || 'Untitled'}
+                                ${ref?.url ? `<br><small>${ref.url}</small>` : ''}
+                                ${ref?.note ? `<br><small>${ref.note}</small>` : ''}
+                            </li>
+                        `).join('')}
+                    </ul>
+                    <br>
+                ` : ''}
+            </div>
+
             <button onclick="copyToClipboard('${shareLink}')" class="primary-submit-btn detail-share-btn">
                 <i class="fa-solid fa-share-nodes"></i> COPY CHALLENGE LINK
             </button>

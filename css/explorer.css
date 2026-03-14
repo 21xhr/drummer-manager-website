@@ -614,17 +614,21 @@ body {
 
 .detail-pane-field label {
     display: block;
-    font-size: 9px;
+    font-size: 12px;
     color: var(--subtext-color);
     text-transform: uppercase;
 }
 
-.detail-pane-field span {
-    font-size: 14px;
+.detail-pane-field > span {
+    font-size: 12px;
     color: var(--text-color);
     font-weight: bold;
 }
 
+.detail-pane-field .status-badge {
+    color: inherit !important;
+    font-weight: 800;
+}
 
 /* ==========================================================================
    12. DETAIL CHALLENGE CONTENT
@@ -639,7 +643,7 @@ body {
     margin-bottom: 1.5rem; 
     min-height: 120px; 
     line-height: 1.6; 
-    font-size: 14px; 
+    font-size: 12px; 
     color: var(--text-color); 
     overflow: auto;
 }
