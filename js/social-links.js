@@ -1,3 +1,5 @@
+// js/social-links.js
+
 class SocialLinks extends HTMLElement {
     connectedCallback() {
         this.render();

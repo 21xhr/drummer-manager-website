@@ -1,3 +1,5 @@
+// js/brand-logo.js
+
 class BrandLogo extends HTMLElement {
     constructor() {
         super();

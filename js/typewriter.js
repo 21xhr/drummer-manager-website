@@ -1,14 +1,16 @@
 // js/typewriter.js
 
+const FAST_MODE = window.APP_CONFIG?.FAST_VERIFICATION === true;
+
 window.runTypewriter = function ({
     container,
     text,
     onComplete,
     typo = true,
-    minDelay = 42,
-    maxDelay = 105,
-    pauseDelay = 120,
-    endPause = 420
+    minDelay = FAST_MODE ? 1 : 42,
+    maxDelay = FAST_MODE ? 6 : 105,
+    pauseDelay = FAST_MODE ? 5 : 120,
+    endPause = FAST_MODE ? 10 : 420
 }) {
     if (!container) return;
 
@@ -30,8 +32,8 @@ window.runTypewriter = function ({
 
                 setTimeout(() => {
                     target.innerHTML = text.substring(0, n);
-                    setTimeout(() => type(n), endPause);
-                }, 210);
+                    setTimeout(() => type(n), FAST_MODE ? 10 : endPause);
+                }, FAST_MODE ? 10 : 210);
                 return;
             }
 

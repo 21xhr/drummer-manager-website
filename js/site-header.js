@@ -1,3 +1,5 @@
+// js/site-header.js
+
 class SiteHeader extends HTMLElement {
     connectedCallback() {
         this.render();

@@ -1,3 +1,5 @@
+// js/identity-reminder.js
+
 class IdentityReminder extends HTMLElement {
     connectedCallback() {
         this.render();
