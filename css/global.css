@@ -439,7 +439,7 @@ body {
 }
 
 .typewriter-target {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Roboto', Arial, monospace;
     display: inline-block;
     color: var(--primary-neon);
     font-size: 0.9rem;

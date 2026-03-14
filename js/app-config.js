@@ -4,5 +4,6 @@
 window.APP_CONFIG = {
     IS_DEV: true,
     FAST_VERIFICATION: true,
+    TYPEWRITER_DEBUG: true,
     LIVE_MODE: false
 };
