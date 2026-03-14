@@ -6,7 +6,7 @@ class IdentityReminder extends HTMLElement {
     }
     render() {
         this.innerHTML = `
-            <div id="identityReminder" class="hidden">
+            <div id="identityReminder" class="u-hidden">
                 <div class="identity-flex">
                     <span id="reminderUsername" class="roboto reminder-username"></span>
                     <div id="platformContainer" class="roboto reminder-platform-label">
