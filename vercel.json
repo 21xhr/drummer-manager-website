@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/challenges/:id",
+      "destination": "/challengepublic/index.html?id=:id"
+    }
+  ]
+}
