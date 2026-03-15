@@ -167,6 +167,10 @@
 
     const API_BASE_URL = getApiBaseUrl();
 
+    function getPublicChallengeUrl(challengeId) {
+        return `${window.location.origin}/challenges/${challengeId}`;
+    }
+
     /* ==========================================================================
        3. DOM REFERENCES
        ========================================================================== */
@@ -476,7 +480,7 @@
         detailPane.classList.remove('collapsed');
         detailContent.classList.remove('u-hidden');
 
-        const shareLink = `${window.location.origin}/explorer/index.html?id=${c.challengeId}`;
+        const publicChallengeUrl = getPublicChallengeUrl(c.challengeId);
         
         const proposerName = c.proposerUsernameSnapshot || 'Unknown';
         const proposerPlatform = c.proposerPlatformNameSnapshot || '';
@@ -602,10 +606,93 @@
                 ` : ''}
             </div>
 
-            <button onclick="copyToClipboard('${shareLink}')" class="primary-submit-btn detail-share-btn">
-                <i class="fa-solid fa-share-nodes"></i> COPY CHALLENGE LINK
-            </button>
+            <div class="detail-share-section">
+
+                <button type="button" class="primary-submit-btn detail-share-btn">
+                    <i class="fa-solid fa-share-nodes"></i> SHARE
+                </button>
+
+                <div class="share-row">
+                    <label class="roboto share-label">SHARE IT</label>
+
+                    <a href="#" id="shareChallengeXBtn" target="_blank" class="share-btn">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+
+                    <a href="#" id="shareChallengeFacebookBtn" target="_blank" class="share-btn">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+
+                    <button type="button" id="copyChallengeLinkBtn" class="share-btn">
+                        <i class="fa-solid fa-link"></i>
+                    </button>
+                </div>
+
+            </div>
         `;
+
+        const shareChallengeXBtn = document.getElementById('shareChallengeXBtn');
+        const shareChallengeFacebookBtn = document.getElementById('shareChallengeFacebookBtn');
+        const copyChallengeLinkBtn = document.getElementById('copyChallengeLinkBtn');
+
+        const shareText = encodeURIComponent(
+            `🥁 Check out Challenge #${c.challengeId} in Drummer Manager Game`
+        );
+
+        const encodedUrl = encodeURIComponent(publicChallengeUrl);
+
+        if (shareChallengeXBtn) {
+            shareChallengeXBtn.href =
+                `https://x.com/intent/tweet?text=${shareText}&url=${encodedUrl}`;
+        }
+
+        if (shareChallengeFacebookBtn) {
+            shareChallengeFacebookBtn.href =
+                `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+        }
+
+        if (copyChallengeLinkBtn) {
+
+            copyChallengeLinkBtn.addEventListener('click', async function () {
+
+                try {
+
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(publicChallengeUrl);
+                    } else {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = publicChallengeUrl;
+                        textarea.style.position = 'fixed';
+                        textarea.style.left = '-9999px';
+
+                        document.body.appendChild(textarea);
+
+                        textarea.select();
+                        document.execCommand('copy');
+
+                        document.body.removeChild(textarea);
+                    }
+
+                    this.classList.add('copied');
+
+                    const badge = document.createElement('div');
+                    badge.className = 'copy-badge roboto';
+                    badge.innerText = 'Copied!';
+
+                    this.appendChild(badge);
+
+                    setTimeout(() => {
+                        this.classList.remove('copied');
+                        badge.remove();
+                    }, 2100);
+
+                } catch (err) {
+                    console.error('Copy failed', err);
+                }
+
+            });
+
+        }
 
         setTimeout(() => {
             const grid = document.querySelector('.explorer-content-grid');

@@ -4,7 +4,7 @@ STYLES FOR EXPLORER APP
 ------------------------------------------------------------------
 */
 /* ==========================================================================
-   1. PAGE FOUNDATION
+   PAGE FOUNDATION
    Global box sizing, body, shared visibility helpers
    ========================================================================== */
 
@@ -26,7 +26,7 @@ body {
 
 
 /* ==========================================================================
-   2. EXPLORER APP SHELL
+   EXPLORER APP SHELL
    Main app container and horizontal layout wrapper
    ========================================================================== */
 
@@ -80,7 +80,7 @@ body {
 
 
 /* ==========================================================================
-   3. FILTER PANE
+   FILTER PANE
    Left sidebar structure, collapsed state, and pane content
    ========================================================================== */
 
@@ -156,7 +156,7 @@ body {
 
 
 /* ==========================================================================
-   4. FILTER CONTROLS
+   FILTER CONTROLS
    Days active range, status filters, push threshold inputs
    ========================================================================== */
 
@@ -288,7 +288,7 @@ body {
 
 
 /* ==========================================================================
-   5. PANE TOGGLE CONTROLS
+   PANE TOGGLE CONTROLS
    Shared pane toggle button logic and per-pane positioning
    ========================================================================== */
 
@@ -341,7 +341,7 @@ body {
 
 
 /* ==========================================================================
-   6. MAIN LIST AREA
+   MAIN LIST AREA
    Main explorer column, top controls, search bar, sync status
    ========================================================================== */
 
@@ -390,7 +390,7 @@ body {
 
 
 /* ==========================================================================
-   7. CHALLENGE LIST SHELL
+   CHALLENGE LIST SHELL
    Scroll container for the list and overall list structure
    ========================================================================== */
 
@@ -405,7 +405,7 @@ body {
 
 
 /* ==========================================================================
-   8. CHALLENGE LIST GRID
+   CHALLENGE LIST GRID
    Header row, entry rows, column layout, alignment
    ========================================================================== */
 
@@ -475,7 +475,7 @@ body {
 
 
 /* ==========================================================================
-   9. CHALLENGE LIST CONTENT
+   CHALLENGE LIST CONTENT
    Proposer, description, truncation and row text behavior
    ========================================================================== */
 
@@ -511,7 +511,7 @@ body {
 
 
 /* ==========================================================================
-   10. STATUS BADGES
+   STATUS BADGES
    Shared badge styles and per-status visual variants
    ========================================================================== */
 
@@ -589,7 +589,7 @@ body {
 
 
 /* ==========================================================================
-   11. DETAIL PANE
+   DETAIL PANE
    Right sidebar panel, detail header, metadata, field grid
    ========================================================================== */
 
@@ -643,7 +643,7 @@ body {
 
 
 /* ==========================================================================
-   12. DETAIL CHALLENGE CONTENT
+   DETAIL CHALLENGE CONTENT
    Full structured challenge text, failure reason, deep-link share button
    ========================================================================== */
 
@@ -680,7 +680,58 @@ body {
 
 
 /* ==========================================================================
-   13. LOCK SCREEN
+   DETAIL SHARE ROW
+   ========================================================================== */
+
+.detail-share-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.share-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.share-label {
+    font-size: 11px;
+    color: var(--subtext-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 6px;
+}
+
+.share-btn {
+    text-decoration: none;
+    color: var(--text-color);
+    flex: 1;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #222;
+    background: #111;
+
+    transition: all 0.4s ease;
+}
+
+.share-btn:hover {
+    border-color: var(--primary-neon);
+    box-shadow: 0 0 20px rgba(242,189,21,0.2);
+}
+
+#copyChallengeLinkBtn.copied {
+    filter: grayscale(0.6);
+    opacity: 0.7;
+}
+
+
+/* ==========================================================================
+   LOCK SCREEN
    Explorer access gate, verification state, typewriter feedback
    ========================================================================== */
 
@@ -709,7 +760,7 @@ body {
 
 
 /* ==========================================================================
-   14. MOBILE ADJUSTMENTS
+   MOBILE ADJUSTMENTS
    Responsive layout refinements for narrow screens
    ========================================================================== */
 
