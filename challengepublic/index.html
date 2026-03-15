@@ -103,8 +103,6 @@
        4. PAGE RENDERING
        ========================================================================== */
     function renderChallengePublicPage(c) {
-        const publicChallengeUrl = window.location.origin + window.location.pathname;
-
         const proposerName = c.proposerUsernameSnapshot || 'Unknown';
         const proposerPlatform = c.proposerPlatformNameSnapshot || '';
         const submittedAt = formatDate(c.timestampSubmitted);
@@ -234,11 +232,7 @@
             </div>
         `;
 
-        initializeChallengeShare({
-            url: publicChallengeUrl,
-            id: c.challengeId,
-            shareText: `🥁 Check out Challenge #${c.challengeId} in Drummer Manager Game`
-        });
+        initializeChallengeShare();
 
         challengePublicStatus.classList.add('u-hidden');
         challengePublicContent.classList.remove('u-hidden');

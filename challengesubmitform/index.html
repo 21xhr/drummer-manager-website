@@ -340,10 +340,6 @@
 
         const API_BASE_URL = getApiBaseUrl();
 
-        function getPublicChallengeUrl(challengeId) {
-            return `${window.location.origin}/challenges/${challengeId}`;
-        }
-
         // --- DOM REFERENCES ---
         // 1. Static elements (already in the HTML)
         const form = document.getElementById('challengeForm');
@@ -1405,7 +1401,6 @@
                             renderStep(3);
 
                             initializeChallengeShare({
-                                url: getPublicChallengeUrl(newChallenge.challengeId),
                                 id: newChallenge.challengeId,
                                 shareText: `🥁 DROPPED Challenge #${newChallenge.challengeId} to @21xhr!\n\nPowering this with ${cost.toLocaleString()} NUMBERS. ⚡\nProduce with me, enter the manager deck and take control:\n\n#DMG #TwentyOne`
                             });

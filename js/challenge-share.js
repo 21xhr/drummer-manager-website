@@ -1,12 +1,20 @@
 // js/challenge-share.js
 
+window.getChallengeIdFromCurrentUrl = function () {
+    const match = window.location.pathname.match(/\/challenges\/(\d+)/);
+    if (match) return match[1];
+
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id');
+};
+
 window.getPublicChallengeUrl = function (challengeId) {
     return `${window.location.origin}/challenges/${challengeId}`;
 };
 
 window.initializeChallengeShare = function ({
-    id,
-    url,
+    id = getChallengeIdFromCurrentUrl(),
+    url = id ? getPublicChallengeUrl(id) : window.location.href,
     shareText = `🥁 Check out Challenge #${id} in Drummer Manager`
 }) {
     const xBtn = document.getElementById('shareChallengeXBtn');
