@@ -896,7 +896,6 @@ textarea.form-input {
 /* ==========================================================================
    SHARE BUTTONS & COPY LINK
    ========================================================================== */
-/* Base style for the primary CTA buttons */
 .btn-action {
     display: flex;
     align-items: center;
@@ -918,7 +917,6 @@ textarea.form-input {
     font-size: 9px;
 }
 
-/* Specific colors */
 .btn-stream {
     background-color: var(--primary-neon);
     color: black;
@@ -929,119 +927,11 @@ textarea.form-input {
     color: var(--text-color);
 }
 
-/* Container for the share buttons */
-.share-block {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 0.42rem;
-    width: 100%;
-    margin-top: 0.25rem;
-}
-
-.share-label {
-    font-size: 0.65rem;
-    color: var(--subtext-color);
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    text-align: left;
-    margin: 0;
-    opacity: 0.9;
-}
-
-.share-row {
-    display: flex;
-    align-items: center;
-    justify-content: stretch;
-    gap: 0.25rem;
-    width: 100%;
-}
-
-.share-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    height: 40px;
-    min-width: 0;
-    position: relative;
-    overflow: hidden !important;
-    border: 1px solid var(--subtext-color);
-    background-color: var(--background-color);
-    color: var(--text-color);
-    text-decoration: none;
-    transition: all 0.89s ease;
-}
-
 #streamLink, #discordLink {
     border-radius: 21px !important;
 }
 
-/* Base State for Social/Copy Buttons */
-#shareChallengeXBtn, #shareChallengeFacebookBtn, #copyChallengeLinkBtn {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden !important;
-    border: 1px solid #222;
-    background-color: #111;
-    transition: border-radius 0.89s cubic-bezier(0.4, 0, 0.2, 1), 
-                border-color 0.89s ease,
-                background-color 0.89s ease,
-                box-shadow 0.89s ease;
-    box-sizing: border-box;
-}
 
-/* Unified "Active" State (Hover OR Badge Visible) */
-#shareChallengeXBtn:hover, #shareChallengeFacebookBtn:hover, #copyChallengeLinkBtn:hover,
-#shareChallengeXBtn:has(.copy-badge), #shareChallengeFacebookBtn:has(.copy-badge), #copyChallengeLinkBtn:has(.copy-badge) {
-    border-radius: 21px !important;
-    border-color: var(--primary-neon) !important;
-    background-color: rgba(242, 189, 21, 0.05) !important;
-    box-shadow: 0 0 100px rgba(242, 189, 21, 0.2);
-}
-
-/* Icon Color Change on Active */
-#shareChallengeXBtn:hover i, #shareChallengeFacebookBtn:hover i, #copyChallengeLinkBtn:hover i,
-#shareChallengeXBtn:has(.copy-badge) i, #shareChallengeFacebookBtn:has(.copy-badge) i, #copyChallengeLinkBtn:has(.copy-badge) i {
-    color: #fff !important;
-}
-
-/* The Feedback Badge Styling */
-.copy-badge {
-    position: absolute;
-    inset: -1px;
-    width: auto;
-    height: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--success-green);
-    color: black;
-    font-size: 10px;
-    font-weight: 900;
-    text-transform: uppercase;
-    white-space: nowrap;
-    z-index: 5;
-    pointer-events: none;
-    border-radius: 21px !important; 
-    animation: badgeOverlay 2.1s ease-in-out forwards;
-}
-
-#copyChallengeLinkBtn.copied {
-    filter: grayscale(0.6);
-    opacity: 0.7;
-    pointer-events: none;
-}
-
-@keyframes badgeOverlay {
-    0% { opacity: 0; }
-    15% { opacity: 1; }
-    85% { opacity: 1; }
-    100% { opacity: 0; }
-}
 /* ==========================================================================
     SUBMISSION DETAILS AREA
     ========================================================================== */

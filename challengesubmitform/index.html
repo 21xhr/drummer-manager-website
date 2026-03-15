@@ -20,6 +20,7 @@
 
     <script src="/js/app-config.js" defer></script>
     <script src="/js/brand-logo.js" defer></script>
+    <script src="/js/challenge-share.js" defer></script>
     <script src="/js/identity-reminder.js" defer></script>
     <script src="/js/typewriter.js" defer></script>
     <script src="/js/site-header.js" defer></script>
@@ -269,19 +270,19 @@
 
                             <a href="https://discord.gg/yourlink" target="_blank" id="discordLink"
                                 class="btn-action btn-discord">
-                                <i class="fa-brands fa-discord"></i> Discord
+                                <i class="fa-brands fa-discord"></i> Join Discord
                             </a>
 
                             <div class="share-block">
                                 <label class="roboto share-label">SHARE THIS CHALLENGE</label>
                                 <div class="share-row">
-                                    <a href="#" id="shareChallengeXBtn" target="_blank" class="share-btn">
+                                    <a href="#" id="shareChallengeXBtn" target="_blank" class="share-btn challenge-share-btn">
                                         <i class="fa-brands fa-x-twitter"></i>
                                     </a>
-                                    <a href="#" id="shareChallengeFacebookBtn" class="share-btn">
+                                    <a href="#" id="shareChallengeFacebookBtn" class="share-btn challenge-share-btn">
                                         <i class="fa-brands fa-facebook-f"></i>
                                     </a>
-                                    <button type="button" id="copyChallengeLinkBtn" class="share-btn">
+                                    <button type="button" id="copyChallengeLinkBtn" class="share-btn challenge-share-btn">
                                         <i class="fa-solid fa-link"></i>
                                     </button>
                                 </div>
@@ -447,8 +448,6 @@
         // Initial calls
         verifyTokenAndStartForm();
         fetchStreamStatus();
-        handleCopyLink();
-        handleSocialFeedback();
         initializeDefaultReferences();
     };
 
@@ -1412,8 +1411,6 @@
                         submitButton.style.backgroundColor = '';
                         submitButton.innerHTML = originalBtnText;
                         submitButton.disabled = false;
-                        handleSocialFeedback();
-                        handleCopyLink();
                     }, 21);
                 }, 2100);
             } else {
@@ -1472,17 +1469,15 @@
 
     const generateChallengeSummary = (challenge, cost, userStats) => {
         if (!challenge || !userStats) return `<p>Error</p>`;
+
         const challengeUrl = `https://drummer-manager-website.vercel.app/challenges/${challenge.challengeId}`;
         currentPublicChallengeUrl = challengeUrl;
-        
-        const shareText = encodeURIComponent(`🥁 DROPPED Challenge #${challenge.challengeId} to @21xhr!\n\nPowering this with ${cost.toLocaleString()} NUMBERS. ⚡\nProduce with me, enter the manager deck and take control:\n\n#DMG #TwentyOne`);
-        const xButton = document.getElementById('shareChallengeXBtn');
-        const fbButton = document.getElementById('shareChallengeFacebookBtn');
-        if (xButton) xButton.href = `https://x.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(challengeUrl)}`;
-        if (fbButton) {
-            fbButton.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(challengeUrl)}`;
-            fbButton.target = '_blank';
-}
+
+        initializeChallengeShare({
+            url: challengeUrl,
+            id: challenge.challengeId,
+            shareText: `🥁 DROPPED Challenge #${challenge.challengeId} to @21xhr!\n\nPowering this with ${cost.toLocaleString()} NUMBERS. ⚡\nProduce with me, enter the manager deck and take control:\n\n#DMG #TwentyOne`
+        });
 
         const durationType = challenge?.durationType || 'ONE_OFF';
         const cadenceDetail = durationType === 'RECURRING' ? (challenge.sessionCadenceText || "Recurring mission") : "Single session mission";
@@ -1555,12 +1550,6 @@
     // STEP 3: INTERACTIVE HANDLERS
     /// - Copy Link, Social Feedback, Reset Button Lock
     ///////////////////////////////////////////////////////////////////////////
-    
-    /// --- INITIALIZE STEP 3 HANDLERS ---
-    function initializeStep3Handlers() {
-        handleCopyLink();
-        handleSocialFeedback();
-    }
 
     /// --- RESET BUTTON LOCK ---
     function lockResetButton() {
@@ -1637,73 +1626,6 @@
         if (container) container.classList.remove('boosted-neon-border-pulse');
         if (typeof renderStep === 'function') { renderStep(1); verifyTokenAndStartForm(); } else { window.location.reload(); }
     };
-
-    // --- COPY LINK HANDLER WITH FULL FALLBACK ---
-    function handleCopyLink() {
-        const copyBtn = document.getElementById('copyChallengeLinkBtn');
-        if (!copyBtn || copyBtn.dataset.initialized === "true") return;
-
-        copyBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const textToCopy = currentPublicChallengeUrl || window.location.href;
-
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(textToCopy);
-            } else {
-                // FULL FALLBACK RESTORED
-                const textArea = document.createElement("textarea");
-                textArea.value = textToCopy;
-                textArea.style.position = "fixed";
-                textArea.style.left = "-9999px";
-                textArea.style.top = "0";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-            }
-
-            this.classList.add('copied');
-
-            const badge = document.createElement('div');
-            badge.className = 'copy-badge roboto';
-            badge.innerText = 'Copied!';
-            this.appendChild(badge);
-
-            setTimeout(() => {
-                this.classList.remove('copied');
-                if (badge.parentNode) badge.remove();
-            }, 2100);
-        });
-
-        copyBtn.dataset.initialized = "true";
-    }
-
-    // --- SOCIAL FEEDBACK HANDLER (X & FB) WITH VISUAL FEEDBACK ---
-    function handleSocialFeedback() {
-        ['shareChallengeXBtn', 'shareChallengeFacebookBtn'].forEach(id => {
-            const btn = document.getElementById(id);
-            if (!btn || btn.dataset.initialized === "true") return;
-
-            btn.onclick = function (e) {
-                // Create badge
-                const badge = document.createElement('div');
-                badge.className = 'copy-badge roboto';
-                badge.innerText = 'LFG...';
-                badge.style.background = 'var(--primary-neon)';
-                this.appendChild(badge);
-
-                // Cleanup
-                setTimeout(() => {
-                    if (badge.parentNode) badge.remove();
-                }, 2100);
-            };
-
-            btn.dataset.initialized = "true";
-        });
-    }
 
 
     /// --- RESET BUTTON INTERACTION ---

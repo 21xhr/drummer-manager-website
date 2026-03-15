@@ -18,6 +18,7 @@
 
     <script src="/js/app-config.js" defer></script>
     <script src="/js/brand-logo.js" defer></script>
+    <script src="/js/challenge-share.js" defer></script>
     <script src="/js/identity-reminder.js" defer></script>
     <script src="/js/typewriter.js" defer></script>
     <script src="/js/site-header.js" defer></script>
@@ -607,92 +608,30 @@
             </div>
 
             <div class="detail-share-section">
-
                 <button type="button" class="primary-submit-btn detail-share-btn">
                     <i class="fa-solid fa-share-nodes"></i> SHARE
                 </button>
 
                 <div class="share-row">
                     <label class="roboto share-label">SHARE IT</label>
-
-                    <a href="#" id="shareChallengeXBtn" target="_blank" class="share-btn">
+                    <a href="#" id="shareChallengeXBtn" target="_blank" class="share-btn challenge-share-btn">
                         <i class="fa-brands fa-x-twitter"></i>
                     </a>
-
-                    <a href="#" id="shareChallengeFacebookBtn" target="_blank" class="share-btn">
+                    <a href="#" id="shareChallengeFacebookBtn" target="_blank" class="share-btn challenge-share-btn">
                         <i class="fa-brands fa-facebook-f"></i>
                     </a>
-
-                    <button type="button" id="copyChallengeLinkBtn" class="share-btn">
+                    <button type="button" id="copyChallengeLinkBtn" class="share-btn challenge-share-btn">
                         <i class="fa-solid fa-link"></i>
                     </button>
                 </div>
-
             </div>
         `;
 
-        const shareChallengeXBtn = document.getElementById('shareChallengeXBtn');
-        const shareChallengeFacebookBtn = document.getElementById('shareChallengeFacebookBtn');
-        const copyChallengeLinkBtn = document.getElementById('copyChallengeLinkBtn');
-
-        const shareText = encodeURIComponent(
-            `🥁 Check out Challenge #${c.challengeId} in Drummer Manager Game`
-        );
-
-        const encodedUrl = encodeURIComponent(publicChallengeUrl);
-
-        if (shareChallengeXBtn) {
-            shareChallengeXBtn.href =
-                `https://x.com/intent/tweet?text=${shareText}&url=${encodedUrl}`;
-        }
-
-        if (shareChallengeFacebookBtn) {
-            shareChallengeFacebookBtn.href =
-                `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
-        }
-
-        if (copyChallengeLinkBtn) {
-
-            copyChallengeLinkBtn.addEventListener('click', async function () {
-
-                try {
-
-                    if (navigator.clipboard && window.isSecureContext) {
-                        await navigator.clipboard.writeText(publicChallengeUrl);
-                    } else {
-                        const textarea = document.createElement('textarea');
-                        textarea.value = publicChallengeUrl;
-                        textarea.style.position = 'fixed';
-                        textarea.style.left = '-9999px';
-
-                        document.body.appendChild(textarea);
-
-                        textarea.select();
-                        document.execCommand('copy');
-
-                        document.body.removeChild(textarea);
-                    }
-
-                    this.classList.add('copied');
-
-                    const badge = document.createElement('div');
-                    badge.className = 'copy-badge roboto';
-                    badge.innerText = 'Copied!';
-
-                    this.appendChild(badge);
-
-                    setTimeout(() => {
-                        this.classList.remove('copied');
-                        badge.remove();
-                    }, 2100);
-
-                } catch (err) {
-                    console.error('Copy failed', err);
-                }
-
-            });
-
-        }
+        initializeChallengeShare({
+            url: publicChallengeUrl,
+            id: c.challengeId,
+            shareText: `🥁 Check out Challenge #${c.challengeId} in Drummer Manager Game`
+        });
 
         setTimeout(() => {
             const grid = document.querySelector('.explorer-content-grid');
@@ -712,11 +651,6 @@
     /* ==========================================================================
        10. SHARED UI INTERACTIONS
        ========================================================================== */
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text);
-        alert("Challenge Link Copied to Clipboard");
-    }
-
     async function fetchStreamStatus() {
         const indicator = document.getElementById('streamStatusIndicator');
         const text = document.getElementById('streamStatusText');

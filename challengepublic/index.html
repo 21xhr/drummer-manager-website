@@ -18,6 +18,7 @@
 
     <script src="/js/app-config.js" defer></script>
     <script src="/js/brand-logo.js" defer></script>
+    <script src="/js/challenge-share.js" defer></script>
     <script src="/js/identity-reminder.js" defer></script>
     <script src="/js/site-header.js" defer></script>
     <script src="/js/social-links.js" defer></script>
@@ -36,220 +37,271 @@
 
     <social-links></social-links>
 
-    <script>
-        const getApiBaseUrl = () => {
-            const hostname = window.location.hostname;
+<script>
+    /* ==========================================================================
+       1. CONFIG
+       ========================================================================== */
+    const getApiBaseUrl = () => {
+        const hostname = window.location.hostname;
 
-            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
-                return 'http://127.0.0.1:3000/api/v1';
-            }
-
-            if (hostname.startsWith('192.168.')) {
-                return `http://${hostname}:3000/api/v1`;
-            }
-
-            return 'https://drummer-manager-api.vercel.app/api/v1';
-        };
-
-        const API_BASE_URL = getApiBaseUrl();
-
-        const challengePublicStatus = document.getElementById('challengePublicStatus');
-        const challengePublicContent = document.getElementById('challengePublicContent');
-
-        function escapeHtml(value) {
-            return String(value ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+            return 'http://127.0.0.1:3000/api/v1';
         }
 
-        function formatDate(value, fallback = 'Unknown') {
-            return value ? new Date(value).toLocaleString() : fallback;
+        if (hostname.startsWith('192.168.')) {
+            return `http://${hostname}:3000/api/v1`;
         }
 
-        function getStatusBadge(status) {
-            const safeStatus = String(status || 'UNKNOWN').toUpperCase();
-            const statusClass = `status-${safeStatus.toLowerCase()}`;
-            return `<span class="status-badge ${statusClass}">${safeStatus}</span>`;
+        return 'https://drummer-manager-api.vercel.app/api/v1';
+    };
+
+    const API_BASE_URL = getApiBaseUrl();
+
+    function getPublicChallengeUrl(challengeId) {
+        return `${window.location.origin}/challenges/${challengeId}`;
+    }
+
+    function getChallengeIdFromUrl() {
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        const lastPathPart = pathParts[pathParts.length - 1];
+
+        if (lastPathPart && /^\d+$/.test(lastPathPart)) {
+            return lastPathPart;
         }
 
-        function copyChallengeLink() {
-            navigator.clipboard.writeText(window.location.href);
-            alert('Challenge link copied');
-        }
+        const params = new URLSearchParams(window.location.search);
+        return params.get('id');
+    }
 
-        function renderChallengePublicPage(c) {
-            const proposerName = c.proposerUsernameSnapshot || 'Unknown';
-            const proposerPlatform = c.proposerPlatformNameSnapshot || '';
-            const submittedAt = formatDate(c.timestampSubmitted);
-            const lastActivityAt = formatDate(c.timestampLastActivityAt);
-            const cadencePeriodStart = formatDate(c.cadencePeriodStart, 'Not started');
+    /* ==========================================================================
+       2. DOM REFERENCES
+       ========================================================================== */
+    const challengePublicStatus = document.getElementById('challengePublicStatus');
+    const challengePublicContent = document.getElementById('challengePublicContent');
 
-            const challengeText = (c.challengeText && typeof c.challengeText === 'object') ? c.challengeText : {};
-            const constraints = Array.isArray(challengeText.constraints) ? challengeText.constraints : [];
-            const references = Array.isArray(challengeText.references) ? challengeText.references : [];
+    /* ==========================================================================
+       3. FORMATTERS / HELPERS
+       ========================================================================== */
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
-            const recurringBlock = c.durationType === 'RECURRING' ? `
-                <div class="challenge-public-grid">
-                    <div class="detail-pane-field"><label>Cadence</label><span>${escapeHtml(c.sessionCadenceText || 'N/A')}</span></div>
-                    <div class="detail-pane-field"><label>Cadence Unit</label><span>${escapeHtml(c.cadenceUnit || 'N/A')}</span></div>
-                    <div class="detail-pane-field"><label>Cadence Progress</label><span>${c.cadenceProgressCounter ?? 0} / ${c.cadenceRequiredCount ?? 0}</span></div>
-                    <div class="detail-pane-field"><label>Cadence Period Start</label><span>${escapeHtml(cadencePeriodStart)}</span></div>
-                </div>
-            ` : '';
+    function formatDate(value, fallback = 'Unknown') {
+        return value ? new Date(value).toLocaleString() : fallback;
+    }
 
-            const lifecycleBlock = (c.isExecuting || c.status === 'FAILED') ? `
-                <div class="challenge-public-grid">
-                    ${c.isExecuting ? `
-                        <div class="detail-pane-field">
-                            <label>Executing</label>
-                            <span>YES</span>
-                        </div>
-                    ` : ''}
-                    ${c.status === 'FAILED' ? `
-                        <div class="detail-pane-field">
-                            <label>Failure Reason</label>
-                            <span class="failure-reason-val">${escapeHtml(c.failureReason || 'NONE PROVIDED')}</span>
-                        </div>
-                    ` : ''}
-                </div>
-            ` : '';
+    function getStatusBadge(status) {
+        const safeStatus = String(status || 'UNKNOWN').toUpperCase();
+        const statusClass = `status-${safeStatus.toLowerCase()}`;
+        return `<span class="status-badge ${statusClass}">${safeStatus}</span>`;
+    }
 
-            const historyBlock = (c.hasBeenAuctioned || c.numbersRaised || c.auctionCost || c.hasBeenDiggedOut) ? `
-                <div class="challenge-public-grid">
-                    ${c.hasBeenAuctioned ? `<div class="detail-pane-field"><label>Has Been Auctioned</label><span>YES</span></div>` : ''}
-                    ${c.numbersRaised ? `<div class="detail-pane-field"><label>Numbers Raised</label><span>${c.numbersRaised}</span></div>` : ''}
-                    ${c.auctionCost ? `<div class="detail-pane-field"><label>Auction Cost</label><span>${c.auctionCost}</span></div>` : ''}
-                    ${c.hasBeenDiggedOut ? `<div class="detail-pane-field"><label>Has Been Dug Out</label><span>YES</span></div>` : ''}
-                </div>
-            ` : '';
+    /* ==========================================================================
+       4. PAGE RENDERING
+       ========================================================================== */
+    function renderChallengePublicPage(c) {
+        const publicChallengeUrl = getPublicChallengeUrl(c.challengeId);
 
-            challengePublicContent.innerHTML = `
-                <div class="challenge-public-header">
-                    <h1 class="neon-text challenge-public-title">CHALLENGE #${c.challengeId}</h1>
-                    <div class="challenge-public-meta roboto">Submitted: ${escapeHtml(submittedAt)}</div>
-                </div>
+        const proposerName = c.proposerUsernameSnapshot || 'Unknown';
+        const proposerPlatform = c.proposerPlatformNameSnapshot || '';
+        const submittedAt = formatDate(c.timestampSubmitted);
+        const lastActivityAt = formatDate(c.timestampLastActivityAt);
+        const cadencePeriodStart = formatDate(c.cadencePeriodStart, 'Not started');
 
-                <div class="challenge-public-grid">
+        const challengeText = (c.challengeText && typeof c.challengeText === 'object') ? c.challengeText : {};
+        const constraints = Array.isArray(challengeText.constraints) ? challengeText.constraints : [];
+        const references = Array.isArray(challengeText.references) ? challengeText.references : [];
+
+        const recurringBlock = c.durationType === 'RECURRING' ? `
+            <div class="challenge-public-grid">
+                <div class="detail-pane-field"><label>Cadence</label><span>${escapeHtml(c.sessionCadenceText || 'N/A')}</span></div>
+                <div class="detail-pane-field"><label>Cadence Unit</label><span>${escapeHtml(c.cadenceUnit || 'N/A')}</span></div>
+                <div class="detail-pane-field"><label>Cadence Progress</label><span>${c.cadenceProgressCounter ?? 0} / ${c.cadenceRequiredCount ?? 0}</span></div>
+                <div class="detail-pane-field"><label>Cadence Period Start</label><span>${escapeHtml(cadencePeriodStart)}</span></div>
+            </div>
+        ` : '';
+
+        const lifecycleBlock = (c.isExecuting || c.status === 'FAILED') ? `
+            <div class="challenge-public-grid">
+                ${c.isExecuting ? `
                     <div class="detail-pane-field">
-                        <label>Status</label>
-                        <div class="detail-status-badge-wrap">${getStatusBadge(c.status)}</div>
+                        <label>Executing</label>
+                        <span>YES</span>
                     </div>
-                    <div class="detail-pane-field"><label>Category</label><span>${escapeHtml(c.category || 'General')}</span></div>
-                    <div class="detail-pane-field"><label>Proposer</label><span>${escapeHtml(proposerName)}${proposerPlatform ? ` @ ${escapeHtml(proposerPlatform)}` : ''}</span></div>
-                    <div class="detail-pane-field"><label>Duration Type</label><span>${escapeHtml(c.durationType || 'N/A')}</span></div>
-                    <div class="detail-pane-field"><label>Progression</label><span>${c.currentSessionCount ?? 0} / ${c.totalSessions ?? 0}</span></div>
-                    <div class="detail-pane-field"><label>Pushes</label><span>${c.totalPush ?? 0}</span></div>
-                    <div class="detail-pane-field"><label>Unique Pushers</label><span>${c.uniquePusher ?? 0}</span></div>
-                    <div class="detail-pane-field"><label>Stream Days Active</label><span>${c.streamDaysSinceActivation ?? 0}</span></div>
-                    <div class="detail-pane-field"><label>Submission Cost</label><span>${c.submissionCost ?? 0}</span></div>
-                    <div class="detail-pane-field"><label>Last Activity</label><span>${escapeHtml(lastActivityAt)}</span></div>
+                ` : ''}
+                ${c.status === 'FAILED' ? `
+                    <div class="detail-pane-field">
+                        <label>Failure Reason</label>
+                        <span class="failure-reason-val">${escapeHtml(c.failureReason || 'NONE PROVIDED')}</span>
+                    </div>
+                ` : ''}
+            </div>
+        ` : '';
+
+        const historyBlock = (c.hasBeenAuctioned || c.numbersRaised || c.auctionCost || c.hasBeenDiggedOut) ? `
+            <div class="challenge-public-grid">
+                ${c.hasBeenAuctioned ? `<div class="detail-pane-field"><label>Has Been Auctioned</label><span>YES</span></div>` : ''}
+                ${c.numbersRaised ? `<div class="detail-pane-field"><label>Numbers Raised</label><span>${c.numbersRaised}</span></div>` : ''}
+                ${c.auctionCost ? `<div class="detail-pane-field"><label>Auction Cost</label><span>${c.auctionCost}</span></div>` : ''}
+                ${c.hasBeenDiggedOut ? `<div class="detail-pane-field"><label>Has Been Dug Out</label><span>YES</span></div>` : ''}
+            </div>
+        ` : '';
+
+        challengePublicContent.innerHTML = `
+            <div class="challenge-public-header">
+                <h1 class="neon-text challenge-public-title">CHALLENGE #${c.challengeId}</h1>
+                <div class="challenge-public-meta roboto">Submitted: ${escapeHtml(submittedAt)}</div>
+            </div>
+
+            <div class="challenge-public-grid">
+                <div class="detail-pane-field">
+                    <label>Status</label>
+                    <div class="detail-status-badge-wrap">${getStatusBadge(c.status)}</div>
+                </div>
+                <div class="detail-pane-field"><label>Category</label><span>${escapeHtml(c.category || 'General')}</span></div>
+                <div class="detail-pane-field"><label>Proposer</label><span>${escapeHtml(proposerName)}${proposerPlatform ? ` @ ${escapeHtml(proposerPlatform)}` : ''}</span></div>
+                <div class="detail-pane-field"><label>Duration Type</label><span>${escapeHtml(c.durationType || 'N/A')}</span></div>
+                <div class="detail-pane-field"><label>Progression</label><span>${c.currentSessionCount ?? 0} / ${c.totalSessions ?? 0}</span></div>
+                <div class="detail-pane-field"><label>Pushes</label><span>${c.totalPush ?? 0}</span></div>
+                <div class="detail-pane-field"><label>Unique Pushers</label><span>${c.uniquePusher ?? 0}</span></div>
+                <div class="detail-pane-field"><label>Stream Days Active</label><span>${c.streamDaysSinceActivation ?? 0}</span></div>
+                <div class="detail-pane-field"><label>Submission Cost</label><span>${c.submissionCost ?? 0}</span></div>
+                <div class="detail-pane-field"><label>Last Activity</label><span>${escapeHtml(lastActivityAt)}</span></div>
+            </div>
+
+            ${recurringBlock}
+            ${lifecycleBlock}
+            ${historyBlock}
+
+            <div class="detail-challenge-text roboto">
+                <strong>GOAL:</strong><br>
+                ${escapeHtml(challengeText.goal || 'N/A')}
+                <br><br>
+
+                <strong>INSTRUCTIONS:</strong><br>
+                ${escapeHtml(challengeText.instructions || 'N/A')}
+                <br><br>
+
+                ${constraints.length ? `
+                    <strong>CONSTRAINTS:</strong>
+                    <ul>
+                        ${constraints.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+                    </ul>
+                    <br>
+                ` : ''}
+
+                ${references.length ? `
+                    <strong>REFERENCES:</strong>
+                    <ul>
+                        ${references.map(ref => `
+                            <li>
+                                [${escapeHtml(ref?.type || 'LINK')}] ${escapeHtml(ref?.title || 'Untitled')}
+                                ${ref?.url ? `<br><small>${escapeHtml(ref.url)}</small>` : ''}
+                                ${ref?.note ? `<br><small>${escapeHtml(ref.note)}</small>` : ''}
+                            </li>
+                        `).join('')}
+                    </ul>
+                ` : ''}
+            </div>
+
+            <div class="challenge-public-actions">
+                <div class="share-block">
+                    <label class="roboto share-label">SHARE THIS CHALLENGE</label>
+                    <div class="share-row">
+                        <a href="#" id="shareChallengeXBtn" target="_blank" class="share-btn challenge-share-btn">
+                            <i class="fa-brands fa-x-twitter"></i>
+                        </a>
+                        <a href="#" id="shareChallengeFacebookBtn" target="_blank" class="share-btn challenge-share-btn">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </a>
+                        <button type="button" id="copyChallengeLinkBtn" class="share-btn challenge-share-btn">
+                            <i class="fa-solid fa-link"></i>
+                        </button>
+                    </div>
                 </div>
 
-                ${recurringBlock}
-                ${lifecycleBlock}
-                ${historyBlock}
+                <a href="/explorer/index.html" class="primary-submit-btn challenge-public-secondary-btn">
+                    UNLOCK EXPLORER ACCESS
+                </a>
+            </div>
+        `;
 
-                <div class="detail-challenge-text roboto">
-                    <strong>GOAL:</strong><br>
-                    ${escapeHtml(challengeText.goal || 'N/A')}
-                    <br><br>
+        initializeChallengeShare({
+            url: publicChallengeUrl,
+            id: c.challengeId,
+            shareText: `🥁 Check out Challenge #${c.challengeId} in Drummer Manager Game`
+        });
 
-                    <strong>INSTRUCTIONS:</strong><br>
-                    ${escapeHtml(challengeText.instructions || 'N/A')}
-                    <br><br>
+        challengePublicStatus.classList.add('u-hidden');
+        challengePublicContent.classList.remove('u-hidden');
+    }
 
-                    ${constraints.length ? `
-                        <strong>CONSTRAINTS:</strong>
-                        <ul>
-                            ${constraints.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
-                        </ul>
-                        <br>
-                    ` : ''}
+    /* ==========================================================================
+       5. DATA LOADING
+       ========================================================================== */
+    async function loadChallengePage() {
+        const challengeId = getChallengeIdFromUrl();
 
-                    ${references.length ? `
-                        <strong>REFERENCES:</strong>
-                        <ul>
-                            ${references.map(ref => `
-                                <li>
-                                    [${escapeHtml(ref?.type || 'LINK')}] ${escapeHtml(ref?.title || 'Untitled')}
-                                    ${ref?.url ? `<br><small>${escapeHtml(ref.url)}</small>` : ''}
-                                    ${ref?.note ? `<br><small>${escapeHtml(ref.note)}</small>` : ''}
-                                </li>
-                            `).join('')}
-                        </ul>
-                    ` : ''}
-                </div>
-
-                <div class="challenge-public-actions">
-                    <button type="button" class="primary-submit-btn" onclick="copyChallengeLink()">
-                        <i class="fa-solid fa-share-nodes"></i> SHARE
-                    </button>
-                    <a href="/explorer/index.html" class="primary-submit-btn challenge-public-secondary-btn">
-                        UNLOCK EXPLORER ACCESS
-                    </a>
-                </div>
-            `;
-
-            challengePublicStatus.classList.add('u-hidden');
-            challengePublicContent.classList.remove('u-hidden');
+        if (!challengeId) {
+            challengePublicStatus.textContent = 'Missing challenge id.';
+            return;
         }
 
-        async function loadChallengePage() {
-            const params = new URLSearchParams(window.location.search);
-            const challengeId = params.get('id');
+        try {
+            const response = await fetch(`${API_BASE_URL}/challenges/${challengeId}`);
+            const data = await response.json();
 
-            if (!challengeId) {
-                challengePublicStatus.textContent = 'Missing challenge id.';
+            if (!response.ok) {
+                challengePublicStatus.textContent = data.message || 'Challenge not found.';
                 return;
             }
 
-            try {
-                const response = await fetch(`${API_BASE_URL}/challenges/${challengeId}`);
-                const data = await response.json();
-
-                if (!response.ok) {
-                    challengePublicStatus.textContent = data.message || 'Challenge not found.';
-                    return;
-                }
-
-                renderChallengePublicPage(data);
-            } catch (error) {
-                console.error(error);
-                challengePublicStatus.textContent = 'Failed to load challenge.';
-            }
+            renderChallengePublicPage(data);
+        } catch (error) {
+            console.error(error);
+            challengePublicStatus.textContent = 'Failed to load challenge.';
         }
+    }
 
-        function initializePublicHeader() {
-            const streamStatusText = document.getElementById('streamStatusText');
-            const streamStatusIndicator = document.getElementById('streamStatusIndicator');
-            const identityReminder = document.getElementById('identityReminder');
-            const reminderUsername = document.getElementById('reminderUsername');
-            const reminderPlatform = document.getElementById('reminderPlatform');
+    /* ==========================================================================
+       6. HEADER INITIALIZATION
+       ========================================================================== */
+    function initializePublicHeader() {
+        const streamStatusText = document.getElementById('streamStatusText');
+        const streamStatusIndicator = document.getElementById('streamStatusIndicator');
+        const identityReminder = document.getElementById('identityReminder');
+        const reminderUsername = document.getElementById('reminderUsername');
+        const reminderPlatform = document.getElementById('reminderPlatform');
 
-            if (identityReminder) identityReminder.classList.remove('hidden', 'u-hidden');
-            if (reminderUsername) reminderUsername.textContent = 'VISITOR';
-            if (reminderPlatform) reminderPlatform.textContent = 'PUBLIC VIEW';
+        if (identityReminder) identityReminder.classList.remove('u-hidden');
+        if (reminderUsername) reminderUsername.textContent = 'VISITOR';
+        if (reminderPlatform) reminderPlatform.textContent = 'PUBLIC VIEW';
 
-            if (streamStatusText && streamStatusIndicator) {
-                fetch(`${API_BASE_URL}/stream/stats`)
-                    .then(r => r.json())
-                    .then(data => {
-                        streamStatusIndicator.className = `stream-status-indicator ${data.isStreamLive ? 'is-live' : 'is-offline'}`;
-                        streamStatusText.textContent = data.isStreamLive ? 'LIVE' : 'OFFLINE';
-                    })
-                    .catch(() => {
-                        streamStatusText.textContent = 'OFFLINE';
-                    });
-            }
+        if (streamStatusText && streamStatusIndicator) {
+            fetch(`${API_BASE_URL}/stream/stats`)
+                .then(r => r.json())
+                .then(data => {
+                    streamStatusIndicator.className = `stream-status-indicator ${data.isStreamLive ? 'is-live' : 'is-offline'}`;
+                    streamStatusText.textContent = data.isStreamLive ? 'LIVE' : 'OFFLINE';
+                })
+                .catch(() => {
+                    streamStatusText.textContent = 'OFFLINE';
+                });
         }
+    }
 
-        document.addEventListener('header-ready', () => {
-            initializePublicHeader();
-            loadChallengePage();
-        });
-    </script>
+    /* ==========================================================================
+       7. BOOTSTRAP
+       ========================================================================== */
+    document.addEventListener('header-ready', () => {
+        initializePublicHeader();
+        loadChallengePage();
+    });
+</script>
 </body>
 </html>

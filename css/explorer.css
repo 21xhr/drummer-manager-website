@@ -690,45 +690,6 @@ body {
     margin-bottom: 25px;
 }
 
-.share-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.share-label {
-    font-size: 11px;
-    color: var(--subtext-color);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-right: 6px;
-}
-
-.share-btn {
-    text-decoration: none;
-    color: var(--text-color);
-    flex: 1;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid #222;
-    background: #111;
-
-    transition: all 0.4s ease;
-}
-
-.share-btn:hover {
-    border-color: var(--primary-neon);
-    box-shadow: 0 0 20px rgba(242,189,21,0.2);
-}
-
-#copyChallengeLinkBtn.copied {
-    filter: grayscale(0.6);
-    opacity: 0.7;
-}
-
 
 /* ==========================================================================
    LOCK SCREEN

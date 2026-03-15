@@ -6,7 +6,7 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
 */
 
 /* ==========================================================================
-   1. DESIGN TOKENS
+   DESIGN TOKENS
    Colors, timings, spacing, radius
    ========================================================================== */
 :root {
@@ -35,7 +35,7 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
 }
 
 /* ==========================================================================
-   2. GLOBAL ANIMATIONS
+   GLOBAL ANIMATIONS
    Shared keyframes and animation helpers
    ========================================================================== */
 @keyframes fadeIn {
@@ -64,7 +64,7 @@ This file is linked to all HTML pages to ensure a unified and consistent design.
 }
 
 /* ==========================================================================
-   3. GLOBAL PRIMITIVES
+   GLOBAL PRIMITIVES
    Reset-like behavior, page foundation, typography
    ========================================================================== */
 *,
@@ -118,7 +118,7 @@ body {
 }
 
 /* ==========================================================================
-   4. REUSABLE UTILITIES
+   REUSABLE UTILITIES
    Small cross-page helpers, state classes, visual utilities
    ========================================================================== */
 .animate-fadeIn {
@@ -187,7 +187,7 @@ body {
 }
 
 /* ==========================================================================
-   5. SHARED INTERACTIVE ELEMENTS
+   SHARED INTERACTIVE ELEMENTS
    Buttons, links, tooltips
    ========================================================================== */
 .social-link {
@@ -293,7 +293,7 @@ body {
 }
 
 /* ==========================================================================
-   6. SHARED BRANDING
+   SHARED BRANDING
    Brand title/subtitle system
    ========================================================================== */
 .brand-group {
@@ -331,7 +331,7 @@ body {
 }
 
 /* ==========================================================================
-   7. SHARED HEADER SYSTEM
+   SHARED HEADER SYSTEM
    Site header, stream status, identity reminder
    ========================================================================== */
 .app-header-main {
@@ -427,7 +427,7 @@ body {
 }
 
 /* ==========================================================================
-   8. SHARED TYPEWRITER
+   SHARED TYPEWRITER
    Verification / terminal-style feedback
    ========================================================================== */
 .typewriter-container {
@@ -451,7 +451,7 @@ body {
 }
 
 /* ==========================================================================
-   9. FIXED SOCIAL LINKS COMPONENT
+   FIXED SOCIAL LINKS COMPONENT
    Footer-level persistent social navigation
    ========================================================================== */
 .fixed-social-links-container {
@@ -519,4 +519,114 @@ body {
     text-decoration: none !important;
     color: var(--primary-neon) !important;
     transform: scale(1.1) !important;
+}
+
+/* ==========================================================================
+   CHALLENGE SHARE SYSTEM
+   Shared across submit success, explorer, and public challenge page
+   ========================================================================== */
+.share-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.42rem;
+    width: 100%;
+    margin-top: 0.25rem;
+}
+
+.share-label {
+    font-size: 0.65rem;
+    color: var(--subtext-color);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    text-align: left;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.share-row {
+    display: flex;
+    align-items: center;
+    justify-content: stretch;
+    gap: 0.25rem;
+    width: 100%;
+}
+
+.share-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 40px;
+    min-width: 0;
+    position: relative;
+    overflow: hidden !important;
+    border: 1px solid var(--subtext-color);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.89s ease;
+}
+
+.challenge-share-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden !important;
+    border: 1px solid #222;
+    background-color: #111;
+    transition:
+        border-radius 0.89s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.89s ease,
+        background-color 0.89s ease,
+        box-shadow 0.89s ease;
+    box-sizing: border-box;
+}
+
+/* Hover / active animation */
+.challenge-share-btn:hover,
+.challenge-share-btn:has(.copy-badge) {
+    border-radius: 21px !important;
+    border-color: var(--primary-neon) !important;
+    background-color: rgba(242, 189, 21, 0.05) !important;
+    box-shadow: 0 0 100px rgba(242, 189, 21, 0.2);
+}
+
+.challenge-share-btn:hover i,
+.challenge-share-btn:has(.copy-badge) i {
+    color: #fff !important;
+}
+
+/* Feedback badge */
+.copy-badge {
+    position: absolute;
+    inset: -1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--success-green);
+    color: black;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    white-space: nowrap;
+    z-index: 5;
+    pointer-events: none;
+    border-radius: 21px !important;
+    animation: badgeOverlay 2.1s ease-in-out forwards;
+}
+
+.challenge-share-btn.copied {
+    filter: grayscale(0.6);
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+@keyframes badgeOverlay {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { opacity: 0; }
 }
