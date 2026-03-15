@@ -41,6 +41,8 @@
     /* ==========================================================================
        1. CONFIG
        ========================================================================== */
+    let isStreamLive = false;
+
     const getApiBaseUrl = () => {
         const hostname = window.location.hostname;
 
@@ -56,10 +58,6 @@
     };
 
     const API_BASE_URL = getApiBaseUrl();
-
-    function getPublicChallengeUrl(challengeId) {
-        return `${window.location.origin}/challenges/${challengeId}`;
-    }
 
     function getChallengeIdFromUrl() {
         const pathParts = window.location.pathname.split('/').filter(Boolean);
@@ -105,7 +103,7 @@
        4. PAGE RENDERING
        ========================================================================== */
     function renderChallengePublicPage(c) {
-        const publicChallengeUrl = getPublicChallengeUrl(c.challengeId);
+        const publicChallengeUrl = window.location.origin + window.location.pathname;
 
         const proposerName = c.proposerUsernameSnapshot || 'Unknown';
         const proposerPlatform = c.proposerPlatformNameSnapshot || '';
@@ -224,9 +222,14 @@
                         </button>
                     </div>
                 </div>
-
-                <a href="/explorer/index.html" class="primary-submit-btn challenge-public-secondary-btn">
-                    UNLOCK EXPLORER ACCESS
+                <a
+                    href="${isStreamLive ? 'https://youtube.com/@21xhr/live' : 'https://discord.gg/yourlink'}"
+                    target="_blank"
+                    class="primary-submit-btn challenge-public-secondary-btn ${isStreamLive ? 'btn-stream' : 'btn-discord'}"
+                >
+                    ${isStreamLive
+                        ? '<i class="fa-solid fa-play"></i> WATCH STREAM'
+                        : '<i class="fa-brands fa-discord"></i> JOIN DISCORD'}
                 </a>
             </div>
         `;
@@ -271,7 +274,7 @@
     /* ==========================================================================
        6. HEADER INITIALIZATION
        ========================================================================== */
-    function initializePublicHeader() {
+    async function initializePublicHeader() {
         const streamStatusText = document.getElementById('streamStatusText');
         const streamStatusIndicator = document.getElementById('streamStatusIndicator');
         const identityReminder = document.getElementById('identityReminder');
@@ -283,24 +286,28 @@
         if (reminderPlatform) reminderPlatform.textContent = 'PUBLIC VIEW';
 
         if (streamStatusText && streamStatusIndicator) {
-            fetch(`${API_BASE_URL}/stream/stats`)
-                .then(r => r.json())
-                .then(data => {
-                    streamStatusIndicator.className = `stream-status-indicator ${data.isStreamLive ? 'is-live' : 'is-offline'}`;
-                    streamStatusText.textContent = data.isStreamLive ? 'LIVE' : 'OFFLINE';
-                })
-                .catch(() => {
-                    streamStatusText.textContent = 'OFFLINE';
-                });
+            try {
+                const response = await fetch(`${API_BASE_URL}/stream/stats`);
+                const data = await response.json();
+
+                isStreamLive = data.isStreamLive === true;
+                streamStatusIndicator.className =
+                    `stream-status-indicator ${isStreamLive ? 'is-live' : 'is-offline'}`;
+                streamStatusText.textContent = isStreamLive ? 'LIVE' : 'OFFLINE';
+            } catch (err) {
+                isStreamLive = false;
+                streamStatusText.textContent = 'OFFLINE';
+            }
         }
     }
 
     /* ==========================================================================
        7. BOOTSTRAP
        ========================================================================== */
-    document.addEventListener('header-ready', () => {
-        initializePublicHeader();
+    document.addEventListener('header-ready', async () => {
+        await initializePublicHeader();
         loadChallengePage();
+        setInterval(initializePublicHeader, 42000);
     });
 </script>
 </body>

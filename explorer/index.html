@@ -136,18 +136,19 @@
     /* ==========================================================================
        1. STATE
        ========================================================================== */
+       let activeStatusFilters = [
+           'ACTIVE',
+           'ARCHIVED',
+           'AUCTIONED',
+           'COMPLETED',
+           'FAILED',
+           'IN_PROGRESS',
+           'REMOVED',
+           'UNDER_REVIEW'
+       ];
     let allChallenges = [];
+    let isStreamLive = false;
     let lastSyncTimestamp = new Date().toISOString();
-    let activeStatusFilters = [
-        'ACTIVE',
-        'ARCHIVED',
-        'AUCTIONED',
-        'COMPLETED',
-        'FAILED',
-        'IN_PROGRESS',
-        'REMOVED',
-        'UNDER_REVIEW'
-    ];
 
     /* ==========================================================================
        2. CONFIG
@@ -608,22 +609,29 @@
             </div>
 
             <div class="detail-share-section">
-                <button type="button" class="primary-submit-btn detail-share-btn">
-                    <i class="fa-solid fa-share-nodes"></i> SHARE
-                </button>
-
-                <div class="share-row">
-                    <label class="roboto share-label">SHARE IT</label>
-                    <a href="#" id="shareChallengeXBtn" target="_blank" class="share-btn challenge-share-btn">
-                        <i class="fa-brands fa-x-twitter"></i>
-                    </a>
-                    <a href="#" id="shareChallengeFacebookBtn" target="_blank" class="share-btn challenge-share-btn">
-                        <i class="fa-brands fa-facebook-f"></i>
-                    </a>
-                    <button type="button" id="copyChallengeLinkBtn" class="share-btn challenge-share-btn">
-                        <i class="fa-solid fa-link"></i>
-                    </button>
+                <div class="share-block">
+                    <label class="roboto share-label">SHARE THIS CHALLENGE</label>
+                    <div class="share-row">
+                        <a href="#" id="shareChallengeXBtn" target="_blank" class="share-btn challenge-share-btn">
+                            <i class="fa-brands fa-x-twitter"></i>
+                        </a>
+                        <a href="#" id="shareChallengeFacebookBtn" target="_blank" class="share-btn challenge-share-btn">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </a>
+                        <button type="button" id="copyChallengeLinkBtn" class="share-btn challenge-share-btn">
+                            <i class="fa-solid fa-link"></i>
+                        </button>
+                    </div>
                 </div>
+                <a
+                    href="${isStreamLive ? 'https://youtube.com/@21xhr/live' : 'https://discord.gg/yourlink'}"
+                    target="_blank"
+                    class="primary-submit-btn detail-context-btn ${isStreamLive ? 'btn-stream' : 'btn-discord'}"
+                >
+                    ${isStreamLive
+                        ? '<i class="fa-solid fa-play"></i> WATCH STREAM'
+                        : '<i class="fa-brands fa-discord"></i> JOIN DISCORD'}
+                </a>
             </div>
         `;
 
@@ -658,6 +666,7 @@
         try {
             const response = await fetch(`${API_BASE_URL}/stream/stats`);
             const data = await response.json();
+            isStreamLive = data.isStreamLive === true;
 
             if (indicator && text) {
                 indicator.className = `stream-status-indicator ${data.isStreamLive ? 'is-live' : 'is-offline'}`;
@@ -724,6 +733,8 @@
         }
 
         fetchStreamStatus();
+        setInterval(fetchStreamStatus, 42000);
+
         syncActiveDaysRange();
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -745,7 +756,6 @@
 
     document.addEventListener('header-ready', () => {
         console.log("✅ Explorer Header Ready");
-        fetchStreamStatus();
     });
 </script>
 </body>

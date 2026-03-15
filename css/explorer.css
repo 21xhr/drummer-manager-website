@@ -647,6 +647,15 @@ body {
    Full structured challenge text, failure reason, deep-link share button
    ========================================================================== */
 
+.challenge-failure-field {
+    margin-bottom: 1rem;
+}
+
+.detail-pane-field .failure-reason-val {
+    color: var(--error-red) !important;
+    font-size: 0.75rem;
+}
+
 .detail-challenge-text { 
     background: rgba(0,0,0,0.5); 
     padding: 20px; 
@@ -660,24 +669,6 @@ body {
     overflow: auto;
 }
 
-.challenge-failure-field {
-    margin-bottom: 1rem;
-}
-
-.detail-pane-field .failure-reason-val {
-    color: var(--error-red) !important;
-    font-size: 0.75rem;
-}
-
-.detail-share-btn {
-    width: 100%;
-    margin-bottom: 25px;
-}
-
-.detail-share-btn i {
-    margin-right: 12px;
-}
-
 
 /* ==========================================================================
    DETAIL SHARE ROW
@@ -688,6 +679,15 @@ body {
     flex-direction: column;
     gap: 10px;
     margin-bottom: 25px;
+}
+
+.detail-context-btn {
+    width: 100%;
+    text-decoration: none;
+}
+
+.detail-context-btn i {
+    margin-right: 10px;
 }
 
 
