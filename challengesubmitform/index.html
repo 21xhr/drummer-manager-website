@@ -270,7 +270,7 @@
 
                             <a href="https://discord.gg/yourlink" target="_blank" id="discordLink"
                                 class="btn-action btn-discord">
-                                <i class="fa-brands fa-discord"></i> Join Discord
+                                <i class="fa-brands fa-discord"></i> JOIN DISCORD
                             </a>
 
                             <div class="share-block">
@@ -279,7 +279,7 @@
                                     <a href="#" id="shareChallengeXBtn" target="_blank" class="share-btn challenge-share-btn">
                                         <i class="fa-brands fa-x-twitter"></i>
                                     </a>
-                                    <a href="#" id="shareChallengeFacebookBtn" class="share-btn challenge-share-btn">
+                                    <a href="#" id="shareChallengeFacebookBtn" target="_blank" class="share-btn challenge-share-btn">
                                         <i class="fa-brands fa-facebook-f"></i>
                                     </a>
                                     <button type="button" id="copyChallengeLinkBtn" class="share-btn challenge-share-btn">
@@ -307,1353 +307,1361 @@
     </div>
 
     <social-links></social-links>
-</body>
 
-</html>
-<script>
-    // --- CONFIG ---
-    const SESSION_DURATION_MINUTES = 21;
-    let submissionToken = '';
-    let dailySubmissionCount = 0;
-    let dynamicBaseCost = 210;
-    let selectedPlatform = '';
-    let selectedPlatformId = '';
-    let isStreamLive = false;
-    let currentPublicChallengeUrl = '';
+    <script>
+        // --- CONFIG ---
+        const SESSION_DURATION_MINUTES = 21;
+        let submissionToken = '';
+        let dailySubmissionCount = 0;
+        let dynamicBaseCost = 210;
+        let selectedPlatform = '';
+        let selectedPlatformId = '';
+        let isStreamLive = false;
+        let currentPublicChallengeUrl = '';
 
-    // --- API URL LOGIC (The most robust dual-path) ---
-    const getApiBaseUrl = () => {
-        const hostname = window.location.hostname;
+        // --- API URL LOGIC (The most robust dual-path) ---
+        const getApiBaseUrl = () => {
+            const hostname = window.location.hostname;
 
-        // 1. If accessed via the Mac's true loopback aliases (localhost, 127.0.0.1, 0.0.0.0), use loopback for API call.
-        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
-            return 'http://127.0.0.1:3000/api/v1';
+            // 1. If accessed via the Mac's true loopback aliases (localhost, 127.0.0.1, 0.0.0.0), use loopback for API call.
+            if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+                return 'http://127.0.0.1:3000/api/v1';
+            }
+
+            // 2. If accessed via the local network IP (i.e., your phone using 192.168.1.37), use that IP.
+            if (hostname.startsWith('192.168.')) {
+                // Use the IP the form was accessed on, which the phone can reach.
+                return `http://${hostname}:3000/api/v1`;
+            }
+
+            // 3. Production fallback
+            return 'https://drummer-manager-api.vercel.app/api/v1';
+        };
+
+        const API_BASE_URL = getApiBaseUrl();
+
+        function getPublicChallengeUrl(challengeId) {
+            return `${window.location.origin}/challenges/${challengeId}`;
         }
 
-        // 2. If accessed via the local network IP (i.e., your phone using 192.168.1.37), use that IP.
-        if (hostname.startsWith('192.168.')) {
-            // Use the IP the form was accessed on, which the phone can reach.
-            return `http://${hostname}:3000/api/v1`;
-        }
+        // --- DOM REFERENCES ---
+        // 1. Static elements (already in the HTML)
+        const form = document.getElementById('challengeForm');
+        const formWrapper = document.getElementById('form-wrapper');
+        const formTitle = document.getElementById('formTitle');
+        const step1 = document.getElementById('step1');
+        const formAccessStatusIcon = document.getElementById('formAccessStatusIcon');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
 
-        // 3. Production fallback
-        return 'https://drummer-manager-api.vercel.app/api/v1';
-    };
+        const formAccessStatusText = document.getElementById('formAccessStatusText');
+        const resetFormBtn = document.getElementById('resetFormBtn');
 
-    let API_BASE_URL = getApiBaseUrl();
+        const durationTypeGroup = document.getElementById('durationTypeGroup');
+        const durationCards = formWrapper.querySelectorAll('.duration-card');
 
+        const challengeTextGroup = document.getElementById('challengeTextGroup');
 
-    // --- DOM REFERENCES ---
-    // 1. Static elements (already in the HTML)
-    const form = document.getElementById('challengeForm');
-    const formWrapper = document.getElementById('form-wrapper');
-    const formTitle = document.getElementById('formTitle');
-    const step1 = document.getElementById('step1');
-    const formAccessStatusIcon = document.getElementById('formAccessStatusIcon');
-    const step2 = document.getElementById('step2');
-    const step3 = document.getElementById('step3');
+        const timePaceGroup = document.getElementById('timePaceGroup');
+        const currentCostDisplay = document.getElementById('currentCostDisplay');
+        const oneOffGroup = document.getElementById('oneOffGroup');
+        const totalTimeframeCountInput = document.getElementById('totalTimeframeCount');
+        const cadenceGroup = document.getElementById('cadenceGroup');
+        const cadenceUnitSelect = document.getElementById('cadenceUnit');
+        const cadenceCountInput = document.getElementById('cadenceCount');
+        const customDaysGroup = document.getElementById('customDaysGroup');
+        const customDaysInput = document.getElementById('customDaysCount');
+        const recurrenceDurationCountInput = document.getElementById('recurrenceDurationCount');
+        const timeframeUnitSentenceSpan = document.getElementById('timeframeUnitSentence');
+        const cadencePreview = document.getElementById('cadencePreview');
+        const sessionCadenceHidden = document.getElementById('sessionCadenceText');
+        const calculatedTotalSessionsInput = document.getElementById('calculatedTotalSessions');
+        const challengeDurationTypeHidden = document.getElementById('challengeDurationType');
+        const durationGroup = document.getElementById('durationGroup');
+        const durationLeadInText = document.getElementById('durationLeadInText');
+        const submitButton = document.getElementById('submitButton');
+        const formSubmissionStatusText = document.getElementById('formSubmissionStatusText');
+        const calculatedCostInput = document.getElementById('calculatedCost');
+        const summaryDetailsWrapper = document.getElementById('summaryDetailsWrapper');
+        const highDemandWarningBanner = document.getElementById('highDemandWarningBanner');
+        const highDemandWarningText = document.getElementById('highDemandWarningText');
+        const customDaysOption = document.querySelector('#cadenceUnit option[value="CUSTOM_DAYS"]');
 
-    const formAccessStatusText = document.getElementById('formAccessStatusText');
-    const resetFormBtn = document.getElementById('resetFormBtn');
+        /* --- AUDIO OBJECTS --- */
+        const pulseSfx = new Audio('../assets/audio/flashbang-sfx-6.mp3');
+        const successChime = new Audio('../assets/audio/Futuristic_digital_success_notification_chime3.mp3');
+        // Helper to play SFX without interrupting bgMusic
+        const playSFX = (audioObj, volume = 0.21) => {
+            audioObj.volume = volume;
+            audioObj.currentTime = 0; // Reset to start
+            audioObj.play().catch(e => console.log("SFX blocked or missing"));
+        };
 
-    const durationTypeGroup = document.getElementById('durationTypeGroup');
-    const durationCards = formWrapper.querySelectorAll('.duration-card');
+        // 2. Component elements (will be captured later)
+        let bgMusic, muteToggle, muteIcon, streamStatusText, streamStatusIndicator;
+        let identityReminder, reminderUsername, reminderPlatform;
 
-    const challengeTextGroup = document.getElementById('challengeTextGroup');
+        // --- AUDIO CONFIG ---
+        const playlist = [
+            "../assets/audio/Glass Rivers by 21_2.mp3",
+            "../assets/audio/Glass Rivers by 21.mp3",
+            "../assets/audio/Neon Artery by 21_2.mp3",
+            "../assets/audio/Neon Artery by 21.mp3",
+            "../assets/audio/Rain On The Window by 21_2.mp3",
+            "../assets/audio/Rain On The Window by 21.mp3",
+            "../assets/audio/Rite of the Iron Colossus by 21_2.mp3",
+            "../assets/audio/Rite of the Iron Colossus by 21.mp3",
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3",
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
+        ];
+        let currentTrack = Math.floor(Math.random() * playlist.length);
 
-    const timePaceGroup = document.getElementById('timePaceGroup');
-    const currentCostDisplay = document.getElementById('currentCostDisplay');
-    const oneOffGroup = document.getElementById('oneOffGroup');
-    const totalTimeframeCountInput = document.getElementById('totalTimeframeCount');
-    const cadenceGroup = document.getElementById('cadenceGroup');
-    const cadenceUnitSelect = document.getElementById('cadenceUnit');
-    const cadenceCountInput = document.getElementById('cadenceCount');
-    const customDaysGroup = document.getElementById('customDaysGroup');
-    const customDaysInput = document.getElementById('customDaysCount');
-    const recurrenceDurationCountInput = document.getElementById('recurrenceDurationCount');
-    const timeframeUnitSentenceSpan = document.getElementById('timeframeUnitSentence');
-    const cadencePreview = document.getElementById('cadencePreview');
-    const sessionCadenceHidden = document.getElementById('sessionCadenceText');
-    const calculatedTotalSessionsInput = document.getElementById('calculatedTotalSessions');
-    const challengeDurationTypeHidden = document.getElementById('challengeDurationType');
-    const durationGroup = document.getElementById('durationGroup');
-    const durationLeadInText = document.getElementById('durationLeadInText');
-    const submitButton = document.getElementById('submitButton');
-    const formSubmissionStatusText = document.getElementById('formSubmissionStatusText');
-    const calculatedCostInput = document.getElementById('calculatedCost');
-    const summaryDetailsWrapper = document.getElementById('summaryDetailsWrapper');
-    const highDemandWarningBanner = document.getElementById('highDemandWarningBanner');
-    const highDemandWarningText = document.getElementById('highDemandWarningText');
-    const customDaysOption = document.querySelector('#cadenceUnit option[value="CUSTOM_DAYS"]');
+        // --- THE INITIALIZER ---
+        // This runs only AFTER the site-header component says it's ready
+        const initializeHeaderUI = () => {
+            bgMusic = document.getElementById('bgMusic');
+            muteToggle = document.getElementById('muteToggle');
+            muteIcon = document.getElementById('muteIcon');
+            streamStatusText = document.getElementById('streamStatusText');
+            streamStatusIndicator = document.getElementById('streamStatusIndicator');
+            identityReminder = document.getElementById('identityReminder');
+            reminderUsername = document.getElementById('reminderUsername');
+            reminderPlatform = document.getElementById('reminderPlatform');
 
-    /* --- AUDIO OBJECTS --- */
-    const pulseSfx = new Audio('../assets/audio/flashbang-sfx-6.mp3');
-    const successChime = new Audio('../assets/audio/Futuristic_digital_success_notification_chime3.mp3');
-    // Helper to play SFX without interrupting bgMusic
-    const playSFX = (audioObj, volume = 0.21) => {
-        audioObj.volume = volume;
-        audioObj.currentTime = 0; // Reset to start
-        audioObj.play().catch(e => console.log("SFX blocked or missing"));
-    };
+            if (muteToggle && bgMusic) {
+                muteToggle.addEventListener('click', () => {
+                    bgMusic.muted = !bgMusic.muted;
 
-    // 2. Component elements (will be captured later)
-    let bgMusic, muteToggle, muteIcon, streamStatusText, streamStatusIndicator;
-    let identityReminder, reminderUsername, reminderPlatform;
-
-    // --- AUDIO CONFIG ---
-    const playlist = [
-        "../assets/audio/Glass Rivers by 21_2.mp3",
-        "../assets/audio/Glass Rivers by 21.mp3",
-        "../assets/audio/Neon Artery by 21_2.mp3",
-        "../assets/audio/Neon Artery by 21.mp3",
-        "../assets/audio/Rain On The Window by 21_2.mp3",
-        "../assets/audio/Rain On The Window by 21.mp3",
-        "../assets/audio/Rite of the Iron Colossus by 21_2.mp3",
-        "../assets/audio/Rite of the Iron Colossus by 21.mp3",
-        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
-        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3",
-        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
-    ];
-    let currentTrack = Math.floor(Math.random() * playlist.length);
-
-    // --- THE INITIALIZER ---
-    // This runs only AFTER the site-header component says it's ready
-    const initializeHeaderUI = () => {
-        bgMusic = document.getElementById('bgMusic');
-        muteToggle = document.getElementById('muteToggle');
-        muteIcon = document.getElementById('muteIcon');
-        streamStatusText = document.getElementById('streamStatusText');
-        streamStatusIndicator = document.getElementById('streamStatusIndicator');
-        identityReminder = document.getElementById('identityReminder');
-        reminderUsername = document.getElementById('reminderUsername');
-        reminderPlatform = document.getElementById('reminderPlatform');
-
-        if (muteToggle && bgMusic) {
-            muteToggle.addEventListener('click', () => {
-                bgMusic.muted = !bgMusic.muted;
-
-                if (bgMusic.muted) {
-                    muteIcon.className = 'fa-solid fa-volume-xmark mute-icon-muted';
-                } else {
-                    muteIcon.className = 'fa-solid fa-volume-high mute-icon-active';
-                }
-            });
-        }
-
-        if (bgMusic) {
-            bgMusic.addEventListener('ended', playNextSong);
-        }
-
-        // Initial calls
-        verifyTokenAndStartForm();
-        fetchStreamStatus();
-        initializeDefaultReferences();
-    };
-
-    // --- LOGIC FUNCTIONS ---
-    const playNextSong = () => {
-        currentTrack = (currentTrack + 1) % playlist.length;
-        bgMusic.src = playlist[currentTrack];
-        bgMusic.play().catch(e => console.log("Playback interrupted"));
-    };
-
-    // --- STEP MANAGEMENT ---
-    let currentStep = 1;
-
-    const renderStep = (step) => {
-        currentStep = step;
-
-        // 1. Toggle visibility of the main steps
-        [step1, step2, step3].forEach((el, index) => {
-            if (el) el.classList.toggle('u-hidden', (index + 1) !== step);
-        });
-
-        // 2. Manage the Identity Reminder visibility
-        if (identityReminder) {
-            // Only hide on step 1 (verification), show on 2 and 3
-            identityReminder.classList.toggle('u-hidden', step === 1 || !selectedPlatformId);
-        }
-
-        // 3. UI Cleanup when moving back to Step 2
-        if (step === 2 && formSubmissionStatusText) {
-            formSubmissionStatusText.textContent = '';
-        }
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    const updateStreamButtonText = () => {
-        const btnText = document.getElementById('streamBtnText');
-        if (!btnText) return;
-
-        if (isStreamLive) {
-            btnText.innerText = "WATCH STREAM";
-        } else {
-            btnText.innerText = "WATCH THE LAST STREAM";
-        }
-    };
-
-    // --- TOKEN VERIFICATION LOGIC ---
-    const verifyTokenAndStartForm = async () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-
-        if (!token) {
-            formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-            formAccessStatusIcon.classList.add('fa-lock');
-            formAccessStatusIcon.style.color = 'var(--error-red)';
-            formAccessStatusText.style.color = 'var(--error-red)';
-            formAccessStatusText.innerHTML = `
-                ACCESS DENIED <br> This page must be accessed via a secure link generated from the chat. 
-                <br>Please use the command ** !challengesubmit ** in chat to get a valid link.
-            `;
-            return;
-        }
-
-        submissionToken = token;
-
-        formAccessStatusIcon.classList.add('fa-spinner', 'fa-spin');
-        formAccessStatusIcon.classList.remove(
-            'fa-lock',
-            'fa-triangle-exclamation',
-            'fa-hourglass-half',
-            'fa-circle-check',
-            'success-green',
-            'error-red'
-        );
-
-        formAccessStatusIcon.style.color = 'var(--primary-neon)';
-        formAccessStatusIcon.style.textShadow = 'var(--primary-neon)';
-
-        formAccessStatusText.style.color = 'var(--text-color)';
-        formAccessStatusText.textContent = 'Verifying your Producer credentials via secure link...';
-
-        try {
-            const MIN_VERIFY_DELAY_MS = 100;
-
-            console.log("Calling API at:", API_BASE_URL);
-
-            const apiCall = fetch(`${API_BASE_URL}/token/verify-challengesubmitform`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: submissionToken })
-            });
-
-            const [response] = await Promise.all([
-                apiCall,
-                new Promise(resolve => setTimeout(resolve, MIN_VERIFY_DELAY_MS))
-            ]);
-
-            const data = await response.json();
-
-            if (response.ok) {
-                selectedPlatformId = data.username;
-                selectedPlatform = data.platformName;
-                dailySubmissionCount = data.dailySubmissionCount || 0;
-                dynamicBaseCost = data.serverCalculatedBaseCost || 210;
-
-                // --- SYNC IDENTITY TO HEADER ---
-                // We re-query these here to ensure we have the fresh DOM elements 
-                // injected by the <identity-reminder> component.
-                reminderUsername = document.getElementById('reminderUsername');
-                reminderPlatform = document.getElementById('reminderPlatform');
-                identityReminder = document.getElementById('identityReminder');
-
-                if (reminderUsername && reminderPlatform) {
-                    reminderUsername.textContent = selectedPlatformId;
-                    reminderPlatform.textContent = selectedPlatform;
-
-                    const platformClass = `platform-${selectedPlatform.toLowerCase()}`;
-                    reminderUsername.classList.add(platformClass);
-                    reminderPlatform.classList.add(platformClass);
-
-                    if (identityReminder) identityReminder.classList.remove('u-hidden');
-                    console.log(`👤 Identity synced: ${selectedPlatformId} on ${selectedPlatform}`);
-                }
-
-                // --- UI TRANSITION ---
-                formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin');
-                formAccessStatusIcon.classList.add('fa-circle-check');
-                formAccessStatusIcon.style.color = 'var(--primary-neon)';
-
-                runTypewriter({
-                    container: formAccessStatusText,
-                    text: `> ACCESS GRANTED: ${selectedPlatformId} @ ${selectedPlatform}`,
-                    onComplete: () => {
-                        renderStep(2);
-                        formAccessStatusText.innerHTML = '';
-                        updateDynamicFields();
+                    if (bgMusic.muted) {
+                        muteIcon.className = 'fa-solid fa-volume-xmark mute-icon-muted';
+                    } else {
+                        muteIcon.className = 'fa-solid fa-volume-high mute-icon-active';
                     }
                 });
-            } else if (response.status === 401 || response.status === 400) {
-                const apiMessage = data.message || 'The secure link you used is no longer valid. Please get a new token.';
+            }
 
-                const title = (data.error && data.error.includes('expired'))
-                    ? 'LINK EXPIRED'
-                    : (data.error && data.error.includes('invalid'))
-                        ? 'LINK INVALID/MALFORMED'
-                        : 'AUTHENTICATION FAILED';
+            if (bgMusic) {
+                bgMusic.addEventListener('ended', playNextSong);
+            }
 
-                formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-                formAccessStatusIcon.classList.add('fa-hourglass-half');
-                formAccessStatusIcon.style.color = 'var(--primary-neon)';
-                formAccessStatusText.style.color = 'var(--primary-neon)';
+            // Initial calls
+            verifyTokenAndStartForm();
+            fetchStreamStatus();
+            initializeDefaultReferences();
+        };
 
-                // Inject the specific error message from the API response
-                formAccessStatusText.innerHTML = `
-                    <div class="form-access-alert">
-                        <span class="form-access-alert-title">${title}</span>
-                        <p class="roboto">${apiMessage}</p>
-                    </div>
-                `; // 3. Fall back (Display static error)
+        // --- LOGIC FUNCTIONS ---
+        const playNextSong = () => {
+            currentTrack = (currentTrack + 1) % playlist.length;
+            bgMusic.src = playlist[currentTrack];
+            bgMusic.play().catch(e => console.log("Playback interrupted"));
+        };
+
+        // --- STEP MANAGEMENT ---
+        let currentStep = 1;
+
+        const renderStep = (step) => {
+            currentStep = step;
+
+            // 1. Toggle visibility of the main steps
+            [step1, step2, step3].forEach((el, index) => {
+                if (el) el.classList.toggle('u-hidden', (index + 1) !== step);
+            });
+
+            // 2. Manage the Identity Reminder visibility
+            if (identityReminder) {
+                // Only hide on step 1 (verification), show on 2 and 3
+                identityReminder.classList.toggle('u-hidden', step === 1 || !selectedPlatformId);
+            }
+
+            // 3. UI Cleanup when moving back to Step 2
+            if (step === 2 && formSubmissionStatusText) {
+                formSubmissionStatusText.textContent = '';
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const updateStreamButtonText = () => {
+            const btnText = document.getElementById('streamBtnText');
+            if (!btnText) return;
+
+            if (isStreamLive) {
+                btnText.innerText = "WATCH STREAM";
             } else {
-                // Generic Verification Failure (e.g., 500 server error)
+                btnText.innerText = "WATCH THE LAST STREAM";
+            }
+        };
+
+        // --- TOKEN VERIFICATION LOGIC ---
+        const verifyTokenAndStartForm = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            if (!token) {
                 formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-                formAccessStatusIcon.classList.add('fa-triangle-exclamation');
+                formAccessStatusIcon.classList.add('fa-lock');
                 formAccessStatusIcon.style.color = 'var(--error-red)';
                 formAccessStatusText.style.color = 'var(--error-red)';
                 formAccessStatusText.innerHTML = `
-                    <strong class="error-text">Verification Failed!</strong> An unknown server error occurred...
-                    <br>Please try again or check the server status.
+                    ACCESS DENIED <br> This page must be accessed via a secure link generated from the chat. 
+                    <br>Please use the command ** !challengesubmit ** in chat to get a valid link.
                 `;
-            }
-
-        } catch (error) {
-            // TRUE NETWORK ERROR (Client cannot physically reach the server)
-            formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
-            formAccessStatusIcon.classList.add('fa-server');
-            formAccessStatusIcon.style.color = 'var(--error-red)';
-            formAccessStatusText.style.color = 'var(--error-red)';
-            formAccessStatusText.textContent = `CRITICAL ERROR: Could not connect to the API server (${API_BASE_URL}). Check server status.`;
-            console.error('Verification Network Error:', error);
-        }
-    };
-
-    const fetchStreamStatus = async () => {
-        streamStatusIndicator = document.getElementById('streamStatusIndicator');
-        streamStatusText = document.getElementById('streamStatusText');
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/stream/stats`);
-            const data = await response.json();
-
-            isStreamLive = data.isStreamLive;
-
-            if (streamStatusIndicator && streamStatusText) {
-                if (isStreamLive) {
-                    streamStatusIndicator.classList.remove('is-offline');
-                    streamStatusIndicator.classList.add('is-live');
-                    streamStatusText.textContent = 'LIVE (21% Discount)';
-                } else {
-                    streamStatusIndicator.classList.remove('is-live');
-                    streamStatusIndicator.classList.add('is-offline');
-                    streamStatusText.textContent = 'OFFLINE';
-                }
-            }
-            updateStreamButtonText();
-        } catch (error) {
-            if (streamStatusText) streamStatusText.textContent = 'ERROR';
-            console.error('Error fetching stream stats:', error);
-        }
-        if (typeof calculateTotalSessions === 'function') calculateTotalSessions();
-    };
-
-
-
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////
-    // STEP 2: DYNAMIC FORM LOGIC
-    //////////////////////////////////////////////////////////////////////////////////
-    /* ==========================================================================
-        CONFIG & WHITELIST
-    ========================================================================== */
-    const TRUSTED_SOURCES = {
-        VIDEO: ['youtube.com', 'youtu.be', 'vimeo.com'],
-        AUDIO: ['spotify.com', 'soundcloud.com', 'apple.com'],
-        WIKI: ['wikipedia.org', 'fandom.com', 'wikimedia.org'],
-        DOCUMENT: ['drive.google.com', 'dropbox.com', 'scribd.com'],
-        OTHER: []
-    };
-
-    const apiKey = ""; // Environment handles this
-    
-    // --- WHITELIST VALIDATION LOGIC ---
-    const validateWhitelist = (block) => {
-        const urlInput = block.querySelector('.reference-url-input');
-        const typeSelect = block.querySelector('.reference-type-select');
-        const warningText = block.querySelector('.reference-warning-text');
-        
-        // Safety check: if the HTML structure is missing the warning div, stop here
-        if (!urlInput || !warningText || !typeSelect) return;
-
-        const url = urlInput.value.trim();
-        const type = typeSelect.value;
-
-        if (!url) {
-            warningText.classList.add('u-hidden');
-            warningText.textContent = "";
-            return;
-        }
-
-        const whitelist = TRUSTED_SOURCES[type] || [];
-        const isTrusted = whitelist.some(domain => url.toLowerCase().includes(domain));
-
-        if (!isTrusted) {
-            warningText.textContent = "⚠️ Reference not whitelisted. Please provide a descriptive title.";
-            warningText.classList.remove('u-hidden');
-        } else {
-            warningText.classList.add('u-hidden');
-            warningText.textContent = ""; 
-        }
-    };
-
-    /**
-    * Fetches the title of a reference URL using the API.
-    */
-    const fetchReferenceTitle = async (url) => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/references/title?url=${encodeURIComponent(url)}`);
-            if (!response.ok) return null;
-
-            const data = await response.json();
-            return data.title || null;
-        } catch (e) {
-            return null;
-        }
-    };
-
-    /* ==========================================================================
-        CONSOLIDATED FORM ENGINE (MASTER)
-    ========================================================================== */
-    const setupProgressiveList = (containerId, selectorClass, htmlGenerator, maxItems = 99) => {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        container.addEventListener('input', (e) => {
-            const allItems = Array.from(container.querySelectorAll(`.${selectorClass}`));
-            const lastItem = allItems[allItems.length - 1];
-            let canAdd = false;
-
-            if (containerId === 'referencesList') {
-                const lastBlock = container.querySelector('.reference-block:last-child');
-                const title = lastBlock?.querySelector('.reference-title-input')?.value.trim() || "";
-                const url = lastBlock?.querySelector('.reference-url-input')?.value.trim() || "";
-                canAdd = url !== "" && title !== "";
-            } else {
-                canAdd = lastItem.value.trim() !== "";
-            }
-
-            if (canAdd && allItems.length < maxItems) {
-                const newRow = document.createElement('div');
-                newRow.innerHTML = htmlGenerator();
-                const newElement = newRow.firstElementChild || newRow;
-                container.appendChild(newElement);
-                
-                if (containerId === 'referencesList') {
-                    // Initialize the NEW row
-                    setupReferenceBlockListeners(newElement);
-                }
-            }
-
-            // Cleanup logic: Remove any empty rows except the last one
-            if (containerId === 'referencesList') {
-                const blocks = Array.from(container.querySelectorAll('.reference-block'));
-
-                // Remove any trailing blocks that are not needed anymore
-                for (let i = blocks.length - 1; i > 0; i--) {
-                    const current = blocks[i];
-                    const previous = blocks[i - 1];
-
-                    const currentUrl = current.querySelector('.reference-url-input')?.value.trim() || "";
-                    const currentTitle = current.querySelector('.reference-title-input')?.value.trim() || "";
-
-                    const prevUrl = previous.querySelector('.reference-url-input')?.value.trim() || "";
-                    const prevTitle = previous.querySelector('.reference-title-input')?.value.trim() || "";
-
-                    const currentIsEmpty = currentUrl === "" && currentTitle === "";
-                    const previousIsComplete = prevUrl !== "" && prevTitle !== "";
-
-                    // Keep one empty placeholder only if the previous block is complete
-                    if (currentIsEmpty && !previousIsComplete) {
-                        current.remove();
-                    }
-                }
-            } else {
-                const items = Array.from(container.querySelectorAll(`.${selectorClass}`));
-                items.forEach((item, index) => {
-                    if (index === items.length - 1) return;
-                    if (item.value.trim() === "") item.remove();
-                });
-            }
-        });
-    };
-
-    /**
-     * Logic for Reference Block Field Disclosure & Validation
-     */
-    const setupReferenceBlockListeners = (block) => {
-        // 1. Capture all elements at the start
-        const typeSelect = block.querySelector('.reference-type-select');
-        const urlInput = block.querySelector('.reference-url-input');
-        const bottomRow = block.querySelector('.reference-row-bottom');
-        const titleInput = block.querySelector('.reference-title-input');
-        const noteInput = block.querySelector('.reference-note-input');
-        const tooltipText = block.querySelector('.info-tooltip-text');
-        const warningText = block.querySelector('.reference-warning-text');
-        const fetchIndicator = block.querySelector('.reference-fetch-indicator');
-
-        const lockTitle = () => {
-            titleInput.readOnly = true;
-            titleInput.classList.add('title-locked');
-            titleInput.title = "🔒 Title auto-fetched";
-        };
-
-        const unlockTitle = () => {
-            titleInput.readOnly = false;
-            titleInput.classList.remove('title-locked');
-            titleInput.title = "";
-        };
-
-        const updateTooltip = () => {
-            if (!tooltipText || !typeSelect) return;
-            const type = typeSelect.value;
-            const list = TRUSTED_SOURCES[type] || [];
-            tooltipText.textContent = list.length > 0 
-                ? `Whitelist: ${list.join(', ')}. Others will be flagged!`
-                : "Any valid URL is accepted for this type.";
-        };
-
-        typeSelect?.addEventListener('change', () => {
-            updateTooltip();
-            validateWhitelist(block);
-            urlInput?.dispatchEvent(new Event('input'));
-        });
-
-        let fetchTimeout;
-
-        urlInput?.addEventListener('input', () => {
-            const url = urlInput.value.trim();
-            const previousUrl = urlInput.dataset.lastUrl || "";
-
-            if (url !== previousUrl) {
-                unlockTitle();
-                titleInput.value = "";
-                noteInput?.classList.add('u-hidden');
-                warningText.classList.add('u-hidden');
-                warningText.textContent = "";
-            }
-
-            urlInput.dataset.lastUrl = url;
-
-            if (!bottomRow || !warningText) return;
-
-            if (url.length === 0) {
-                bottomRow.classList.add('u-hidden');
-                fetchIndicator?.classList.add('u-hidden');
-                warningText.classList.add('u-hidden');
-                warningText.textContent = "";
                 return;
             }
 
-            bottomRow.classList.remove('u-hidden');
-            validateWhitelist(block);
-            block.dispatchEvent(new Event('input', { bubbles: true }));
+            submissionToken = token;
 
-            clearTimeout(fetchTimeout);
+            formAccessStatusIcon.classList.add('fa-spinner', 'fa-spin');
+            formAccessStatusIcon.classList.remove(
+                'fa-lock',
+                'fa-triangle-exclamation',
+                'fa-hourglass-half',
+                'fa-circle-check',
+                'success-green',
+                'error-red'
+            );
 
-            const type = typeSelect.value;
-            const trustedDomains = TRUSTED_SOURCES[type] || [];
-            const isTrusted = trustedDomains.some(domain => url.toLowerCase().includes(domain));
+            formAccessStatusIcon.style.color = 'var(--primary-neon)';
+            formAccessStatusIcon.style.textShadow = 'var(--primary-neon)';
 
-            if (isTrusted && !titleInput.value.trim()) {
-                const requestedUrl = url;
+            formAccessStatusText.style.color = 'var(--text-color)';
+            formAccessStatusText.textContent = 'Verifying your Producer credentials via secure link...';
 
-                fetchTimeout = setTimeout(async () => {
-                    const start = Date.now();
-
-                    fetchIndicator?.classList.remove('u-hidden');
-                    const fetchedTitle = await fetchReferenceTitle(requestedUrl);
-                    
-                    const elapsed = Date.now() - start;
-                    const minDuration = 1000;
-
-                    if (elapsed < minDuration) {
-                        await new Promise(r => setTimeout(r, minDuration - elapsed));
-                    }
-
-                    fetchIndicator?.classList.add('u-hidden');
-
-                    if (urlInput.value.trim() !== requestedUrl) return;
-
-                    if (fetchedTitle && !titleInput.value.trim()) {
-                        titleInput.value = fetchedTitle;
-                        lockTitle();
-                        titleInput.classList.remove('title-flash');
-                        void titleInput.offsetWidth;
-                        titleInput.classList.add('title-flash');
-                        titleInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    }
-                }, 500);
-            }
-            if (!isTrusted) {
-                fetchIndicator?.classList.add('u-hidden');
-            }
-        });
-
-        titleInput?.addEventListener('input', () => {
-            if (noteInput) {
-                noteInput.classList.toggle('u-hidden', titleInput.value.trim().length < 2);
-            }
-            block.dispatchEvent(new Event('input', { bubbles: true }));
-            if (typeof updateDynamicFields === 'function') updateDynamicFields();
-        });
-
-        updateTooltip();
-    };
-
-    // This function runs once to prepare the reference row that exists in the HTML on load
-    const initializeDefaultReferences = () => {
-        const referencesList = document.getElementById('referencesList');
-        if (!referencesList) return;
-
-        const firstRefBlock = referencesList.querySelector('.reference-block');
-        if (firstRefBlock) {
-            // 1. Attach listeners
-            setupReferenceBlockListeners(firstRefBlock);
-            
-            // 2. FORCE INITIAL STATE: Hide the bottom row (Title/Note) on load
-            const urlInput = firstRefBlock.querySelector('.reference-url-input');
-            const bottomRow = firstRefBlock.querySelector('.reference-row-bottom');
-            
-            if (urlInput.value.trim() === "") {
-                bottomRow.classList.add('u-hidden');
-            } else {
-                // If there's already text (like a draft), validate it immediately
-                validateWhitelist(firstRefBlock);
-                bottomRow.classList.remove('u-hidden');
-            }
-        }
-    };
-    /* ==========================================================================
-     * CORE DYNAMIC UPDATE ENGINE
-     ========================================================================== */
-    const updateDynamicFields = () => {
-        // 1. Gather values
-        const goalInput = document.getElementById('goalInput');
-        const instructionsInput = document.getElementById('instructionsInput');
-        const goalVal = goalInput?.value || "";
-        const instructionsVal = instructionsInput?.value || "";
-        
-        const durationType = challengeDurationTypeHidden.value;
-        const isRecurring = durationType === 'RECURRING';
-        const isOneOff = durationType === 'ONE_OFF';
-
-        // 2. Check Validity
-        // Requires both fields to have content AND total length >= 10
-        const isTextValid = goalVal.trim().length > 0 && instructionsVal.trim().length > 0 && (goalVal.length + instructionsVal.length) >= 10;
-        const canSetPace = durationType && isTextValid;
-
-        // 3. Handle Step 2 Visibility & Locking
-        if (durationType) {
-            challengeTextGroup.classList.remove('form-section-disabled');
-            // Goal and Instructions should ALWAYS be enabled if a duration is picked
-            goalInput.disabled = false;
-            instructionsInput.disabled = false;
-            
-            // Constraints and References ONLY unlock when Goal/Instructions are filled
-            const constraintsContainer = document.getElementById('constraintsContainer');
-            const referencesContainer = document.getElementById('referencesContainer');
-            
-            [constraintsContainer, referencesContainer].forEach(el => {
-                if (!el) return;
-                el.classList.toggle('form-section-disabled', !isTextValid);
-                el.querySelectorAll('input, select, button').forEach(i => i.disabled = !isTextValid);
-            });
-        } else {
-            challengeTextGroup.classList.add('form-section-disabled');
-        }
-
-        // 4. Handle Step 3 (Time/Pace)
-        if (canSetPace) {
-            timePaceGroup.classList.remove('form-section-disabled');
-            totalTimeframeCountInput.disabled = false;
-            cadenceCountInput.disabled = false;
-            cadenceUnitSelect.disabled = false;
-            customDaysInput.disabled = false;
-            recurrenceDurationCountInput.disabled = false;
-
-            oneOffGroup.classList.toggle('u-hidden', !isOneOff);
-            cadenceGroup.classList.toggle('u-hidden', !isRecurring);
-
-            if (isRecurring && !cadenceUnitSelect.value) {
-                cadenceUnitSelect.value = 'DAILY';
-                setCadenceTimeframeDefaults(cadenceUnitSelect.value);
-            }
-        } else {
-            timePaceGroup.classList.add('form-section-disabled');
-            // Disable all inputs in the Time/Pace section
-            [totalTimeframeCountInput, cadenceCountInput, cadenceUnitSelect, customDaysInput, recurrenceDurationCountInput].forEach(i => i.disabled = true);
-            
-            const oneOffDisplay = document.getElementById('oneOffCostDisplay');
-            const recurringDisplay = document.getElementById('recurringCostDisplay');
-            if (oneOffDisplay) oneOffDisplay.textContent = '--';
-            if (recurringDisplay) recurringDisplay.textContent = '--';
-            cadencePreview.textContent = '...';
-        }
-
-        // 5. Calculate Sessions & Submit State
-        calculateTotalSessions();
-        const totalSessions = parseInt(calculatedTotalSessionsInput.value) || 0;
-        const hasSessions = isRecurring ? (totalSessions >= 2) : (totalSessions >= 1);
-        
-        submitButton.disabled = !(isTextValid && !!durationType && hasSessions);
-
-        const submitWarningText = document.getElementById('submitWarningText');
-        if (submitWarningText) submitWarningText.classList.toggle('u-hidden', !submitButton.disabled);
-
-        checkHighDemandWarning();
-    };
-
-    const setCadenceTimeframeDefaults = (unit) => {
-        if (challengeDurationTypeHidden.value !== 'RECURRING') return;
-
-        const isCustom = unit === 'CUSTOM_DAYS';
-        if (customDaysOption) {
-            if (isCustom) {
-                customDaysOption.textContent = 'Every';
-                cadenceUnitSelect.classList.add('is-minimized');
-                cadenceUnitSelect.blur();
-            } else {
-                customDaysOption.textContent = 'every X days';
-                cadenceUnitSelect.classList.remove('is-minimized');
-            }
-        }
-
-        cadenceCountInput.value = '1';
-        recurrenceDurationCountInput.value = '2';
-
-        const labels = {
-            'DAILY': 'Days',
-            'WEEKLY': 'Weeks',
-            'MONTHLY': 'Months',
-            'CUSTOM_DAYS': 'times'
-        };
-        timeframeUnitSentenceSpan.textContent = labels[unit] || 'Days';
-
-        customDaysGroup.classList.toggle('u-hidden', !isCustom);
-        calculateTotalSessions();
-    };
-
-    const calculateTotalSessions = () => {
-        const durationType = challengeDurationTypeHidden.value;
-        let text = "";
-        let calculatedTotal = 0;
-
-        if (durationType === 'ONE_OFF') {
-            calculatedTotal = Math.min(parseInt(totalTimeframeCountInput.value) || 1, 999);
-            if (calculatedTotal < 1) calculatedTotal = 1;
-            totalTimeframeCountInput.value = calculatedTotal;
-            text = `ONE_OFF: ${calculatedTotal} session(s).`;
-
-        } else if (durationType === 'RECURRING') {
-            const unit = cadenceUnitSelect.value;
-            let pace = Math.min(parseInt(cadenceCountInput.value) || 1, 999);
-            let timeframeCount = Math.min(parseInt(recurrenceDurationCountInput.value) || 1, 999);
-            const customDays = parseInt(customDaysInput.value) || 1;
-
-            if (unit && !timePaceGroup.classList.contains('form-section-disabled')) {
-                durationGroup.classList.remove('u-hidden');
-            }
-
-            // CRITICAL Minimums
-            if (unit === 'DAILY' || unit === 'CUSTOM_DAYS') {
-                if (pace < 1) pace = 1;
-                if (timeframeCount < 2) timeframeCount = 2;
-            } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
-                if (pace < 1) pace = 1;
-                if (timeframeCount < 1) timeframeCount = 1;
-                if (pace === 1 && timeframeCount < 2) timeframeCount = 2;
-            }
-
-            cadenceCountInput.value = pace;
-            recurrenceDurationCountInput.value = timeframeCount;
-
-            const recurringSessionPluralizer = document.getElementById('recurringSessionPluralizer');
-            if (recurringSessionPluralizer) {
-                recurringSessionPluralizer.textContent = pace === 1 ? 'session' : 'sessions';
-            }
-
-            calculatedTotal = pace * timeframeCount;
-
-            if (!unit) {
-                text = "Select a frequency and duration to calculate total sessions.";
-                calculatedTotal = 0;
-                durationGroup.classList.add('u-hidden');
-            } else {
-                const paceText = pace === 1 ? 'session' : 'sessions';
-                let unitDisplay = unit.toLowerCase();
-                if (unitDisplay === 'daily') unitDisplay = 'day';
-                else if (unitDisplay === 'weekly') unitDisplay = 'week';
-                else if (unitDisplay === 'monthly') unitDisplay = 'month';
-
-                const timeframeUnit = timeframeUnitSentenceSpan.textContent.toLowerCase();
-
-                if (unit === 'DAILY' || unit === 'WEEKLY' || unit === 'MONTHLY') {
-                    text = `${pace} ${paceText} per ${unitDisplay} for ${timeframeCount} ${timeframeUnit}`;
-                } else if (unit === 'CUSTOM_DAYS') {
-                    text = `${pace} ${paceText} every ${customDays} days then repeat this ${timeframeCount} times`;
-                }
-            }
-            durationLeadInText.textContent = unit === 'CUSTOM_DAYS' ? "then repeat this" : "for a total of";
-        } else {
-            text = "Select a Duration Type to continue.";
-            calculatedTotal = 0;
-        }
-
-        const totalMinutes = calculatedTotal * SESSION_DURATION_MINUTES;
-        const finalCost = dynamicBaseCost;
-
-        calculatedTotalSessionsInput.value = calculatedTotal;
-        sessionCadenceHidden.value = text;
-        calculatedCostInput.value = finalCost;
-
-        const sessionPlural = calculatedTotal === 1 ? 'session' : 'sessions';
-        const totalSessionsDisplay = `${calculatedTotal.toLocaleString()} ${sessionPlural} (${totalMinutes.toLocaleString()} Mins)`;
-
-        const oneOffSummary = document.getElementById('oneOffSummary');
-        if (oneOffSummary && durationType === 'ONE_OFF') {
-            oneOffSummary.textContent = `(${totalMinutes.toLocaleString()} Mins)`;
-        }
-
-        cadencePreview.textContent = totalSessionsDisplay;
-        const formattedCost = finalCost.toLocaleString();
-        const oneOffDisplay = document.getElementById('oneOffCostDisplay');
-        const recurringDisplay = document.getElementById('recurringCostDisplay');
-        if (oneOffDisplay) oneOffDisplay.textContent = formattedCost;
-        if (recurringDisplay) recurringDisplay.textContent = formattedCost;
-
-        const oneOffPluralizer = document.getElementById('oneOffSessionPluralization');
-        if (oneOffPluralizer && durationType === 'ONE_OFF') {
-            const currentCount = parseInt(totalTimeframeCountInput.value) || 0;
-            oneOffPluralizer.textContent = currentCount === 1 ? 'Session' : 'Sessions';
-        }
-    };
-
-    const checkHighDemandWarning = () => {
-        const durationType = challengeDurationTypeHidden.value;
-        const totalSessions = parseInt(calculatedTotalSessionsInput.value) || 0;
-        let shouldShowWarning = false;
-        let sessionsPerPeriod = 0;
-        let periodText = '';
-
-        const ONE_OFF_MAX_SESSIONS = 7;
-        const RECURRING_THRESHOLDS = { 'DAILY': 7, 'WEEKLY': 42, 'MONTHLY': 147 };
-
-        if (!durationType) {
-            highDemandWarningBanner.classList.add('u-hidden');
-            return;
-        }
-
-        if (durationType === 'ONE_OFF') {
-            if (totalSessions > ONE_OFF_MAX_SESSIONS) {
-                shouldShowWarning = true;
-                sessionsPerPeriod = totalSessions;
-                periodText = 'Single Challenge Day';
-            }
-        } else if (durationType === 'RECURRING') {
-            const unit = cadenceUnitSelect.value;
-            const pace = parseInt(cadenceCountInput.value) || 0;
-
-            if (unit === 'DAILY') {
-                sessionsPerPeriod = pace;
-                periodText = 'Day';
-                if (pace > RECURRING_THRESHOLDS.DAILY) shouldShowWarning = true;
-            } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
-                sessionsPerPeriod = pace;
-                periodText = timeframeUnitSentenceSpan.textContent.slice(0, -1);
-                if (unit === 'WEEKLY' && pace > RECURRING_THRESHOLDS.WEEKLY) shouldShowWarning = true;
-                if (unit === 'MONTHLY' && pace > RECURRING_THRESHOLDS.MONTHLY) shouldShowWarning = true;
-            } else if (unit === 'CUSTOM_DAYS') {
-                const customDays = parseInt(customDaysInput.value) || 1;
-                const averageDailyPace = pace / customDays;
-                sessionsPerPeriod = pace;
-                periodText = `${customDays}-day cycle`;
-                if (averageDailyPace > RECURRING_THRESHOLDS.DAILY) shouldShowWarning = true;
-            }
-        }
-
-        if (shouldShowWarning) {
-            highDemandWarningText.innerHTML = `This submission requires <strong>${sessionsPerPeriod} sessions per ${periodText}</strong>, which far exceeds the normal demand threshold. If activated, it will rapidly monopolize the execution slot for an extended duration.`;
-            highDemandWarningBanner.classList.remove('u-hidden');
-        } else {
-            highDemandWarningBanner.classList.add('u-hidden');
-        }
-    };
-
-
-    // Row Generators
-    const generateConstraintInput = () => `<input type="text" class="form-input constraint-item" placeholder="Add another rule (Max 7)...">`;
-    const generateReferenceRow = () => `
-    <div class="reference-block">
-        <div class="reference-row-top">
-            <div class="reference-type-wrapper">
-                <select class="reference-type-select">
-                    <option value="VIDEO">Video</option>
-                    <option value="AUDIO">Audio</option>
-                    <option value="WIKI">Wiki</option>
-                    <option value="DOCUMENT">Document</option>
-                    <option value="OTHER">Other</option>
-                </select>
-                <span class="info-tooltip-container dynamic-type-tooltip">
-                    <span class="tooltip-icon">ⓘ</span>
-                    <span class="info-tooltip-text"></span>
-                </span>
-            </div>
-            <div class="reference-url-wrapper">
-                <input type="url" class="form-input reference-url-input" placeholder="Paste link (URL)...">
-                <span class="reference-fetch-indicator u-hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
-            </div>
-        </div>
-        <div class="reference-row-bottom u-hidden">
-            <input type="text" class="form-input reference-title-input" placeholder="Title">
-            <input type="text" class="form-input reference-note-input u-hidden" placeholder="Add a specific note...">
-        </div>
-        <div class="reference-warning-text u-hidden"></div>
-    </div>`;
-
-    // Initialize Lists and Interaction
-    setupProgressiveList('constraintsList', 'constraint-item', generateConstraintInput, 7);
-    setupProgressiveList('referencesList', 'reference-block', generateReferenceRow, 7);
-
-    // Duration Type Selection Logic
-    durationCards.forEach(card => {
-        card.addEventListener('click', () => {
-            if (bgMusic && bgMusic.paused) {
-                if (!bgMusic.src) bgMusic.src = playlist[currentTrack];
-                bgMusic.volume = 0.2; bgMusic.play().catch(e => console.log("Audio blocked"));
-            }
-            const type = card.getAttribute('data-duration');
-            durationCards.forEach(btn => btn.classList.remove('selected'));
-            card.classList.add('selected');
-            challengeDurationTypeHidden.value = type;
-            if (challengeTextGroup) {
-                challengeTextGroup.classList.remove('form-section-disabled');
-                challengeTextGroup.querySelectorAll('input, textarea, select, button').forEach(i => i.disabled = false);
-            }
-            if (type === 'RECURRING') {
-                if (!cadenceUnitSelect.value) cadenceUnitSelect.value = 'DAILY';
-                cadenceCountInput.value = '1'; recurrenceDurationCountInput.value = '2';
-                setCadenceTimeframeDefaults(cadenceUnitSelect.value);
-            } else if (type === 'ONE_OFF') {
-                if (totalTimeframeCountInput.value === '0') totalTimeframeCountInput.value = '1';
-            }
-            updateDynamicFields();
-        });
-    });
-
-    ['goalInput', 'instructionsInput'].forEach(id => {
-        document.getElementById(id)?.addEventListener('input', updateDynamicFields);
-    });
-
-    // --- PERIODIC TOKEN RE-VERIFICATION & STREAM STATUS UPDATE ---
-    setInterval(async () => {
-        const step2 = document.getElementById('step2');
-        if (submissionToken && step2 && !step2.classList.contains('u-hidden')) {
             try {
-                const response = await fetch(`${API_BASE_URL}/token/verify-challengesubmitform`, {
+                const MIN_VERIFY_DELAY_MS = 100;
+
+                console.log("Calling API at:", API_BASE_URL);
+
+                const apiCall = fetch(`${API_BASE_URL}/token/verify-challengesubmitform`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: submissionToken })
                 });
+
+                const [response] = await Promise.all([
+                    apiCall,
+                    new Promise(resolve => setTimeout(resolve, MIN_VERIFY_DELAY_MS))
+                ]);
+
                 const data = await response.json();
+
                 if (response.ok) {
-                    dynamicBaseCost = data.serverCalculatedBaseCost || 210;
+                    selectedPlatformId = data.username;
+                    selectedPlatform = data.platformName;
                     dailySubmissionCount = data.dailySubmissionCount || 0;
-                    calculateTotalSessions();
+                    dynamicBaseCost = data.serverCalculatedBaseCost || 210;
+
+                    // --- SYNC IDENTITY TO HEADER ---
+                    // We re-query these here to ensure we have the fresh DOM elements 
+                    // injected by the <identity-reminder> component.
+                    reminderUsername = document.getElementById('reminderUsername');
+                    reminderPlatform = document.getElementById('reminderPlatform');
+                    identityReminder = document.getElementById('identityReminder');
+
+                    if (reminderUsername && reminderPlatform) {
+                        reminderUsername.textContent = selectedPlatformId;
+                        reminderPlatform.textContent = selectedPlatform;
+
+                        const platformClass = `platform-${selectedPlatform.toLowerCase()}`;
+                        reminderUsername.classList.add(platformClass);
+                        reminderPlatform.classList.add(platformClass);
+
+                        if (identityReminder) identityReminder.classList.remove('u-hidden');
+                        console.log(`👤 Identity synced: ${selectedPlatformId} on ${selectedPlatform}`);
+                    }
+
+                    // --- UI TRANSITION ---
+                    formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin');
+                    formAccessStatusIcon.classList.add('fa-circle-check');
+                    formAccessStatusIcon.style.color = 'var(--primary-neon)';
+
+                    runTypewriter({
+                        container: formAccessStatusText,
+                        text: `> ACCESS GRANTED: ${selectedPlatformId} @ ${selectedPlatform}`,
+                        onComplete: () => {
+                            renderStep(2);
+                            formAccessStatusText.innerHTML = '';
+                            updateDynamicFields();
+                        }
+                    });
+                } else if (response.status === 401 || response.status === 400) {
+                    const apiMessage = data.message || 'The secure link you used is no longer valid. Please get a new token.';
+
+                    const title = (data.error && data.error.includes('expired'))
+                        ? 'LINK EXPIRED'
+                        : (data.error && data.error.includes('invalid'))
+                            ? 'LINK INVALID/MALFORMED'
+                            : 'AUTHENTICATION FAILED';
+
+                    formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
+                    formAccessStatusIcon.classList.add('fa-hourglass-half');
+                    formAccessStatusIcon.style.color = 'var(--primary-neon)';
+                    formAccessStatusText.style.color = 'var(--primary-neon)';
+
+                    // Inject the specific error message from the API response
+                    formAccessStatusText.innerHTML = `
+                        <div class="form-access-alert">
+                            <span class="form-access-alert-title">${title}</span>
+                            <p class="roboto">${apiMessage}</p>
+                        </div>
+                    `; // 3. Fall back (Display static error)
+                } else {
+                    // Generic Verification Failure (e.g., 500 server error)
+                    formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
+                    formAccessStatusIcon.classList.add('fa-triangle-exclamation');
+                    formAccessStatusIcon.style.color = 'var(--error-red)';
+                    formAccessStatusText.style.color = 'var(--error-red)';
+                    formAccessStatusText.innerHTML = `
+                        <strong class="error-text">Verification Failed!</strong> An unknown server error occurred...
+                        <br>Please try again or check the server status.
+                    `;
                 }
-            } catch (e) { console.error("Sync failed", e); }
-        }
-        if (typeof fetchStreamStatus === 'function') fetchStreamStatus();
-    }, 21000);
 
-    // Cadence unit change resets related fields and updates session calculation
-    cadenceUnitSelect.addEventListener('change', (e) => {
-        setCadenceTimeframeDefaults(e.target.value);
-    });
-
-    // Input changes calls the update function
-    cadenceCountInput.addEventListener('input', updateDynamicFields);
-    customDaysInput.addEventListener('input', updateDynamicFields);
-    recurrenceDurationCountInput.addEventListener('input', updateDynamicFields);
-    totalTimeframeCountInput.addEventListener('input', updateDynamicFields);
-
-    // --- FORM SUBMISSION LOGIC ---
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        if (!submissionToken) {
-            formSubmissionStatusText.style.color = 'var(--error-red)';
-            formSubmissionStatusText.textContent = 'Error: Session key expired or missing. Please refresh the page.';
-            return;
-        }
-
-        // FINAL VALIDATION: Ensure that every reference with a URL also has a title before allowing submission
-        const referenceBlocks = Array.from(document.querySelectorAll('.reference-block'));
-
-        for (const block of referenceBlocks) {
-            const url = block.querySelector('.reference-url-input')?.value.trim() || "";
-            const title = block.querySelector('.reference-title-input')?.value.trim() || "";
-            const warningText = block.querySelector('.reference-warning-text');
-
-            if (url && !title) {
-                if (warningText) {
-                    warningText.textContent = "⚠️ A title is required for every reference link.";
-                    warningText.classList.remove('u-hidden');
-                }
-                block.querySelector('.reference-title-input')?.focus();
-                formSubmissionStatusText.style.color = 'var(--error-red)';
-                formSubmissionStatusText.textContent = 'Submission blocked: complete all reference titles.';
-                return;
+            } catch (error) {
+                // TRUE NETWORK ERROR (Client cannot physically reach the server)
+                formAccessStatusIcon.classList.remove('fa-spinner', 'fa-spin', 'neon-text');
+                formAccessStatusIcon.classList.add('fa-server');
+                formAccessStatusIcon.style.color = 'var(--error-red)';
+                formAccessStatusText.style.color = 'var(--error-red)';
+                formAccessStatusText.textContent = `CRITICAL ERROR: Could not connect to the API server (${API_BASE_URL}). Check server status.`;
+                console.error('Verification Network Error:', error);
             }
-        }
-
-        // 0. CAPTURE ORIGINAL STATE
-        const originalBtnText = submitButton.innerHTML;
-
-        // 1. GHOST THE FORM CONTENT
-        const formFields = document.querySelectorAll('#step2 > div:not(.form-footer-actions)');
-        formFields.forEach(field => field.classList.add('form-content-fade'));
-
-        // 2. HERO BUTTON STATUS
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> TRANSMITTING...';
-        formSubmissionStatusText.textContent = '';
-
-        const submissionData = {
-            token: submissionToken,
-            challengeText: {
-                goal: document.getElementById('goalInput').value.trim(),
-                instructions: document.getElementById('instructionsInput').value.trim(),
-                constraints: Array.from(document.querySelectorAll('.constraint-item'))
-                    .map(i => i.value.trim())
-                    .filter(v => v !== ''),
-                references: Array.from(document.querySelectorAll('.reference-block'))
-                    .map(block => ({
-                        type: block.querySelector('.reference-type-select').value,
-                        url: block.querySelector('.reference-url-input').value.trim(),
-                        title: block.querySelector('.reference-title-input').value.trim(),
-                        note: block.querySelector('.reference-note-input').value.trim()
-                    }))
-                    .filter(r => r.title !== ''),
-                system: {
-                    requiresReview: true,
-                    version: "2.1"
-                }
-            },
-            totalSessions: parseInt(calculatedTotalSessionsInput.value),
-            durationType: challengeDurationTypeHidden.value,
-            cost: parseInt(calculatedCostInput.value),
-            cadenceUnit: (challengeDurationTypeHidden.value === 'RECURRING' ? cadenceUnitSelect.value : undefined),
-            sessionCadenceText: (challengeDurationTypeHidden.value === 'RECURRING' ? sessionCadenceHidden.value : undefined)
         };
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/user/submit/web`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(submissionData)
+        const fetchStreamStatus = async () => {
+            streamStatusIndicator = document.getElementById('streamStatusIndicator');
+            streamStatusText = document.getElementById('streamStatusText');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/stream/stats`);
+                const data = await response.json();
+
+                isStreamLive = data.isStreamLive;
+
+                if (streamStatusIndicator && streamStatusText) {
+                    if (isStreamLive) {
+                        streamStatusIndicator.classList.remove('is-offline');
+                        streamStatusIndicator.classList.add('is-live');
+                        streamStatusText.textContent = 'LIVE (21% Discount)';
+                    } else {
+                        streamStatusIndicator.classList.remove('is-live');
+                        streamStatusIndicator.classList.add('is-offline');
+                        streamStatusText.textContent = 'OFFLINE';
+                    }
+                }
+                updateStreamButtonText();
+            } catch (error) {
+                if (streamStatusText) streamStatusText.textContent = 'ERROR';
+                console.error('Error fetching stream stats:', error);
+            }
+            if (typeof calculateTotalSessions === 'function') calculateTotalSessions();
+        };
+
+
+
+
+
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////////////////
+        // STEP 2: DYNAMIC FORM LOGIC
+        //////////////////////////////////////////////////////////////////////////////////
+        /* ==========================================================================
+            CONFIG & WHITELIST
+        ========================================================================== */
+        const TRUSTED_SOURCES = {
+            VIDEO: ['youtube.com', 'youtu.be', 'vimeo.com'],
+            AUDIO: ['spotify.com', 'soundcloud.com', 'apple.com'],
+            WIKI: ['wikipedia.org', 'fandom.com', 'wikimedia.org'],
+            DOCUMENT: ['drive.google.com', 'dropbox.com', 'scribd.com'],
+            OTHER: []
+        };
+
+        const apiKey = ""; // Environment handles this
+        
+        // --- WHITELIST VALIDATION LOGIC ---
+        const validateWhitelist = (block) => {
+            const urlInput = block.querySelector('.reference-url-input');
+            const typeSelect = block.querySelector('.reference-type-select');
+            const warningText = block.querySelector('.reference-warning-text');
+            
+            // Safety check: if the HTML structure is missing the warning div, stop here
+            if (!urlInput || !warningText || !typeSelect) return;
+
+            const url = urlInput.value.trim();
+            const type = typeSelect.value;
+
+            if (!url) {
+                warningText.classList.add('u-hidden');
+                warningText.textContent = "";
+                return;
+            }
+
+            const whitelist = TRUSTED_SOURCES[type] || [];
+            const isTrusted = whitelist.some(domain => url.toLowerCase().includes(domain));
+
+            if (!isTrusted) {
+                warningText.textContent = "⚠️ Reference not whitelisted. Please provide a descriptive title.";
+                warningText.classList.remove('u-hidden');
+            } else {
+                warningText.classList.add('u-hidden');
+                warningText.textContent = ""; 
+            }
+        };
+
+        /**
+        * Fetches the title of a reference URL using the API.
+        */
+        const fetchReferenceTitle = async (url) => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/references/title?url=${encodeURIComponent(url)}`);
+                if (!response.ok) return null;
+
+                const data = await response.json();
+                return data.title || null;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        /* ==========================================================================
+            CONSOLIDATED FORM ENGINE (MASTER)
+        ========================================================================== */
+        const setupProgressiveList = (containerId, selectorClass, htmlGenerator, maxItems = 99) => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            container.addEventListener('input', (e) => {
+                const allItems = Array.from(container.querySelectorAll(`.${selectorClass}`));
+                const lastItem = allItems[allItems.length - 1];
+                let canAdd = false;
+
+                if (containerId === 'referencesList') {
+                    const lastBlock = container.querySelector('.reference-block:last-child');
+                    const title = lastBlock?.querySelector('.reference-title-input')?.value.trim() || "";
+                    const url = lastBlock?.querySelector('.reference-url-input')?.value.trim() || "";
+                    canAdd = url !== "" && title !== "";
+                } else {
+                    canAdd = lastItem.value.trim() !== "";
+                }
+
+                if (canAdd && allItems.length < maxItems) {
+                    const newRow = document.createElement('div');
+                    newRow.innerHTML = htmlGenerator();
+                    const newElement = newRow.firstElementChild || newRow;
+                    container.appendChild(newElement);
+                    
+                    if (containerId === 'referencesList') {
+                        // Initialize the NEW row
+                        setupReferenceBlockListeners(newElement);
+                    }
+                }
+
+                // Cleanup logic: Remove any empty rows except the last one
+                if (containerId === 'referencesList') {
+                    const blocks = Array.from(container.querySelectorAll('.reference-block'));
+
+                    // Remove any trailing blocks that are not needed anymore
+                    for (let i = blocks.length - 1; i > 0; i--) {
+                        const current = blocks[i];
+                        const previous = blocks[i - 1];
+
+                        const currentUrl = current.querySelector('.reference-url-input')?.value.trim() || "";
+                        const currentTitle = current.querySelector('.reference-title-input')?.value.trim() || "";
+
+                        const prevUrl = previous.querySelector('.reference-url-input')?.value.trim() || "";
+                        const prevTitle = previous.querySelector('.reference-title-input')?.value.trim() || "";
+
+                        const currentIsEmpty = currentUrl === "" && currentTitle === "";
+                        const previousIsComplete = prevUrl !== "" && prevTitle !== "";
+
+                        // Keep one empty placeholder only if the previous block is complete
+                        if (currentIsEmpty && !previousIsComplete) {
+                            current.remove();
+                        }
+                    }
+                } else {
+                    const items = Array.from(container.querySelectorAll(`.${selectorClass}`));
+                    items.forEach((item, index) => {
+                        if (index === items.length - 1) return;
+                        if (item.value.trim() === "") item.remove();
+                    });
+                }
+            });
+        };
+
+        /**
+        * Logic for Reference Block Field Disclosure & Validation
+        */
+        const setupReferenceBlockListeners = (block) => {
+            // 1. Capture all elements at the start
+            const typeSelect = block.querySelector('.reference-type-select');
+            const urlInput = block.querySelector('.reference-url-input');
+            const bottomRow = block.querySelector('.reference-row-bottom');
+            const titleInput = block.querySelector('.reference-title-input');
+            const noteInput = block.querySelector('.reference-note-input');
+            const tooltipText = block.querySelector('.info-tooltip-text');
+            const warningText = block.querySelector('.reference-warning-text');
+            const fetchIndicator = block.querySelector('.reference-fetch-indicator');
+
+            const lockTitle = () => {
+                titleInput.readOnly = true;
+                titleInput.classList.add('title-locked');
+                titleInput.title = "🔒 Title auto-fetched";
+            };
+
+            const unlockTitle = () => {
+                titleInput.readOnly = false;
+                titleInput.classList.remove('title-locked');
+                titleInput.title = "";
+            };
+
+            const updateTooltip = () => {
+                if (!tooltipText || !typeSelect) return;
+                const type = typeSelect.value;
+                const list = TRUSTED_SOURCES[type] || [];
+                tooltipText.textContent = list.length > 0 
+                    ? `Whitelist: ${list.join(', ')}. Others will be flagged!`
+                    : "Any valid URL is accepted for this type.";
+            };
+
+            typeSelect?.addEventListener('change', () => {
+                updateTooltip();
+                validateWhitelist(block);
+                urlInput?.dispatchEvent(new Event('input'));
             });
 
-            const data = await response.json();
+            let fetchTimeout;
 
-            if (response.ok) {
-                // 1. Success Feedback
-                submitButton.innerHTML = '<i class="fa-solid fa-circle-check"></i> RECEIVED';
+            urlInput?.addEventListener('input', () => {
+                const url = urlInput.value.trim();
+                const previousUrl = urlInput.dataset.lastUrl || "";
+
+                if (url !== previousUrl) {
+                    unlockTitle();
+                    titleInput.value = "";
+                    noteInput?.classList.add('u-hidden');
+                    warningText.classList.add('u-hidden');
+                    warningText.textContent = "";
+                }
+
+                urlInput.dataset.lastUrl = url;
+
+                if (!bottomRow || !warningText) return;
+
+                if (url.length === 0) {
+                    bottomRow.classList.add('u-hidden');
+                    fetchIndicator?.classList.add('u-hidden');
+                    warningText.classList.add('u-hidden');
+                    warningText.textContent = "";
+                    return;
+                }
+
+                bottomRow.classList.remove('u-hidden');
+                validateWhitelist(block);
+                block.dispatchEvent(new Event('input', { bubbles: true }));
+
+                clearTimeout(fetchTimeout);
+
+                const type = typeSelect.value;
+                const trustedDomains = TRUSTED_SOURCES[type] || [];
+                const isTrusted = trustedDomains.some(domain => url.toLowerCase().includes(domain));
+
+                if (isTrusted && !titleInput.value.trim()) {
+                    const requestedUrl = url;
+
+                    fetchTimeout = setTimeout(async () => {
+                        const start = Date.now();
+
+                        fetchIndicator?.classList.remove('u-hidden');
+                        const fetchedTitle = await fetchReferenceTitle(requestedUrl);
+                        
+                        const elapsed = Date.now() - start;
+                        const minDuration = 1000;
+
+                        if (elapsed < minDuration) {
+                            await new Promise(r => setTimeout(r, minDuration - elapsed));
+                        }
+
+                        fetchIndicator?.classList.add('u-hidden');
+
+                        if (urlInput.value.trim() !== requestedUrl) return;
+
+                        if (fetchedTitle && !titleInput.value.trim()) {
+                            titleInput.value = fetchedTitle;
+                            lockTitle();
+                            titleInput.classList.remove('title-flash');
+                            void titleInput.offsetWidth;
+                            titleInput.classList.add('title-flash');
+                            titleInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    }, 500);
+                }
+                if (!isTrusted) {
+                    fetchIndicator?.classList.add('u-hidden');
+                }
+            });
+
+            titleInput?.addEventListener('input', () => {
+                if (noteInput) {
+                    noteInput.classList.toggle('u-hidden', titleInput.value.trim().length < 2);
+                }
+                block.dispatchEvent(new Event('input', { bubbles: true }));
+                if (typeof updateDynamicFields === 'function') updateDynamicFields();
+            });
+
+            updateTooltip();
+        };
+
+        // This function runs once to prepare the reference row that exists in the HTML on load
+        const initializeDefaultReferences = () => {
+            const referencesList = document.getElementById('referencesList');
+            if (!referencesList) return;
+
+            const firstRefBlock = referencesList.querySelector('.reference-block');
+            if (firstRefBlock) {
+                // 1. Attach listeners
+                setupReferenceBlockListeners(firstRefBlock);
                 
-                // (Continue with your existing animation and summary logic here...)
-                const container = document.querySelector('.form-container');
-                const btnRect = submitButton.getBoundingClientRect();
-                const containerRect = container.getBoundingClientRect();
-                const btnCenterY = btnRect.top + btnRect.height / 2;
-                const containerCenterY = containerRect.top + containerRect.height / 2;
-                const travelDistance = containerCenterY - btnCenterY;
-                submitButton.style.setProperty('--travel-distance', `${travelDistance}px`);
+                // 2. FORCE INITIAL STATE: Hide the bottom row (Title/Note) on load
+                const urlInput = firstRefBlock.querySelector('.reference-url-input');
+                const bottomRow = firstRefBlock.querySelector('.reference-row-bottom');
+                
+                if (urlInput.value.trim() === "") {
+                    bottomRow.classList.add('u-hidden');
+                } else {
+                    // If there's already text (like a draft), validate it immediately
+                    validateWhitelist(firstRefBlock);
+                    bottomRow.classList.remove('u-hidden');
+                }
+            }
+        };
+        /* ==========================================================================
+        * CORE DYNAMIC UPDATE ENGINE
+        ========================================================================== */
+        const updateDynamicFields = () => {
+            // 1. Gather values
+            const goalInput = document.getElementById('goalInput');
+            const instructionsInput = document.getElementById('instructionsInput');
+            const goalVal = goalInput?.value || "";
+            const instructionsVal = instructionsInput?.value || "";
+            
+            const durationType = challengeDurationTypeHidden.value;
+            const isRecurring = durationType === 'RECURRING';
+            const isOneOff = durationType === 'ONE_OFF';
 
-                setTimeout(() => {
-                    submitButton.classList.add('btn-success-morph');
-                    setTimeout(() => { playSFX(pulseSfx, 0.42); }, 21);
-                }, 10);
+            // 2. Check Validity
+            // Requires both fields to have content AND total length >= 10
+            const isTextValid = goalVal.trim().length > 0 && instructionsVal.trim().length > 0 && (goalVal.length + instructionsVal.length) >= 10;
+            const canSetPace = durationType && isTextValid;
 
-                const { newChallenge, cost, userStats } = data.details;
-                summaryDetailsWrapper.innerHTML = generateChallengeSummary(newChallenge, cost, userStats);
-
-                // POP & REVEAL
-                setTimeout(() => {
-                    submitButton.classList.add('button-pop-out');
-                    setTimeout(() => {
-                        const step2 = document.getElementById('step2');
-                        if (step2) step2.classList.add('u-hidden');
-                        renderStep(3);
-                        playSFX(successChime, 0.21);
-                        lockResetButton();
-                        const container = document.querySelector('.form-container');
-                        container.style.height = 'auto';
-                        submitButton.classList.remove('btn-success-morph', 'button-pop-out');
-                        submitButton.style.removeProperty('--travel-distance');
-                        formFields.forEach(field => field.classList.remove('form-content-fade'));
-                        submitButton.style.backgroundColor = '';
-                        submitButton.innerHTML = originalBtnText;
-                        submitButton.disabled = false;
-                    }, 21);
-                }, 2100);
+            // 3. Handle Step 2 Visibility & Locking
+            if (durationType) {
+                challengeTextGroup.classList.remove('form-section-disabled');
+                // Goal and Instructions should ALWAYS be enabled if a duration is picked
+                goalInput.disabled = false;
+                instructionsInput.disabled = false;
+                
+                // Constraints and References ONLY unlock when Goal/Instructions are filled
+                const constraintsContainer = document.getElementById('constraintsContainer');
+                const referencesContainer = document.getElementById('referencesContainer');
+                
+                [constraintsContainer, referencesContainer].forEach(el => {
+                    if (!el) return;
+                    el.classList.toggle('form-section-disabled', !isTextValid);
+                    el.querySelectorAll('input, select, button').forEach(i => i.disabled = !isTextValid);
+                });
             } else {
-                // Server Error (e.g. 400 or 500)
-                formFields.forEach(field => field.classList.remove('form-content-fade'));
+                challengeTextGroup.classList.add('form-section-disabled');
+            }
+
+            // 4. Handle Step 3 (Time/Pace)
+            if (canSetPace) {
+                timePaceGroup.classList.remove('form-section-disabled');
+                totalTimeframeCountInput.disabled = false;
+                cadenceCountInput.disabled = false;
+                cadenceUnitSelect.disabled = false;
+                customDaysInput.disabled = false;
+                recurrenceDurationCountInput.disabled = false;
+
+                oneOffGroup.classList.toggle('u-hidden', !isOneOff);
+                cadenceGroup.classList.toggle('u-hidden', !isRecurring);
+
+                if (isRecurring && !cadenceUnitSelect.value) {
+                    cadenceUnitSelect.value = 'DAILY';
+                    setCadenceTimeframeDefaults(cadenceUnitSelect.value);
+                }
+            } else {
+                timePaceGroup.classList.add('form-section-disabled');
+                // Disable all inputs in the Time/Pace section
+                [totalTimeframeCountInput, cadenceCountInput, cadenceUnitSelect, customDaysInput, recurrenceDurationCountInput].forEach(i => i.disabled = true);
+                
+                const oneOffDisplay = document.getElementById('oneOffCostDisplay');
+                const recurringDisplay = document.getElementById('recurringCostDisplay');
+                if (oneOffDisplay) oneOffDisplay.textContent = '--';
+                if (recurringDisplay) recurringDisplay.textContent = '--';
+                cadencePreview.textContent = '...';
+            }
+
+            // 5. Calculate Sessions & Submit State
+            calculateTotalSessions();
+            const totalSessions = parseInt(calculatedTotalSessionsInput.value) || 0;
+            const hasSessions = isRecurring ? (totalSessions >= 2) : (totalSessions >= 1);
+            
+            submitButton.disabled = !(isTextValid && !!durationType && hasSessions);
+
+            const submitWarningText = document.getElementById('submitWarningText');
+            if (submitWarningText) submitWarningText.classList.toggle('u-hidden', !submitButton.disabled);
+
+            checkHighDemandWarning();
+        };
+
+        const setCadenceTimeframeDefaults = (unit) => {
+            if (challengeDurationTypeHidden.value !== 'RECURRING') return;
+
+            const isCustom = unit === 'CUSTOM_DAYS';
+            if (customDaysOption) {
+                if (isCustom) {
+                    customDaysOption.textContent = 'Every';
+                    cadenceUnitSelect.classList.add('is-minimized');
+                    cadenceUnitSelect.blur();
+                } else {
+                    customDaysOption.textContent = 'every X days';
+                    cadenceUnitSelect.classList.remove('is-minimized');
+                }
+            }
+
+            cadenceCountInput.value = '1';
+            recurrenceDurationCountInput.value = '2';
+
+            const labels = {
+                'DAILY': 'Days',
+                'WEEKLY': 'Weeks',
+                'MONTHLY': 'Months',
+                'CUSTOM_DAYS': 'times'
+            };
+            timeframeUnitSentenceSpan.textContent = labels[unit] || 'Days';
+
+            customDaysGroup.classList.toggle('u-hidden', !isCustom);
+            calculateTotalSessions();
+        };
+
+        const calculateTotalSessions = () => {
+            const durationType = challengeDurationTypeHidden.value;
+            let text = "";
+            let calculatedTotal = 0;
+
+            if (durationType === 'ONE_OFF') {
+                calculatedTotal = Math.min(parseInt(totalTimeframeCountInput.value) || 1, 999);
+                if (calculatedTotal < 1) calculatedTotal = 1;
+                totalTimeframeCountInput.value = calculatedTotal;
+                text = `ONE_OFF: ${calculatedTotal} session(s).`;
+
+            } else if (durationType === 'RECURRING') {
+                const unit = cadenceUnitSelect.value;
+                let pace = Math.min(parseInt(cadenceCountInput.value) || 1, 999);
+                let timeframeCount = Math.min(parseInt(recurrenceDurationCountInput.value) || 1, 999);
+                const customDays = parseInt(customDaysInput.value) || 1;
+
+                if (unit && !timePaceGroup.classList.contains('form-section-disabled')) {
+                    durationGroup.classList.remove('u-hidden');
+                }
+
+                // CRITICAL Minimums
+                if (unit === 'DAILY' || unit === 'CUSTOM_DAYS') {
+                    if (pace < 1) pace = 1;
+                    if (timeframeCount < 2) timeframeCount = 2;
+                } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
+                    if (pace < 1) pace = 1;
+                    if (timeframeCount < 1) timeframeCount = 1;
+                    if (pace === 1 && timeframeCount < 2) timeframeCount = 2;
+                }
+
+                cadenceCountInput.value = pace;
+                recurrenceDurationCountInput.value = timeframeCount;
+
+                const recurringSessionPluralizer = document.getElementById('recurringSessionPluralizer');
+                if (recurringSessionPluralizer) {
+                    recurringSessionPluralizer.textContent = pace === 1 ? 'session' : 'sessions';
+                }
+
+                calculatedTotal = pace * timeframeCount;
+
+                if (!unit) {
+                    text = "Select a frequency and duration to calculate total sessions.";
+                    calculatedTotal = 0;
+                    durationGroup.classList.add('u-hidden');
+                } else {
+                    const paceText = pace === 1 ? 'session' : 'sessions';
+                    let unitDisplay = unit.toLowerCase();
+                    if (unitDisplay === 'daily') unitDisplay = 'day';
+                    else if (unitDisplay === 'weekly') unitDisplay = 'week';
+                    else if (unitDisplay === 'monthly') unitDisplay = 'month';
+
+                    const timeframeUnit = timeframeUnitSentenceSpan.textContent.toLowerCase();
+
+                    if (unit === 'DAILY' || unit === 'WEEKLY' || unit === 'MONTHLY') {
+                        text = `${pace} ${paceText} per ${unitDisplay} for ${timeframeCount} ${timeframeUnit}`;
+                    } else if (unit === 'CUSTOM_DAYS') {
+                        text = `${pace} ${paceText} every ${customDays} days then repeat this ${timeframeCount} times`;
+                    }
+                }
+                durationLeadInText.textContent = unit === 'CUSTOM_DAYS' ? "then repeat this" : "for a total of";
+            } else {
+                text = "Select a Duration Type to continue.";
+                calculatedTotal = 0;
+            }
+
+            const totalMinutes = calculatedTotal * SESSION_DURATION_MINUTES;
+            const finalCost = dynamicBaseCost;
+
+            calculatedTotalSessionsInput.value = calculatedTotal;
+            sessionCadenceHidden.value = text;
+            calculatedCostInput.value = finalCost;
+
+            const sessionPlural = calculatedTotal === 1 ? 'session' : 'sessions';
+            const totalSessionsDisplay = `${calculatedTotal.toLocaleString()} ${sessionPlural} (${totalMinutes.toLocaleString()} Mins)`;
+
+            const oneOffSummary = document.getElementById('oneOffSummary');
+            if (oneOffSummary && durationType === 'ONE_OFF') {
+                oneOffSummary.textContent = `(${totalMinutes.toLocaleString()} Mins)`;
+            }
+
+            cadencePreview.textContent = totalSessionsDisplay;
+            const formattedCost = finalCost.toLocaleString();
+            const oneOffDisplay = document.getElementById('oneOffCostDisplay');
+            const recurringDisplay = document.getElementById('recurringCostDisplay');
+            if (oneOffDisplay) oneOffDisplay.textContent = formattedCost;
+            if (recurringDisplay) recurringDisplay.textContent = formattedCost;
+
+            const oneOffPluralizer = document.getElementById('oneOffSessionPluralization');
+            if (oneOffPluralizer && durationType === 'ONE_OFF') {
+                const currentCount = parseInt(totalTimeframeCountInput.value) || 0;
+                oneOffPluralizer.textContent = currentCount === 1 ? 'Session' : 'Sessions';
+            }
+        };
+
+        const checkHighDemandWarning = () => {
+            const durationType = challengeDurationTypeHidden.value;
+            const totalSessions = parseInt(calculatedTotalSessionsInput.value) || 0;
+            let shouldShowWarning = false;
+            let sessionsPerPeriod = 0;
+            let periodText = '';
+
+            const ONE_OFF_MAX_SESSIONS = 7;
+            const RECURRING_THRESHOLDS = { 'DAILY': 7, 'WEEKLY': 42, 'MONTHLY': 147 };
+
+            if (!durationType) {
+                highDemandWarningBanner.classList.add('u-hidden');
+                return;
+            }
+
+            if (durationType === 'ONE_OFF') {
+                if (totalSessions > ONE_OFF_MAX_SESSIONS) {
+                    shouldShowWarning = true;
+                    sessionsPerPeriod = totalSessions;
+                    periodText = 'Single Challenge Day';
+                }
+            } else if (durationType === 'RECURRING') {
+                const unit = cadenceUnitSelect.value;
+                const pace = parseInt(cadenceCountInput.value) || 0;
+
+                if (unit === 'DAILY') {
+                    sessionsPerPeriod = pace;
+                    periodText = 'Day';
+                    if (pace > RECURRING_THRESHOLDS.DAILY) shouldShowWarning = true;
+                } else if (unit === 'WEEKLY' || unit === 'MONTHLY') {
+                    sessionsPerPeriod = pace;
+                    periodText = timeframeUnitSentenceSpan.textContent.slice(0, -1);
+                    if (unit === 'WEEKLY' && pace > RECURRING_THRESHOLDS.WEEKLY) shouldShowWarning = true;
+                    if (unit === 'MONTHLY' && pace > RECURRING_THRESHOLDS.MONTHLY) shouldShowWarning = true;
+                } else if (unit === 'CUSTOM_DAYS') {
+                    const customDays = parseInt(customDaysInput.value) || 1;
+                    const averageDailyPace = pace / customDays;
+                    sessionsPerPeriod = pace;
+                    periodText = `${customDays}-day cycle`;
+                    if (averageDailyPace > RECURRING_THRESHOLDS.DAILY) shouldShowWarning = true;
+                }
+            }
+
+            if (shouldShowWarning) {
+                highDemandWarningText.innerHTML = `This submission requires <strong>${sessionsPerPeriod} sessions per ${periodText}</strong>, which far exceeds the normal demand threshold. If activated, it will rapidly monopolize the execution slot for an extended duration.`;
+                highDemandWarningBanner.classList.remove('u-hidden');
+            } else {
+                highDemandWarningBanner.classList.add('u-hidden');
+            }
+        };
+
+
+        // Row Generators
+        const generateConstraintInput = () => `<input type="text" class="form-input constraint-item" placeholder="Add another rule (Max 7)...">`;
+        const generateReferenceRow = () => `
+        <div class="reference-block">
+            <div class="reference-row-top">
+                <div class="reference-type-wrapper">
+                    <select class="reference-type-select">
+                        <option value="VIDEO">Video</option>
+                        <option value="AUDIO">Audio</option>
+                        <option value="WIKI">Wiki</option>
+                        <option value="DOCUMENT">Document</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <span class="info-tooltip-container dynamic-type-tooltip">
+                        <span class="tooltip-icon">ⓘ</span>
+                        <span class="info-tooltip-text"></span>
+                    </span>
+                </div>
+                <div class="reference-url-wrapper">
+                    <input type="url" class="form-input reference-url-input" placeholder="Paste link (URL)...">
+                    <span class="reference-fetch-indicator u-hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                </div>
+            </div>
+            <div class="reference-row-bottom u-hidden">
+                <input type="text" class="form-input reference-title-input" placeholder="Title">
+                <input type="text" class="form-input reference-note-input u-hidden" placeholder="Add a specific note...">
+            </div>
+            <div class="reference-warning-text u-hidden"></div>
+        </div>`;
+
+        // Initialize Lists and Interaction
+        setupProgressiveList('constraintsList', 'constraint-item', generateConstraintInput, 7);
+        setupProgressiveList('referencesList', 'reference-block', generateReferenceRow, 7);
+
+        // Duration Type Selection Logic
+        durationCards.forEach(card => {
+            card.addEventListener('click', () => {
+                if (bgMusic && bgMusic.paused) {
+                    if (!bgMusic.src) bgMusic.src = playlist[currentTrack];
+                    bgMusic.volume = 0.2; bgMusic.play().catch(e => console.log("Audio blocked"));
+                }
+                const type = card.getAttribute('data-duration');
+                durationCards.forEach(btn => btn.classList.remove('selected'));
+                card.classList.add('selected');
+                challengeDurationTypeHidden.value = type;
+                if (challengeTextGroup) {
+                    challengeTextGroup.classList.remove('form-section-disabled');
+                    challengeTextGroup.querySelectorAll('input, textarea, select, button').forEach(i => i.disabled = false);
+                }
+                if (type === 'RECURRING') {
+                    if (!cadenceUnitSelect.value) cadenceUnitSelect.value = 'DAILY';
+                    cadenceCountInput.value = '1'; recurrenceDurationCountInput.value = '2';
+                    setCadenceTimeframeDefaults(cadenceUnitSelect.value);
+                } else if (type === 'ONE_OFF') {
+                    if (totalTimeframeCountInput.value === '0') totalTimeframeCountInput.value = '1';
+                }
+                updateDynamicFields();
+            });
+        });
+
+        ['goalInput', 'instructionsInput'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', updateDynamicFields);
+        });
+
+        // --- PERIODIC TOKEN RE-VERIFICATION & STREAM STATUS UPDATE ---
+        setInterval(async () => {
+            const step2 = document.getElementById('step2');
+            if (submissionToken && step2 && !step2.classList.contains('u-hidden')) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/token/verify-challengesubmitform`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token: submissionToken })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        dynamicBaseCost = data.serverCalculatedBaseCost || 210;
+                        dailySubmissionCount = data.dailySubmissionCount || 0;
+                        calculateTotalSessions();
+                    }
+                } catch (e) { console.error("Sync failed", e); }
+            }
+            if (typeof fetchStreamStatus === 'function') fetchStreamStatus();
+        }, 21000);
+
+        // Cadence unit change resets related fields and updates session calculation
+        cadenceUnitSelect.addEventListener('change', (e) => {
+            setCadenceTimeframeDefaults(e.target.value);
+        });
+
+        // Input changes calls the update function
+        cadenceCountInput.addEventListener('input', updateDynamicFields);
+        customDaysInput.addEventListener('input', updateDynamicFields);
+        recurrenceDurationCountInput.addEventListener('input', updateDynamicFields);
+        totalTimeframeCountInput.addEventListener('input', updateDynamicFields);
+
+        // --- FORM SUBMISSION LOGIC ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!submissionToken) {
                 formSubmissionStatusText.style.color = 'var(--error-red)';
-                formSubmissionStatusText.textContent = `Error: ${data.message || 'Request Denied'}`;
+                formSubmissionStatusText.textContent = 'Error: Session key expired or missing. Please refresh the page.';
+                return;
+            }
+
+            // FINAL VALIDATION: Ensure that every reference with a URL also has a title before allowing submission
+            const referenceBlocks = Array.from(document.querySelectorAll('.reference-block'));
+
+            for (const block of referenceBlocks) {
+                const url = block.querySelector('.reference-url-input')?.value.trim() || "";
+                const title = block.querySelector('.reference-title-input')?.value.trim() || "";
+                const warningText = block.querySelector('.reference-warning-text');
+
+                if (url && !title) {
+                    if (warningText) {
+                        warningText.textContent = "⚠️ A title is required for every reference link.";
+                        warningText.classList.remove('u-hidden');
+                    }
+                    block.querySelector('.reference-title-input')?.focus();
+                    formSubmissionStatusText.style.color = 'var(--error-red)';
+                    formSubmissionStatusText.textContent = 'Submission blocked: complete all reference titles.';
+                    return;
+                }
+            }
+
+            // 0. CAPTURE ORIGINAL STATE
+            const originalBtnText = submitButton.innerHTML;
+
+            // 1. GHOST THE FORM CONTENT
+            const formFields = document.querySelectorAll('#step2 > div:not(.form-footer-actions)');
+            formFields.forEach(field => field.classList.add('form-content-fade'));
+
+            // 2. HERO BUTTON STATUS
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> TRANSMITTING...';
+            formSubmissionStatusText.textContent = '';
+
+            const submissionData = {
+                token: submissionToken,
+                challengeText: {
+                    goal: document.getElementById('goalInput').value.trim(),
+                    instructions: document.getElementById('instructionsInput').value.trim(),
+                    constraints: Array.from(document.querySelectorAll('.constraint-item'))
+                        .map(i => i.value.trim())
+                        .filter(v => v !== ''),
+                    references: Array.from(document.querySelectorAll('.reference-block'))
+                        .map(block => ({
+                            type: block.querySelector('.reference-type-select').value,
+                            url: block.querySelector('.reference-url-input').value.trim(),
+                            title: block.querySelector('.reference-title-input').value.trim(),
+                            note: block.querySelector('.reference-note-input').value.trim()
+                        }))
+                        .filter(r => r.title !== ''),
+                    system: {
+                        requiresReview: true,
+                        version: "2.1"
+                    }
+                },
+                totalSessions: parseInt(calculatedTotalSessionsInput.value),
+                durationType: challengeDurationTypeHidden.value,
+                cost: parseInt(calculatedCostInput.value),
+                cadenceUnit: (challengeDurationTypeHidden.value === 'RECURRING' ? cadenceUnitSelect.value : undefined),
+                sessionCadenceText: (challengeDurationTypeHidden.value === 'RECURRING' ? sessionCadenceHidden.value : undefined)
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/user/submit/web`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(submissionData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 1. Success Feedback
+                    submitButton.innerHTML = '<i class="fa-solid fa-circle-check"></i> RECEIVED';
+                    
+                    // (Continue with your existing animation and summary logic here...)
+                    const container = document.querySelector('.form-container');
+                    const btnRect = submitButton.getBoundingClientRect();
+                    const containerRect = container.getBoundingClientRect();
+                    const btnCenterY = btnRect.top + btnRect.height / 2;
+                    const containerCenterY = containerRect.top + containerRect.height / 2;
+                    const travelDistance = containerCenterY - btnCenterY;
+                    submitButton.style.setProperty('--travel-distance', `${travelDistance}px`);
+
+                    setTimeout(() => {
+                        submitButton.classList.add('btn-success-morph');
+                        setTimeout(() => { playSFX(pulseSfx, 0.42); }, 21);
+                    }, 10);
+
+                    const { newChallenge, cost, userStats } = data.details;
+                    summaryDetailsWrapper.innerHTML = generateChallengeSummary(newChallenge, cost, userStats);
+
+                    // POP & REVEAL
+                    setTimeout(() => {
+                        submitButton.classList.add('button-pop-out');
+                        setTimeout(() => {
+                            const step2 = document.getElementById('step2');
+                            if (step2) step2.classList.add('u-hidden');
+
+                            renderStep(3);
+
+                            initializeChallengeShare({
+                                url: getPublicChallengeUrl(newChallenge.challengeId),
+                                id: newChallenge.challengeId,
+                                shareText: `🥁 DROPPED Challenge #${newChallenge.challengeId} to @21xhr!\n\nPowering this with ${cost.toLocaleString()} NUMBERS. ⚡\nProduce with me, enter the manager deck and take control:\n\n#DMG #TwentyOne`
+                            });
+
+                            playSFX(successChime, 0.21);
+                            lockResetButton();
+
+                            const container = document.querySelector('.form-container');
+                            container.style.height = 'auto';
+
+                            submitButton.classList.remove('btn-success-morph', 'button-pop-out');
+                            submitButton.style.removeProperty('--travel-distance');
+                            formFields.forEach(field => field.classList.remove('form-content-fade'));
+                            submitButton.style.backgroundColor = '';
+                            submitButton.innerHTML = originalBtnText;
+                            submitButton.disabled = false;
+                        }, 21);
+                    }, 2100);
+                } else {
+                    // Server Error (e.g. 400 or 500)
+                    formFields.forEach(field => field.classList.remove('form-content-fade'));
+                    formSubmissionStatusText.style.color = 'var(--error-red)';
+                    formSubmissionStatusText.textContent = `Error: ${data.message || 'Request Denied'}`;
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalBtnText;
+                }
+            } catch (error) {
+                formFields.forEach(field => field.classList.remove('form-content-fade'));
+                console.error('Submission Network Error:', error);
+                formSubmissionStatusText.style.color = 'var(--error-red)';
+                formSubmissionStatusText.textContent = `COMMUNICATIONS FAILURE: Check your connection.`;
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalBtnText;
             }
-        } catch (error) {
-            formFields.forEach(field => field.classList.remove('form-content-fade'));
-            console.error('Submission Network Error:', error);
-            formSubmissionStatusText.style.color = 'var(--error-red)';
-            formSubmissionStatusText.textContent = `COMMUNICATIONS FAILURE: Check your connection.`;
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalBtnText;
+        });
+
+
+        const toggleBtn = document.getElementById('toggleSummaryBtn');
+        const wrapperBox = document.querySelector('.details-content-area-wrapper');
+        const chevron = document.getElementById('chevronIcon');
+
+        if (toggleBtn && wrapperBox) {
+            // Ensure it starts hidden in JS if it's hidden in CSS
+            toggleBtn.addEventListener('click', () => {
+                const isCurrentlyHidden = wrapperBox.classList.contains('u-hidden');
+
+                // 1. Toggle the wrapper, not just the inner text
+                wrapperBox.classList.toggle('u-hidden');
+
+                // 2. Rotate Chevron
+                chevron.style.transform = isCurrentlyHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+
+                // 3. Smooth Scroll if opening
+                if (isCurrentlyHidden) {
+                    setTimeout(() => {
+                        wrapperBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 50);
+                }
+            });
         }
-    });
 
-
-    const toggleBtn = document.getElementById('toggleSummaryBtn');
-    const wrapperBox = document.querySelector('.details-content-area-wrapper');
-    const chevron = document.getElementById('chevronIcon');
-
-    if (toggleBtn && wrapperBox) {
-        // Ensure it starts hidden in JS if it's hidden in CSS
-        toggleBtn.addEventListener('click', () => {
-            const isCurrentlyHidden = wrapperBox.classList.contains('u-hidden');
-
-            // 1. Toggle the wrapper, not just the inner text
-            wrapperBox.classList.toggle('u-hidden');
-
-            // 2. Rotate Chevron
-            chevron.style.transform = isCurrentlyHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-
-            // 3. Smooth Scroll if opening
-            if (isCurrentlyHidden) {
-                setTimeout(() => {
-                    wrapperBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }, 50);
-            }
-        });
-    }
-
-    /// --- CHALLENGE SUMMARY GENERATION (POST-SUBMISSION) ---
-    const renderSummarySpecBlock = (label, content) => {
-        if (!content) return '';
-        return `
-            <div class="result-summary-spec-item">
-                <span class="result-summary-spec-label">${label}</span>
-                ${content}
-            </div>
-        `;
-    };
-
-    const generateChallengeSummary = (challenge, cost, userStats) => {
-        if (!challenge || !userStats) return `<p>Error</p>`;
-
-        const challengeUrl = `https://drummer-manager-website.vercel.app/challenges/${challenge.challengeId}`;
-        currentPublicChallengeUrl = challengeUrl;
-
-        initializeChallengeShare({
-            url: challengeUrl,
-            id: challenge.challengeId,
-            shareText: `🥁 DROPPED Challenge #${challenge.challengeId} to @21xhr!\n\nPowering this with ${cost.toLocaleString()} NUMBERS. ⚡\nProduce with me, enter the manager deck and take control:\n\n#DMG #TwentyOne`
-        });
-
-        const durationType = challenge?.durationType || 'ONE_OFF';
-        const cadenceDetail = durationType === 'RECURRING' ? (challenge.sessionCadenceText || "Recurring mission") : "Single session mission";
-        let descriptionHTML = '';
-        let data = challenge.challengeText;
-        if (typeof data === 'string' && data.startsWith('{')) { try { data = JSON.parse(data); } catch (e) { data = challenge.challengeText; } }
-
-        if (typeof data === 'object' && data !== null) {
-            const constraintsHtml = data.constraints?.length
-                ? `<ul class="result-summary-spec-list">
-                    ${data.constraints.map(c => `<li>${c}</li>`).join('')}
-                </ul>`
-                : '';
-
-            const referencesHtml = data.references?.length
-                ? `<ul class="result-summary-spec-list">
-                    ${data.references.map(r => `
-                        <li>
-                            <strong class="result-summary-reference-type">[${r.type || 'LINK'}]</strong>
-                            <span class="result-summary-reference-title">${r.title || 'Untitled resource'}</span>
-                            ${r.note ? `<div class="result-summary-reference-note">Note: ${r.note}</div>` : ''}
-                        </li>
-                    `).join('')}
-                </ul>`
-                : '';
-
-            descriptionHTML = `
-                <div class="result-summary-specs-group">
-                    ${renderSummarySpecBlock('GOAL', `<div>${data.goal || 'N/A'}</div>`)}
-                    ${renderSummarySpecBlock('INSTRUCTIONS', `<div>${data.instructions || 'N/A'}</div>`)}
-                    ${renderSummarySpecBlock('CONSTRAINTS', constraintsHtml)}
-                    ${renderSummarySpecBlock('REFERENCES', referencesHtml)}
+        /// --- CHALLENGE SUMMARY GENERATION (POST-SUBMISSION) ---
+        const renderSummarySpecBlock = (label, content) => {
+            if (!content) return '';
+            return `
+                <div class="result-summary-spec-item">
+                    <span class="result-summary-spec-label">${label}</span>
+                    ${content}
                 </div>
             `;
-        } else {
-            descriptionHTML = `<div>${challenge.challengeText}</div>`;
-        }
+        };
 
-        return `
-        <div class="result-summary-container">
-            <header class="result-summary-row-header">
-                <div><div class="result-summary-label">Challenge ID</div><div class="result-summary-value">#${challenge.challengeId}</div></div>
-                <div><div class="result-summary-label">Cost</div><div class="result-summary-value u-primary-neon">${cost.toLocaleString()}<span class="result-summary-cost-unit">NUMBERS</span></div></div>
-                <div><div class="result-summary-label">TYPE</div><div class="result-summary-type">${durationType.replace('_', ' ')}</div></div>
-            </header>
-            <div class="result-summary-grid">
-                <div class="result-summary-stat-card result-summary-stat-primary"><div class="result-summary-label">SESSIONS</div><div class="result-summary-value">${challenge.totalSessions} Total</div></div>
-                <div class="result-summary-stat-card result-summary-stat-secondary"><div class="result-summary-label">TIMELINE & PACING</div><div class="result-summary-pacing-detail">${cadenceDetail} <i class="fa-solid fa-calendar-check u-primary-neon"></i></div></div>
-            </div>
-            <div class="result-summary-desc-wrapper"><div class="result-summary-label">CHALLENGE SPECS</div>${descriptionHTML}</div>
-            <footer class="result-summary-footer"><span class="result-summary-label">Balance:</span><div class="result-summary-balance-value"><span class="u-primary-neon">${userStats.currentBalance.toLocaleString()}</span><span class="u-primary-neon result-summary-cost-unit">NUMBERS</span></div></footer>
-        </div>`;
-    };
+        const generateChallengeSummary = (challenge, cost, userStats) => {
+            if (!challenge || !userStats) return `<p>Error</p>`;
 
-    // Prevent Enter Key submission except in textareas
-    form.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-            e.preventDefault();
-            return false;
-        }
-    });
+            const challengeUrl = getPublicChallengeUrl(challenge.challengeId);
+            currentPublicChallengeUrl = challengeUrl;
 
+            const durationType = challenge?.durationType || 'ONE_OFF';
+            const cadenceDetail = durationType === 'RECURRING' ? (challenge.sessionCadenceText || "Recurring mission") : "Single session mission";
+            let descriptionHTML = '';
+            let data = challenge.challengeText;
+            if (typeof data === 'string' && data.startsWith('{')) { try { data = JSON.parse(data); } catch (e) { data = challenge.challengeText; } }
 
+            if (typeof data === 'object' && data !== null) {
+                const constraintsHtml = data.constraints?.length
+                    ? `<ul class="result-summary-spec-list">
+                        ${data.constraints.map(c => `<li>${c}</li>`).join('')}
+                    </ul>`
+                    : '';
 
+                const referencesHtml = data.references?.length
+                    ? `<ul class="result-summary-spec-list">
+                        ${data.references.map(r => `
+                            <li>
+                                <strong class="result-summary-reference-type">[${r.type || 'LINK'}]</strong>
+                                <span class="result-summary-reference-title">${r.title || 'Untitled resource'}</span>
+                                ${r.note ? `<div class="result-summary-reference-note">Note: ${r.note}</div>` : ''}
+                            </li>
+                        `).join('')}
+                    </ul>`
+                    : '';
 
-
-
-
-    ///////////////////////////////////////////////////////////////////////////
-    // STEP 3: INTERACTIVE HANDLERS
-    /// - Copy Link, Social Feedback, Reset Button Lock
-    ///////////////////////////////////////////////////////////////////////////
-
-    /// --- RESET BUTTON LOCK ---
-    function lockResetButton() {
-        const resetBtn = document.getElementById('resetFormBtn');
-        if (!resetBtn) return;
-
-        // 1. Kill the power
-        resetBtn.disabled = true;
-        resetBtn.classList.add('reset-form-btn-locked');
-
-        // 2. Wait 2.1s
-        setTimeout(() => {
-            resetBtn.disabled = false;
-            resetBtn.classList.remove('reset-form-btn-locked');
-
-            // 3. Trigger the mechanical flicker
-            resetBtn.classList.add('power-on-flicker');
-
-            // Cleanup class after animation ends
-            setTimeout(() => {
-                resetBtn.classList.remove('power-on-flicker');
-            }, 500);
-        }, 21000);
-    }
-
-    /// --- FORM RESET LOGIC (After submission or when going back to Step 1) ---
-    const resetForm = () => {
-        form.reset();
-        if (formSubmissionStatusText) { formSubmissionStatusText.textContent = ''; formSubmissionStatusText.className = 'roboto form-submission-status-message'; }
-        const constraintsList = document.getElementById('constraintsList');
-        if (constraintsList) { constraintsList.innerHTML = '<input type="text" class="form-input constraint-item" placeholder="Add a constraint or rule...">'; }
-        const referencesList = document.getElementById('referencesList');
-        if (referencesList) {
-            referencesList.innerHTML = `
-            <div class="reference-block">
-                <div class="reference-row-top">
-                    <div class="reference-type-wrapper">
-                        <select class="reference-type-select">
-                            <option value="VIDEO">Video</option>
-                            <option value="AUDIO">Audio</option>
-                            <option value="WIKI">Wiki</option>
-                            <option value="DOCUMENT">Document</option>
-                            <option value="OTHER">Other</option>
-                        </select>
-                        <span class="info-tooltip-container dynamic-type-tooltip">
-                            <span class="tooltip-icon">ⓘ</span>
-                            <span class="info-tooltip-text"></span>
-                        </span>
+                descriptionHTML = `
+                    <div class="result-summary-specs-group">
+                        ${renderSummarySpecBlock('GOAL', `<div>${data.goal || 'N/A'}</div>`)}
+                        ${renderSummarySpecBlock('INSTRUCTIONS', `<div>${data.instructions || 'N/A'}</div>`)}
+                        ${renderSummarySpecBlock('CONSTRAINTS', constraintsHtml)}
+                        ${renderSummarySpecBlock('REFERENCES', referencesHtml)}
                     </div>
-                    <div class="reference-url-wrapper">
-                        <input type="url" class="form-input reference-url-input" placeholder="Paste link (URL)...">
-                        <span class="reference-fetch-indicator u-hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
-                    </div>
+                `;
+            } else {
+                descriptionHTML = `<div>${challenge.challengeText}</div>`;
+            }
+
+            return `
+            <div class="result-summary-container">
+                <header class="result-summary-row-header">
+                    <div><div class="result-summary-label">Challenge ID</div><div class="result-summary-value">#${challenge.challengeId}</div></div>
+                    <div><div class="result-summary-label">Cost</div><div class="result-summary-value u-primary-neon">${cost.toLocaleString()}<span class="result-summary-cost-unit">NUMBERS</span></div></div>
+                    <div><div class="result-summary-label">TYPE</div><div class="result-summary-type">${durationType.replace('_', ' ')}</div></div>
+                </header>
+                <div class="result-summary-grid">
+                    <div class="result-summary-stat-card result-summary-stat-primary"><div class="result-summary-label">SESSIONS</div><div class="result-summary-value">${challenge.totalSessions} Total</div></div>
+                    <div class="result-summary-stat-card result-summary-stat-secondary"><div class="result-summary-label">TIMELINE & PACING</div><div class="result-summary-pacing-detail">${cadenceDetail} <i class="fa-solid fa-calendar-check u-primary-neon"></i></div></div>
                 </div>
-                <div class="reference-row-bottom u-hidden">
-                    <input type="text" class="form-input reference-title-input" placeholder="Title">
-                    <input type="text" class="form-input reference-note-input u-hidden" placeholder="Add a specific note...">
-                </div>
-                <div class="reference-warning-text u-hidden"></div>
+                <div class="result-summary-desc-wrapper"><div class="result-summary-label">CHALLENGE SPECS</div>${descriptionHTML}</div>
+                <footer class="result-summary-footer"><span class="result-summary-label">Balance:</span><div class="result-summary-balance-value"><span class="u-primary-neon">${userStats.currentBalance.toLocaleString()}</span><span class="u-primary-neon result-summary-cost-unit">NUMBERS</span></div></footer>
             </div>`;
-            
-            // Re-run the listener attachment for the newly created block
-            const newFirstBlock = referencesList.querySelector('.reference-block');
-            setupReferenceBlockListeners(newFirstBlock);
+        };
+
+        // Prevent Enter Key submission except in textareas
+        form.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+
+
+
+
+
+
+        ///////////////////////////////////////////////////////////////////////////
+        // STEP 3: INTERACTIVE HANDLERS
+        /// - Copy Link, Social Feedback, Reset Button Lock
+        ///////////////////////////////////////////////////////////////////////////
+
+        /// --- RESET BUTTON LOCK ---
+        function lockResetButton() {
+            const resetBtn = document.getElementById('resetFormBtn');
+            if (!resetBtn) return;
+
+            // 1. Kill the power
+            resetBtn.disabled = true;
+            resetBtn.classList.add('reset-form-btn-locked');
+
+            // 2. Wait 2.1s
+            setTimeout(() => {
+                resetBtn.disabled = false;
+                resetBtn.classList.remove('reset-form-btn-locked');
+
+                // 3. Trigger the mechanical flicker
+                resetBtn.classList.add('power-on-flicker');
+
+                // Cleanup class after animation ends
+                setTimeout(() => {
+                    resetBtn.classList.remove('power-on-flicker');
+                }, 500);
+            }, 21000);
         }
-        challengeDurationTypeHidden.value = '';
-        durationCards.forEach(card => card.classList.remove('selected'));
-        challengeTextGroup.classList.add('form-section-disabled');
-        timePaceGroup.classList.add('form-section-disabled');
-        oneOffGroup.classList.add('u-hidden');
-        cadenceGroup.classList.add('u-hidden');
-        submitButton.disabled = true;
-        const container = document.querySelector('.form-container');
-        if (container) container.classList.remove('boosted-neon-border-pulse');
-        if (typeof renderStep === 'function') { renderStep(1); verifyTokenAndStartForm(); } else { window.location.reload(); }
-    };
+
+        /// --- FORM RESET LOGIC (After submission or when going back to Step 1) ---
+        const resetForm = () => {
+            form.reset();
+            if (formSubmissionStatusText) { formSubmissionStatusText.textContent = ''; formSubmissionStatusText.className = 'roboto form-submission-status-message'; }
+            const constraintsList = document.getElementById('constraintsList');
+            if (constraintsList) { constraintsList.innerHTML = '<input type="text" class="form-input constraint-item" placeholder="Add a constraint or rule...">'; }
+            const referencesList = document.getElementById('referencesList');
+            if (referencesList) {
+                referencesList.innerHTML = `
+                <div class="reference-block">
+                    <div class="reference-row-top">
+                        <div class="reference-type-wrapper">
+                            <select class="reference-type-select">
+                                <option value="VIDEO">Video</option>
+                                <option value="AUDIO">Audio</option>
+                                <option value="WIKI">Wiki</option>
+                                <option value="DOCUMENT">Document</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                            <span class="info-tooltip-container dynamic-type-tooltip">
+                                <span class="tooltip-icon">ⓘ</span>
+                                <span class="info-tooltip-text"></span>
+                            </span>
+                        </div>
+                        <div class="reference-url-wrapper">
+                            <input type="url" class="form-input reference-url-input" placeholder="Paste link (URL)...">
+                            <span class="reference-fetch-indicator u-hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                        </div>
+                    </div>
+                    <div class="reference-row-bottom u-hidden">
+                        <input type="text" class="form-input reference-title-input" placeholder="Title">
+                        <input type="text" class="form-input reference-note-input u-hidden" placeholder="Add a specific note...">
+                    </div>
+                    <div class="reference-warning-text u-hidden"></div>
+                </div>`;
+                
+                // Re-run the listener attachment for the newly created block
+                const newFirstBlock = referencesList.querySelector('.reference-block');
+                setupReferenceBlockListeners(newFirstBlock);
+            }
+            challengeDurationTypeHidden.value = '';
+            durationCards.forEach(card => card.classList.remove('selected'));
+            challengeTextGroup.classList.add('form-section-disabled');
+            timePaceGroup.classList.add('form-section-disabled');
+            oneOffGroup.classList.add('u-hidden');
+            cadenceGroup.classList.add('u-hidden');
+            submitButton.disabled = true;
+            const container = document.querySelector('.form-container');
+            if (container) container.classList.remove('boosted-neon-border-pulse');
+            if (typeof renderStep === 'function') { renderStep(1); verifyTokenAndStartForm(); } else { window.location.reload(); }
+        };
 
 
-    /// --- RESET BUTTON INTERACTION ---
-    resetFormBtn.addEventListener('click', function () {
-        const icon = this.querySelector('i');
+        /// --- RESET BUTTON INTERACTION ---
+        resetFormBtn.addEventListener('click', function () {
+            const icon = this.querySelector('i');
 
-        this.style.pointerEvents = "none";
+            this.style.pointerEvents = "none";
 
-        icon.classList.add('icon-active-pop');
-        icon.classList.add('strobe-effect');
-        icon.style.color = "var(--error-red)";
-        setTimeout(() => {
-            icon.style.color = "var(--primary-neon)";
-        }, 100);
+            icon.classList.add('icon-active-pop');
+            icon.classList.add('strobe-effect');
+            icon.style.color = "var(--error-red)";
+            setTimeout(() => {
+                icon.style.color = "var(--primary-neon)";
+            }, 100);
 
-        setTimeout(() => {
-            resetForm();
+            setTimeout(() => {
+                resetForm();
 
-            this.style.pointerEvents = "auto";
-            icon.classList.remove('icon-active-pop');
-            icon.classList.remove('strobe-effect');
-        }, 2100);
-    });
+                this.style.pointerEvents = "auto";
+                icon.classList.remove('icon-active-pop');
+                icon.classList.remove('strobe-effect');
+            }, 2100);
+        });
 
 
-    // --- THE BOOTSTRAP ---
-    document.addEventListener('header-ready', () => {
-        console.log("✅ site-header component READY");
-        initializeHeaderUI();
-    });
-</script>
+        // --- THE BOOTSTRAP ---
+        document.addEventListener('header-ready', () => {
+            console.log("✅ site-header component READY");
+            initializeHeaderUI();
+        });
+    </script>
+
+</body>
+</html>
