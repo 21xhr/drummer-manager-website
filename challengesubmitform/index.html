@@ -732,7 +732,7 @@
             if (!container) return;
 
             container.addEventListener('input', (e) => {
-                const allItems = Array.from(container.querySelectorAll(`.${selectorClass}`));
+                const allItems = container.querySelectorAll(`.${selectorClass}`);
                 const lastItem = allItems[allItems.length - 1];
                 let canAdd = false;
 
