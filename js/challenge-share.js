@@ -16,7 +16,7 @@ window.initializeChallengeShare = function ({
     id = getChallengeIdFromCurrentUrl(),
     url = id ? getPublicChallengeUrl(id) : window.location.href,
     shareText = `🥁 Check out Challenge #${id} in Drummer Manager`
-}) {
+} = {}) {
     const xBtn = document.getElementById('shareChallengeXBtn');
     const facebookBtn = document.getElementById('shareChallengeFacebookBtn');
     const copyBtn = document.getElementById('copyChallengeLinkBtn');
