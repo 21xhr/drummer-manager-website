@@ -973,8 +973,7 @@ textarea.form-input {
 
 .challenge-details-content-area-wrapper {
   overflow: hidden;            
-  background: transparent;
-  padding: 1.25rem 0;
+  padding: 0.63rem 0;
 }
 
 .challenge-details-content-area {

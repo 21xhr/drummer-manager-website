@@ -35,14 +35,14 @@ window.devOpenSubmitSuccess = function () {
     const step1 = document.getElementById("step1");
     const step2 = document.getElementById("step2");
     const step3 = document.getElementById("step3");
-    const summaryDetailsWrapper = document.getElementById("summaryDetailsWrapper");
+    const challengeDetailsContent = document.getElementById("challengeDetailsContent");
 
     if (step1) step1.classList.add("u-hidden");
     if (step2) step2.classList.add("u-hidden");
     if (step3) step3.classList.remove("u-hidden");
 
-    if (summaryDetailsWrapper && window.renderChallengeDetail) {
-        summaryDetailsWrapper.innerHTML = window.renderChallengeDetail(window.mockChallenge, {
+    if (challengeDetailsContent && window.renderChallengeDetail) {
+        challengeDetailsContent.innerHTML = window.renderChallengeDetail(window.mockChallenge, {
             mode: "submitted"
         });
     }

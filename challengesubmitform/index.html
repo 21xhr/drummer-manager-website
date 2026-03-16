@@ -294,12 +294,12 @@
                 </div>
 
                 <div class="challenge-details-accordion">
-                    <button type="button" id="toggleSummaryBtn" class="challenge-details-toggle-btn">
+                    <button type="button" id="challengeDetailsToggleBtn" class="challenge-details-toggle-btn">
                         <span class="roboto details-toggle-text">Submission Details</span>
                         <i class="fa-solid fa-chevron-down" id="chevronIcon"></i>
                     </button>
-                    <div class="challenge-details-content-area-wrapper u-hidden">
-                        <div id="summaryDetailsWrapper" class="challenge-details-content-area"></div>
+                    <div id="challengeDetailsContentWrapper" class="challenge-details-content-area-wrapper u-hidden">
+                        <div id="challengeDetailsContent" class="challenge-details-content-area"></div>
                     </div>
                 </div>
             </div>
@@ -376,7 +376,7 @@
         const submitButton = document.getElementById('submitButton');
         const formSubmissionStatusText = document.getElementById('formSubmissionStatusText');
         const calculatedCostInput = document.getElementById('calculatedCost');
-        const summaryDetailsWrapper = document.getElementById('summaryDetailsWrapper');
+        const challengeDetailsContent = document.getElementById('challengeDetailsContent');
         const highDemandWarningBanner = document.getElementById('highDemandWarningBanner');
         const highDemandWarningText = document.getElementById('highDemandWarningText');
         const customDaysOption = document.querySelector('#cadenceUnit option[value="CUSTOM_DAYS"]');
@@ -1387,7 +1387,7 @@
                     }, 10);
 
                     const { newChallenge, cost, userStats } = data.details;
-                    summaryDetailsWrapper.innerHTML = renderChallengeDetail(newChallenge, {
+                    challengeDetailsContent.innerHTML = renderChallengeDetail(newChallenge, {
                         mode: "submitted"
                     });
 
@@ -1438,26 +1438,24 @@
         });
 
 
-        const toggleBtn = document.getElementById('toggleSummaryBtn');
-        const wrapperBox = document.querySelector('.challenge-details-content-area-wrapper');
-        const chevron = document.getElementById('chevronIcon');
+        const challengeDetailsToggleBtn = document.getElementById('challengeDetailsToggleBtn');
+        const challengeDetailsContentWrapper = document.getElementById('challengeDetailsContentWrapper');
+        const chevronIcon = document.getElementById('chevronIcon');
 
-        if (toggleBtn && wrapperBox) {
-            // Ensure it starts hidden in JS if it's hidden in CSS
-            toggleBtn.addEventListener('click', () => {
-                const isCurrentlyHidden = wrapperBox.classList.contains('u-hidden');
+        if (challengeDetailsToggleBtn && challengeDetailsContentWrapper && chevronIcon) {
+            challengeDetailsToggleBtn.addEventListener('click', () => {
+                const willOpen = challengeDetailsContentWrapper.classList.contains('u-hidden');
 
-                // 1. Toggle the wrapper, not just the inner text
-                wrapperBox.classList.toggle('u-hidden');
+                challengeDetailsContentWrapper.classList.toggle('u-hidden');
+                chevronIcon.style.transform = willOpen ? 'rotate(180deg)' : 'rotate(0deg)';
 
-                // 2. Rotate Chevron
-                chevron.style.transform = isCurrentlyHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-
-                // 3. Smooth Scroll if opening
-                if (isCurrentlyHidden) {
-                    setTimeout(() => {
-                        wrapperBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }, 50);
+                if (willOpen) {
+                    requestAnimationFrame(() => {
+                        challengeDetailsContentWrapper.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest'
+                        });
+                    });
                 }
             });
         }
