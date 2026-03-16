@@ -2,28 +2,6 @@
 ------------------------------------------------------------------
 STYLES FOR EXPLORER APP
 ------------------------------------------------------------------
-*/
-/* ==========================================================================
-   PAGE FOUNDATION
-   Global box sizing, body, shared visibility helpers
-   ========================================================================== */
-
-*, *::before, *::after {
-    box-sizing: border-box;
-}
-
-body {
-    background-color: var(--background-color);
-    height: 100vh;
-    height: 100svh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    margin: 0; 
-}
-
 
 /* ==========================================================================
    EXPLORER APP SHELL
@@ -511,187 +489,6 @@ body {
 
 
 /* ==========================================================================
-   STATUS BADGES
-   Shared badge styles and per-status visual variants
-   ========================================================================== */
-
-.status-badge-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    padding: 0 !important; 
-}
-
-.status-badge { 
-    height: 22px;
-    width: 100% !important;
-    display: grid !important;
-    place-items: center; 
-    border-radius: 4px; 
-    text-transform: uppercase; 
-    font-weight: 800; 
-    font-size: 9px; 
-    letter-spacing: 0.5px;
-    background: rgba(255, 255, 255, 0.03);
-    line-height: normal !important; 
-    margin: 0;
-    padding: 0;
-}
-
-.status-active {
-    color: #3b82f6;
-    box-shadow: inset 3px 0 0 #3b82f6;
-    background: rgba(59, 130, 246, 0.1);
-}
-
-.status-archived {
-    color: #94a3b8;
-    box-shadow: inset 3px 0 0 #94a3b8;
-    background: rgba(148, 163, 184, 0.1);
-}
-
-.status-auctioned {
-    color: #f59e0b;
-    box-shadow: inset 3px 0 0 #f59e0b;
-    background: rgba(245, 158, 11, 0.1);
-}
-
-.status-completed {
-    color: #10b981;
-    box-shadow: inset 3px 0 0 #10b981;
-    background: rgba(16, 185, 129, 0.1);
-}
-
-.status-failed {
-    color: var(--error-red);
-    box-shadow: inset 3px 0 0 var(--error-red);
-    background: rgba(239, 68, 68, 0.1);
-}
-
-.status-in_progress {
-    color: var(--primary-neon);
-    box-shadow: inset 3px 0 0 var(--primary-neon);
-    background: rgb(242, 189, 21, 0.1);
-}
-
-.status-removed {
-    color: #64748b;
-    box-shadow: inset 3px 0 0 #64748b;
-    background: rgba(100, 116, 139, 0.1);
-}
-
-.status-under_review {
-    color: #f97316;
-    box-shadow: inset 3px 0 0 #f97316;
-    background: rgba(249, 115, 22, 0.1);
-}
-
-
-/* ==========================================================================
-   DETAIL PANE
-   Right sidebar panel, detail header, metadata, field grid
-   ========================================================================== */
-
-.detail-pane-header { 
-    margin-bottom: 1.2rem; 
-    border-bottom: 1px solid var(--primary-neon); 
-    padding-bottom: 8px;
-    padding-left: 30px;
-}
-
-.detail-pane-title { 
-    font-size: 1.1rem; 
-    letter-spacing: 1px;
-}
-
-.detail-pane-meta {
-    font-size: 10px;
-    color: var(--subtext-color);
-}
-
-.challenge-data-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 1.2rem;
-}
-
-.detail-pane-field label {
-    display: block;
-    font-size: 12px;
-    color: var(--subtext-color);
-    text-transform: uppercase;
-}
-
-.detail-pane-field > span {
-    font-size: 12px;
-    color: var(--text-color);
-    font-weight: bold;
-}
-
-.detail-pane-field .status-badge-wrapper {
-    justify-content: flex-start;
-}
-
-.detail-pane-field .status-badge {
-    color: inherit !important;
-    font-weight: 800;
-    width: fit-content !important;
-    padding: 0 12px;
-}
-
-
-/* ==========================================================================
-   DETAIL CHALLENGE CONTENT
-   Full structured challenge text, failure reason, deep-link share button
-   ========================================================================== */
-
-.challenge-failure-field {
-    margin-bottom: 1rem;
-}
-
-.detail-pane-field .failure-reason-val {
-    color: var(--error-red) !important;
-    font-size: 0.75rem;
-}
-
-.detail-challenge-text { 
-    background: rgba(0,0,0,0.5); 
-    padding: 20px; 
-    border-radius: 8px; 
-    border-left: 3px solid var(--primary-neon); 
-    margin-bottom: 1.5rem; 
-    min-height: 120px; 
-    line-height: 1.6; 
-    font-size: 12px; 
-    color: var(--text-color); 
-    overflow: auto;
-}
-
-
-/* ==========================================================================
-   DETAIL SHARE ROW
-   ========================================================================== */
-
-.detail-share-section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 25px;
-}
-
-.detail-context-btn {
-    width: 100%;
-    text-decoration: none;
-}
-
-.detail-context-btn i {
-    margin-right: 10px;
-}
-
-
-/* ==========================================================================
    LOCK SCREEN
    Explorer access gate, verification state, typewriter feedback
    ========================================================================== */
@@ -757,7 +554,7 @@ body {
         overflow: hidden; 
     }
     
-    .detail-pane-header {
+    .challenge-detail-header {
         padding-left: 0 !important;
         width: 100%;
     }
@@ -767,7 +564,7 @@ body {
         gap: 12px;
     }
 
-    .detail-challenge-text {
+    .challenge-detail-text {
         width: 100%;
         word-break: break-all; 
     }

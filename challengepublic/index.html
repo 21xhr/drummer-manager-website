@@ -18,6 +18,7 @@
 
     <script src="/js/app-config.js" defer></script>
     <script src="/js/brand-logo.js" defer></script>
+    <script src="/js/challenge-renderer.js" defer></script>
     <script src="/js/challenge-share.js" defer></script>
     <script src="/js/identity-reminder.js" defer></script>
     <script src="/js/site-header.js" defer></script>
@@ -103,133 +104,18 @@
        4. PAGE RENDERING
        ========================================================================== */
     function renderChallengePublicPage(c) {
-        const proposerName = c.proposerUsernameSnapshot || 'Unknown';
-        const proposerPlatform = c.proposerPlatformNameSnapshot || '';
-        const submittedAt = formatDate(c.timestampSubmitted);
-        const lastActivityAt = formatDate(c.timestampLastActivityAt);
-        const cadencePeriodStart = formatDate(c.cadencePeriodStart, 'Not started');
-
-        const challengeText = (c.challengeText && typeof c.challengeText === 'object') ? c.challengeText : {};
-        const constraints = Array.isArray(challengeText.constraints) ? challengeText.constraints : [];
-        const references = Array.isArray(challengeText.references) ? challengeText.references : [];
-
-        const recurringBlock = c.durationType === 'RECURRING' ? `
-            <div class="challenge-public-grid">
-                <div class="detail-pane-field"><label>Cadence</label><span>${escapeHtml(c.sessionCadenceText || 'N/A')}</span></div>
-                <div class="detail-pane-field"><label>Cadence Unit</label><span>${escapeHtml(c.cadenceUnit || 'N/A')}</span></div>
-                <div class="detail-pane-field"><label>Cadence Progress</label><span>${c.cadenceProgressCounter ?? 0} / ${c.cadenceRequiredCount ?? 0}</span></div>
-                <div class="detail-pane-field"><label>Cadence Period Start</label><span>${escapeHtml(cadencePeriodStart)}</span></div>
-            </div>
-        ` : '';
-
-        const lifecycleBlock = (c.isExecuting || c.status === 'FAILED') ? `
-            <div class="challenge-public-grid">
-                ${c.isExecuting ? `
-                    <div class="detail-pane-field">
-                        <label>Executing</label>
-                        <span>YES</span>
-                    </div>
-                ` : ''}
-                ${c.status === 'FAILED' ? `
-                    <div class="detail-pane-field">
-                        <label>Failure Reason</label>
-                        <span class="failure-reason-val">${escapeHtml(c.failureReason || 'NONE PROVIDED')}</span>
-                    </div>
-                ` : ''}
-            </div>
-        ` : '';
-
-        const historyBlock = (c.hasBeenAuctioned || c.numbersRaised || c.auctionCost || c.hasBeenDiggedOut) ? `
-            <div class="challenge-public-grid">
-                ${c.hasBeenAuctioned ? `<div class="detail-pane-field"><label>Has Been Auctioned</label><span>YES</span></div>` : ''}
-                ${c.numbersRaised ? `<div class="detail-pane-field"><label>Numbers Raised</label><span>${c.numbersRaised}</span></div>` : ''}
-                ${c.auctionCost ? `<div class="detail-pane-field"><label>Auction Cost</label><span>${c.auctionCost}</span></div>` : ''}
-                ${c.hasBeenDiggedOut ? `<div class="detail-pane-field"><label>Has Been Dug Out</label><span>YES</span></div>` : ''}
-            </div>
-        ` : '';
+        
+        const challengeHtml = renderChallengeDetail(c, {
+            publicView: true,
+            isStreamLive
+        });
 
         challengePublicContent.innerHTML = `
             <div class="challenge-public-header">
                 <h1 class="neon-text challenge-public-title">CHALLENGE #${c.challengeId}</h1>
-                <div class="challenge-public-meta roboto">Submitted: ${escapeHtml(submittedAt)}</div>
             </div>
 
-            <div class="challenge-public-grid">
-                <div class="detail-pane-field">
-                    <label>Status</label>
-                    <div class="detail-status-badge-wrap">${getStatusBadge(c.status)}</div>
-                </div>
-                <div class="detail-pane-field"><label>Category</label><span>${escapeHtml(c.category || 'General')}</span></div>
-                <div class="detail-pane-field"><label>Proposer</label><span>${escapeHtml(proposerName)}${proposerPlatform ? ` @ ${escapeHtml(proposerPlatform)}` : ''}</span></div>
-                <div class="detail-pane-field"><label>Duration Type</label><span>${escapeHtml(c.durationType || 'N/A')}</span></div>
-                <div class="detail-pane-field"><label>Progression</label><span>${c.currentSessionCount ?? 0} / ${c.totalSessions ?? 0}</span></div>
-                <div class="detail-pane-field"><label>Pushes</label><span>${c.totalPush ?? 0}</span></div>
-                <div class="detail-pane-field"><label>Unique Pushers</label><span>${c.uniquePusher ?? 0}</span></div>
-                <div class="detail-pane-field"><label>Stream Days Active</label><span>${c.streamDaysSinceActivation ?? 0}</span></div>
-                <div class="detail-pane-field"><label>Submission Cost</label><span>${c.submissionCost ?? 0}</span></div>
-                <div class="detail-pane-field"><label>Last Activity</label><span>${escapeHtml(lastActivityAt)}</span></div>
-            </div>
-
-            ${recurringBlock}
-            ${lifecycleBlock}
-            ${historyBlock}
-
-            <div class="detail-challenge-text roboto">
-                <strong>GOAL:</strong><br>
-                ${escapeHtml(challengeText.goal || 'N/A')}
-                <br><br>
-
-                <strong>INSTRUCTIONS:</strong><br>
-                ${escapeHtml(challengeText.instructions || 'N/A')}
-                <br><br>
-
-                ${constraints.length ? `
-                    <strong>CONSTRAINTS:</strong>
-                    <ul>
-                        ${constraints.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
-                    </ul>
-                    <br>
-                ` : ''}
-
-                ${references.length ? `
-                    <strong>REFERENCES:</strong>
-                    <ul>
-                        ${references.map(ref => `
-                            <li>
-                                [${escapeHtml(ref?.type || 'LINK')}] ${escapeHtml(ref?.title || 'Untitled')}
-                                ${ref?.url ? `<br><small>${escapeHtml(ref.url)}</small>` : ''}
-                                ${ref?.note ? `<br><small>${escapeHtml(ref.note)}</small>` : ''}
-                            </li>
-                        `).join('')}
-                    </ul>
-                ` : ''}
-            </div>
-
-            <div class="challenge-public-actions">
-                <div class="share-block">
-                    <label class="roboto share-label">SHARE THIS CHALLENGE</label>
-                    <div class="share-row">
-                        <a href="#" id="shareChallengeXBtn" target="_blank" class="share-btn challenge-share-btn">
-                            <i class="fa-brands fa-x-twitter"></i>
-                        </a>
-                        <a href="#" id="shareChallengeFacebookBtn" target="_blank" class="share-btn challenge-share-btn">
-                            <i class="fa-brands fa-facebook-f"></i>
-                        </a>
-                        <button type="button" id="copyChallengeLinkBtn" class="share-btn challenge-share-btn">
-                            <i class="fa-solid fa-link"></i>
-                        </button>
-                    </div>
-                </div>
-                <a
-                    href="${isStreamLive ? 'https://youtube.com/@21xhr/live' : 'https://discord.gg/yourlink'}"
-                    target="_blank"
-                    class="primary-submit-btn challenge-public-secondary-btn ${isStreamLive ? 'btn-stream' : 'btn-discord'}"
-                >
-                    ${isStreamLive
-                        ? '<i class="fa-solid fa-play"></i> WATCH STREAM'
-                        : '<i class="fa-brands fa-discord"></i> JOIN DISCORD'}
-                </a>
-            </div>
+            ${challengeHtml}
         `;
 
         initializeChallengeShare();
