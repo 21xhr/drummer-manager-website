@@ -1,5 +1,5 @@
 // js/challenge-renderer.js
-// Single canonical component to render challenge details
+// Single UI authority for challenge rendering
 
 window.renderChallengeDetail = function (
     c,
@@ -13,11 +13,12 @@ window.renderChallengeDetail = function (
         return "";
     }
     
-    const isPublic = mode === "public";
-    const isExplorer = mode === "explorer";
-    const isSubmitted = mode === "submitted";
-    const isAdmin = mode === "admin";
-
+    const view = {
+        public: mode === "public",
+        explorer: mode === "explorer",
+        submitted: mode === "submitted",
+        admin: mode === "admin"
+    };
 
     const proposerName =
         c.proposer?.accounts?.[0]?.username ||
@@ -219,7 +220,7 @@ window.renderChallengeDetail = function (
         ${challengeTextBlock}
 
         ${
-            (isPublic || isExplorer || isAdmin)
+            (view.public || view.explorer || view.admin)
                 ? `
                     <div class="challenge-share-section">
                         ${shareRow}
