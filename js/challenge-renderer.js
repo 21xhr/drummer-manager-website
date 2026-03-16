@@ -1,7 +1,23 @@
 // js/challenge-renderer.js
-// function to render full challenge details
+// Single canonical component to render challenge details
 
-window.renderChallengeDetail = function (c, { publicView = false, isStreamLive = false } = {}) {
+window.renderChallengeDetail = function (
+    c,
+    {
+        mode = "explorer",
+        isStreamLive = false
+    } = {}
+) {
+    if (!c || typeof c !== "object") {
+        console.warn("renderChallengeDetail: invalid challenge object", c);
+        return "";
+    }
+    
+    const isPublic = mode === "public";
+    const isExplorer = mode === "explorer";
+    const isSubmitted = mode === "submitted";
+    const isAdmin = mode === "admin";
+
 
     const proposerName =
         c.proposer?.accounts?.[0]?.username ||
@@ -15,6 +31,8 @@ window.renderChallengeDetail = function (c, { publicView = false, isStreamLive =
     const submittedAt = c.timestampSubmitted
         ? new Date(c.timestampSubmitted).toLocaleString()
         : "Unknown";
+    
+    const status = String(c.status || "UNKNOWN").toUpperCase(); // Defensive in case of unexpected status values
 
     const lastActivityAt = c.timestampLastActivityAt
         ? new Date(c.timestampLastActivityAt).toLocaleString()
@@ -162,8 +180,8 @@ window.renderChallengeDetail = function (c, { publicView = false, isStreamLive =
             <div class="challenge-detail-field">
                 <label>Status</label>
                 <div class="status-badge-wrapper">
-                    <span class="status-badge status-${String(c.status).toLowerCase()}">
-                        ${c.status}
+                    <span class="status-badge status-${status.toLowerCase()}">
+                        ${status}
                     </span>
                 </div>
             </div>
@@ -200,10 +218,16 @@ window.renderChallengeDetail = function (c, { publicView = false, isStreamLive =
         ${historyBlock}
         ${challengeTextBlock}
 
-        <div class="challenge-share-section">
-            ${shareRow}
-            ${contextualCTA}
-        </div>
+        ${
+            (isPublic || isExplorer || isAdmin)
+                ? `
+                    <div class="challenge-share-section">
+                        ${shareRow}
+                        ${contextualCTA}
+                    </div>
+                `
+                : ""
+        }
 
     `;
 };

@@ -1387,7 +1387,9 @@
                     }, 10);
 
                     const { newChallenge, cost, userStats } = data.details;
-                    summaryDetailsWrapper.innerHTML = renderChallengeDetail(newChallenge);
+                    summaryDetailsWrapper.innerHTML = renderChallengeDetail(newChallenge, {
+                        mode: "submitted"
+                    });
 
                     // POP & REVEAL
                     setTimeout(() => {
@@ -1584,6 +1586,20 @@
             console.log("✅ site-header component READY");
             initializeHeaderUI();
         });
+    </script>
+
+    <script>
+        const isLocalDev =
+            window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1" ||
+            window.location.hostname === "0.0.0.0" ||
+            window.location.hostname.startsWith("192.168.");
+
+        if (isLocalDev) {
+            const script = document.createElement("script");
+            script.src = "/js/dev/challengesubmitform-dev.js";
+            document.head.appendChild(script);
+        }
     </script>
 
 </body>
