@@ -20,6 +20,7 @@
 
     <script src="/js/app-config.js" defer></script>
     <script src="/js/brand-logo.js" defer></script>
+    <script src="/js/challenge-renderer.js" defer></script>
     <script src="/js/challenge-share.js" defer></script>
     <script src="/js/identity-reminder.js" defer></script>
     <script src="/js/typewriter.js" defer></script>
@@ -142,7 +143,7 @@
 
                 <div id="timePaceGroup" class="form-group form-section-disabled">
                     <div id="oneOffGroup" class="form-group u-hidden">
-                        <div class="summary-line-wrapper">
+                        <div class="time-pace-summary-wrapper">
                             <div class="time-pace-summary-pill">
                                 <span class="roboto time-pace-summary-label">Total:</span>
                                 <input type="number" id="totalTimeframeCount" class="form-input time-pace-input" min="1"
@@ -194,7 +195,7 @@
                             </div>
                         </div>
 
-                        <div class="summary-line-wrapper">
+                        <div class="time-pace-summary-wrapper">
                             <div class="time-pace-summary-pill">
                                 <span class="roboto time-pace-summary-label">Total:</span>
                                 <strong id="cadencePreview" class="neon-text time-pace-summary-value">...</strong>
@@ -292,13 +293,13 @@
                     </div>
                 </div>
 
-                <div class="details-accordion-container">
-                    <button type="button" id="toggleSummaryBtn" class="details-toggle-btn">
+                <div class="challenge-details-accordion">
+                    <button type="button" id="toggleSummaryBtn" class="challenge-details-toggle-btn">
                         <span class="roboto details-toggle-text">Submission Details</span>
                         <i class="fa-solid fa-chevron-down" id="chevronIcon"></i>
                     </button>
-                    <div class="details-content-area-wrapper u-hidden">
-                        <div id="summaryDetailsWrapper" class="details-content-area"></div>
+                    <div class="challenge-details-content-area-wrapper u-hidden">
+                        <div id="summaryDetailsWrapper" class="challenge-details-content-area"></div>
                     </div>
                 </div>
             </div>
@@ -317,7 +318,6 @@
         let selectedPlatform = '';
         let selectedPlatformId = '';
         let isStreamLive = false;
-        let currentPublicChallengeUrl = '';
 
         // --- API URL LOGIC (The most robust dual-path) ---
         const getApiBaseUrl = () => {
@@ -344,7 +344,6 @@
         // 1. Static elements (already in the HTML)
         const form = document.getElementById('challengeForm');
         const formWrapper = document.getElementById('form-wrapper');
-        const formTitle = document.getElementById('formTitle');
         const step1 = document.getElementById('step1');
         const formAccessStatusIcon = document.getElementById('formAccessStatusIcon');
         const step2 = document.getElementById('step2');
@@ -359,7 +358,6 @@
         const challengeTextGroup = document.getElementById('challengeTextGroup');
 
         const timePaceGroup = document.getElementById('timePaceGroup');
-        const currentCostDisplay = document.getElementById('currentCostDisplay');
         const oneOffGroup = document.getElementById('oneOffGroup');
         const totalTimeframeCountInput = document.getElementById('totalTimeframeCount');
         const cadenceGroup = document.getElementById('cadenceGroup');
@@ -1389,7 +1387,7 @@
                     }, 10);
 
                     const { newChallenge, cost, userStats } = data.details;
-                    summaryDetailsWrapper.innerHTML = generateChallengeSummary(newChallenge, cost, userStats);
+                    summaryDetailsWrapper.innerHTML = renderChallengeDetail(newChallenge);
 
                     // POP & REVEAL
                     setTimeout(() => {
@@ -1439,7 +1437,7 @@
 
 
         const toggleBtn = document.getElementById('toggleSummaryBtn');
-        const wrapperBox = document.querySelector('.details-content-area-wrapper');
+        const wrapperBox = document.querySelector('.challenge-details-content-area-wrapper');
         const chevron = document.getElementById('chevronIcon');
 
         if (toggleBtn && wrapperBox) {
@@ -1461,76 +1459,6 @@
                 }
             });
         }
-
-        /// --- CHALLENGE SUMMARY GENERATION (POST-SUBMISSION) ---
-        const renderSummarySpecBlock = (label, content) => {
-            if (!content) return '';
-            return `
-                <div class="result-summary-spec-item">
-                    <span class="result-summary-spec-label">${label}</span>
-                    ${content}
-                </div>
-            `;
-        };
-
-        const generateChallengeSummary = (challenge, cost, userStats) => {
-            if (!challenge || !userStats) return `<p>Error</p>`;
-
-            const challengeUrl = getPublicChallengeUrl(challenge.challengeId);
-            currentPublicChallengeUrl = challengeUrl;
-
-            const durationType = challenge?.durationType || 'ONE_OFF';
-            const cadenceDetail = durationType === 'RECURRING' ? (challenge.sessionCadenceText || "Recurring mission") : "Single session mission";
-            let descriptionHTML = '';
-            let data = challenge.challengeText;
-            if (typeof data === 'string' && data.startsWith('{')) { try { data = JSON.parse(data); } catch (e) { data = challenge.challengeText; } }
-
-            if (typeof data === 'object' && data !== null) {
-                const constraintsHtml = data.constraints?.length
-                    ? `<ul class="result-summary-spec-list">
-                        ${data.constraints.map(c => `<li>${c}</li>`).join('')}
-                    </ul>`
-                    : '';
-
-                const referencesHtml = data.references?.length
-                    ? `<ul class="result-summary-spec-list">
-                        ${data.references.map(r => `
-                            <li>
-                                <strong class="result-summary-reference-type">[${r.type || 'LINK'}]</strong>
-                                <span class="result-summary-reference-title">${r.title || 'Untitled resource'}</span>
-                                ${r.note ? `<div class="result-summary-reference-note">Note: ${r.note}</div>` : ''}
-                            </li>
-                        `).join('')}
-                    </ul>`
-                    : '';
-
-                descriptionHTML = `
-                    <div class="result-summary-specs-group">
-                        ${renderSummarySpecBlock('GOAL', `<div>${data.goal || 'N/A'}</div>`)}
-                        ${renderSummarySpecBlock('INSTRUCTIONS', `<div>${data.instructions || 'N/A'}</div>`)}
-                        ${renderSummarySpecBlock('CONSTRAINTS', constraintsHtml)}
-                        ${renderSummarySpecBlock('REFERENCES', referencesHtml)}
-                    </div>
-                `;
-            } else {
-                descriptionHTML = `<div>${challenge.challengeText}</div>`;
-            }
-
-            return `
-            <div class="result-summary-container">
-                <header class="result-summary-row-header">
-                    <div><div class="result-summary-label">Challenge ID</div><div class="result-summary-value">#${challenge.challengeId}</div></div>
-                    <div><div class="result-summary-label">Cost</div><div class="result-summary-value u-primary-neon">${cost.toLocaleString()}<span class="result-summary-cost-unit">NUMBERS</span></div></div>
-                    <div><div class="result-summary-label">TYPE</div><div class="result-summary-type">${durationType.replace('_', ' ')}</div></div>
-                </header>
-                <div class="result-summary-grid">
-                    <div class="result-summary-stat-card result-summary-stat-primary"><div class="result-summary-label">SESSIONS</div><div class="result-summary-value">${challenge.totalSessions} Total</div></div>
-                    <div class="result-summary-stat-card result-summary-stat-secondary"><div class="result-summary-label">TIMELINE & PACING</div><div class="result-summary-pacing-detail">${cadenceDetail} <i class="fa-solid fa-calendar-check u-primary-neon"></i></div></div>
-                </div>
-                <div class="result-summary-desc-wrapper"><div class="result-summary-label">CHALLENGE SPECS</div>${descriptionHTML}</div>
-                <footer class="result-summary-footer"><span class="result-summary-label">Balance:</span><div class="result-summary-balance-value"><span class="u-primary-neon">${userStats.currentBalance.toLocaleString()}</span><span class="u-primary-neon result-summary-cost-unit">NUMBERS</span></div></footer>
-            </div>`;
-        };
 
         // Prevent Enter Key submission except in textareas
         form.addEventListener('keydown', (e) => {
